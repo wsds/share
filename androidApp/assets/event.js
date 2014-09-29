@@ -1,0 +1,6 @@
+{
+	groupEvents : [],
+	groupEventsMap : {},
+	userEvents : [],
+	userEventsMap : {}
+}

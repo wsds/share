@@ -1,0 +1,108 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#eeffffff" >
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#75c2b8" >
+    </ImageView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentRight="true"
+        android:background="#eeffffff" >
+
+        <RelativeLayout
+            android:layout_width="144dp"
+            android:layout_height="48dp"
+            android:layout_alignParentRight="true"
+            android:translationX="-6dp" >
+
+            <ImageView
+                android:id="@+id/main_pager_indicator"
+                android:layout_width="44dp"
+                android:layout_height="42dp"
+                android:background="@color/card_color"
+                android:translationY="2dp"
+                android:visibility="visible" >
+            </ImageView>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/messages_friends_me_menu_view"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/backview_background"
+            android:translationX="-10dp" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:gravity="center"
+                android:padding="5dp"
+                android:src="@drawable/me"
+                android:tint="@color/icon_color" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/share_menu_view"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/backview_background"
+            android:translationX="-58dp" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:gravity="center"
+                android:padding="5dp"
+                android:src="@drawable/group"
+                android:tint="@color/icon_color" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/square_menu_view"
+            android:layout_width="44dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/backview_background"
+            android:translationX="-106dp" >
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:clickable="false"
+                android:gravity="center"
+                android:padding="5dp"
+                android:src="@drawable/square1"
+                android:tint="@color/icon_color" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/title_control_progress_container"
+        android:layout_width="fill_parent"
+        android:layout_height="1.5dp"
+        android:translationY="47dp" >
+
+        <include
+            android:id="@+id/title_control_progress"
+            layout="@layout/view_element_debug1_control_progress" />
+    </RelativeLayout>
+
+</RelativeLayout>

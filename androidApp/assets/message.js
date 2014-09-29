@@ -1,0 +1,5 @@
+{
+	friendMessageMap:{},
+	groupMessageMap:{},
+	messagesOrder:[]
+}
