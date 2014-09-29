@@ -6,23 +6,17 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.open.lib.MyLog;
-import com.open.welinks.model.Data.Event;
-import com.open.welinks.model.Data.LocalStatus.LocalData;
-import com.open.welinks.model.Data.Messages;
-import com.open.welinks.model.Data.Relationship;
-import com.open.welinks.model.Data.Shares;
-import com.open.welinks.model.Data.UserInformation;
+import com.open.welinks.model.Data.Hot;
 import com.open.welinks.utils.StreamParser;
 
 public class Parser {
@@ -55,26 +49,11 @@ public class Parser {
 			this.gson = new Gson();
 		}
 		try {
-			String localDataStr = getFromAssets("localData.js");
-			data.localStatus.localData = gson.fromJson(localDataStr, LocalData.class);
-
-			String userInformationStr = getFromAssets("userInformation.js");
-			data.userInformation = gson.fromJson(userInformationStr, UserInformation.class);
-
-			String userInformationStr_debug = gson.toJson(data.userInformation);
-			Log.d(tag, userInformationStr_debug);
-
-			String relationshipStr = getFromAssets("relationship.js");
-			data.relationship = gson.fromJson(relationshipStr, Relationship.class);
-
-			String messageContent = getFromAssets("message.js");
-			data.messages = gson.fromJson(messageContent, Messages.class);
-
-			String shareContent = getFromAssets("share.js");
-			data.shares = gson.fromJson(shareContent, Shares.class);
-
-			String eventContent = getFromAssets("event.js");
-			data.event = gson.fromJson(eventContent, Event.class);
+			String hotMapStr = getFromAssets("hotMap.js");
+			data.hotMap = gson.fromJson(hotMapStr, new TypeToken<HashMap<String, Hot>>() {
+			}.getType());
+			String meStr = getFromAssets("me.js");
+			data.me = gson.fromJson(meStr, Hot.class);
 		} catch (Exception e) {
 			log.e(tag, "**************Gson parse error!**************");
 			data = null;
@@ -193,99 +172,6 @@ public class Parser {
 		if (gson == null) {
 			this.gson = new Gson();
 		}
-		String phone = "none";
-		try {
-			log.e(tag, "**check data");
-			try {
-				if (data.userInformation == null) {
-					log.e(tag, "**data.userInformation is null");
-					String userInformationStr = getFromRootForder("userInformation.js");
-					data.userInformation = gson.fromJson(userInformationStr, UserInformation.class);
-				}
-			} catch (Exception e) {
-				throw e;
-			}
-			try {
-				if (!"".equals(data.userInformation.currentUser.phone) && !"".equals(data.userInformation.currentUser.accessKey)) {
-					phone = data.userInformation.currentUser.phone;
-				}
-			} catch (Exception e) {
-				throw e;
-			}
-			try {
-				if (data.localStatus.localData == null) {
-					String localDataStr = getFromUserForder(phone, "localData.js");
-					data.localStatus.localData = gson.fromJson(localDataStr, LocalData.class);
-				}
-			} catch (Exception e) {
-				deleteFile(phone, "localData.js");
-			}
-			try {
-				if (data.relationship == null) {
-					log.e(tag, "**data.relationship is null");
-					String relationshipStr = getFromUserForder(phone, "relationship.js");
-					log.e(phone + "------------------");
-					data.relationship = gson.fromJson(relationshipStr, Relationship.class);
-					data.relationship.circles = checkKeyValue(data.relationship.circles, data.relationship.circlesMap);
-					data.relationship.groups = checkKeyValue(data.relationship.groups, data.relationship.groupsMap);
-					data.relationship.squares = checkKeyValue(data.relationship.squares, data.relationship.groupsMap);
-				}
-			} catch (Exception e) {
-				log.e(e.toString());
-				data.relationship = data.new Relationship();
-				deleteFile(phone, "relationship.js");
-			}
-
-			try {
-				if (data.messages == null) {
-					String messageContent = getFromUserForder(phone, "message.js");
-					data.messages = gson.fromJson(messageContent, Messages.class);
-
-					// Duplicate data processing
-					List<String> messageOrder = data.messages.messagesOrder;
-					Set<String> set = new HashSet<String>();
-					set.addAll(messageOrder);
-					if (set.size() != messageOrder.size()) {
-						data.messages.messagesOrder.clear();
-						data.messages.messagesOrder.addAll(set);
-					}
-					List<String> messageOrder2 = new ArrayList<String>();
-					for (int i = 0; i < messageOrder.size(); i++) {
-						String key = (messageOrder.get(i)).substring(1);
-						if (!data.relationship.friends.contains(key)) {
-							messageOrder2.add(messageOrder.get(i));
-						}
-					}
-					messageOrder.removeAll(messageOrder2);
-				}
-			} catch (Exception e) {
-				deleteFile(phone, "message.js");
-			}
-			try {
-				if (data.shares == null) {
-					String shareContent = getFromUserForder(phone, "share.js");
-					data.shares = gson.fromJson(shareContent, Shares.class);
-				}
-			} catch (Exception e) {
-				deleteFile(phone, "share.js");
-			}
-			try {
-				if (data.event == null) {
-					String eventContent = getFromUserForder(phone, "event.js");
-					data.event = gson.fromJson(eventContent, Event.class);
-					data.event.userEvents = checkKeyValue(data.event.userEvents, data.event.userEventsMap);
-					data.event.groupEvents = checkKeyValue(data.event.groupEvents, data.event.groupEventsMap);
-				}
-			} catch (Exception e) {
-				log.e(e.toString());
-				deleteFile(phone, "event.js");
-			}
-		} catch (Exception e) {
-			log.e(tag, "**************Gson parse error!**************");
-			e.printStackTrace();
-			DataUtil.clearData();
-			// data = null;
-		}
 
 		return data;
 	}
@@ -330,42 +216,7 @@ public class Parser {
 
 	public void saveDataToSD() {
 		Data data = Data.getInstance();
-		String phone = data.userInformation.currentUser.phone;
 
-		String localDataStr = gson.toJson(data.localStatus.localData);
-		saveToUserForder(phone, "localData.js", localDataStr);
-
-		if (data.userInformation.isModified) {
-			data.userInformation.isModified = false;
-			String userInformationStr = gson.toJson(data.userInformation);
-			saveToRootForder("userInformation.js", userInformationStr);
-		}
-
-		if (data.relationship.isModified) {
-			data.relationship.isModified = false;
-			String relationshipStr = gson.toJson(data.relationship);
-			saveToUserForder(phone, "relationship.js", relationshipStr);
-		}
-
-		if (data.shares.isModified) {
-			data.shares.isModified = false;
-			String sharesStr = gson.toJson(data.shares);
-			saveToUserForder(phone, "share.js", sharesStr);
-		}
-
-		if (data.messages.isModified) {
-			data.messages.isModified = false;
-
-			String messagesStr = gson.toJson(data.messages);
-			saveToUserForder(phone, "message.js", messagesStr);
-		}
-
-		if (data.event.isModified) {
-			data.event.isModified = false;
-
-			String eventStr = gson.toJson(data.event);
-			saveToUserForder(phone, "event.js", eventStr);
-		}
 	}
 
 }

@@ -223,7 +223,7 @@
             android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
-            android:name="com.open.welinks.LoginActivity"
+            android:name="com.open.welinks.HotActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/CommonStyle0"

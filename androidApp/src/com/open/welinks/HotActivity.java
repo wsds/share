@@ -5,32 +5,29 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.open.welinks.controller.Debug1Controller;
+import com.open.welinks.controller.HotController;
 import com.open.welinks.model.Data;
-import com.open.welinks.view.Debug1View;
-import com.open.welinks.view.Debug1View.Status;
+import com.open.welinks.view.HotView;
+import com.open.welinks.view.HotView.Status;
 import com.open.welinks.view.ViewManage;
 
-public class Debug1Activity extends Activity {
+public class HotActivity extends Activity {
 	public Data data = Data.getInstance();
 	public String tag = "LoginActivity";
 
 	public Context context;
-	public Debug1View thisView;
-	public Debug1Controller thisController;
+	public HotView thisView;
+	public HotController thisController;
 	public Activity thisActivity;
 
 	public ViewManage viewManager = ViewManage.getInstance();
 
-	public boolean isInit;
-
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		isInit = false;
+
 		linkViewController();
 
 		if (thisView.status == Status.welcome) {
@@ -40,50 +37,52 @@ public class Debug1Activity extends Activity {
 		}
 	}
 
-	void linkViewController() {
+	@Override
+	public void onResume() {
+		super.onResume();
+		thisController.onResume();
+		// data.localStatus.thisActivityName = "LoginActivity";
+	}
+
+	public void linkViewController() {
 		this.thisActivity = this;
 		this.context = this;
-		this.thisView = new Debug1View(thisActivity);
-		this.thisController = new Debug1Controller(thisActivity);
+		this.thisView = new HotView(thisActivity);
+		this.thisController = new HotController(thisActivity);
 		this.thisView.thisController = this.thisController;
 		this.thisController.thisView = this.thisView;
 
-		viewManager.debug1View = this.thisView;
+		viewManager.loginView = this.thisView;
 
+		thisView.initView();
 		thisController.onCreate();
 		thisController.initializeListeners();
-		thisView.initView();
 		thisController.bindEvent();
-//		thisView.showCircleSettingDialog();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.menu_debug_2, menu);
+		// MenuInflater inflater = getMenuInflater();
+		// inflater.inflate(R.menu.menu_debug_1, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		return thisController.onOptionsItemSelected(item);
+		return true;
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
+		thisController.onPause();
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-		if (isInit) {
-			thisController.onCreate();
-			thisController.initializeListeners();
-			thisView.initView();
-			thisController.bindEvent();
-		}
-		isInit = true;
+	protected void onDestroy() {
+		super.onDestroy();
+		viewManager.loginView = null;
+		thisController.onDestroy();
 	}
 
 	@Override

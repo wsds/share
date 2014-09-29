@@ -2,7 +2,6 @@ package com.open.welinks;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -10,11 +9,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.open.welinks.controller.LoginController;
-import com.open.welinks.controller.TestHttpLongPull;
-import com.open.welinks.controller.TestMultipartUpload;
+import com.open.welinks.controller.HotController;
 import com.open.welinks.model.Data;
-import com.open.welinks.view.LoginView;
+import com.open.welinks.view.HotView;
 import com.open.welinks.view.ViewManage;
 
 public class LoadingActivity extends Activity {
@@ -22,8 +19,8 @@ public class LoadingActivity extends Activity {
 	public String tag = "LoginActivity";
 
 	public Context context;
-	public LoginView thisView;
-	public LoginController thisController;
+	public HotView thisView;
+	public HotController thisController;
 	public Activity thisActivity;
 
 	public ViewManage viewManager = ViewManage.getInstance();
@@ -46,7 +43,7 @@ public class LoadingActivity extends Activity {
 	public void onResume() {
 		super.onResume();
 		// thisController.onResume();
-		data.localStatus.thisActivityName = "LoadingActivity";
+		// data.localStatus.thisActivityName = "LoadingActivity";
 		startMain();
 
 	}
@@ -60,7 +57,7 @@ public class LoadingActivity extends Activity {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				startActivity(new Intent(thisActivity, MainActivity.class));
+				// startActivity(new Intent(thisActivity, MainActivity.class));
 				thisActivity.finish();
 			}
 		}).start();
@@ -69,8 +66,8 @@ public class LoadingActivity extends Activity {
 	public void linkViewController() {
 		this.thisActivity = this;
 		this.context = this;
-		this.thisView = new LoginView(thisActivity);
-		this.thisController = new LoginController(thisActivity);
+		this.thisView = new HotView(thisActivity);
+		this.thisController = new HotController(thisActivity);
 		this.thisView.thisController = this.thisController;
 		this.thisController.thisView = this.thisView;
 
@@ -93,29 +90,20 @@ public class LoadingActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.debug1_1) {
 			Log.d(tag, "debug1.1");
-			startActivity(new Intent(LoadingActivity.this, Debug1Activity.class));
 		} else if (item.getItemId() == R.id.debug1_0) {
 			Log.d(tag, "debug1.1");
-			startActivity(new Intent(LoadingActivity.this, Debug1Activity.class));
 		} else if (item.getItemId() == R.id.csubmenu2_1) {
 			Log.d(tag, "csubmenu2_1");
-			startActivity(new Intent(LoadingActivity.this, ImagesDirectoryActivity.class));
 		} else if (item.getItemId() == R.id.csubmenu2_2) {
 			Log.d(tag, "csubmenu2_2");
-			startActivity(new Intent(LoadingActivity.this, TestMultipartUpload.class));
 		} else if (item.getItemId() == R.id.csubmenu2_3) {
 			Log.d(tag, "csubmenu2_3");
-			startActivity(new Intent(LoadingActivity.this, TestHttpLongPull.class));
 		} else if (item.getItemId() == R.id.csubmenu2_4) {
 			Log.d(tag, "csubmenu2_4");
-			startActivity(new Intent(LoadingActivity.this, DownloadOssFileActivity.class));
 		} else if (item.getItemId() == R.id.debug1_2) {
-			thisView.showCircleSettingDialog();
+			// thisView.showCircleSettingDialog();
 		} else if (item.getItemId() == R.id.debug1_4) {
-			thisView.showInputDialog();
-		} else if (item.getItemId() == R.id.debug1_3) {
-			Log.d(tag, "debug1_3");
-			startActivity(new Intent(LoadingActivity.this, MainActivity.class));
+			// thisView.showInputDialog();
 		}
 		return true;
 	}
