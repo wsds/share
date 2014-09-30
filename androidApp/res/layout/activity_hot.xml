@@ -1,0 +1,54 @@
+<com.open.lib.TouchView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/login_background_1" >
+
+    <com.open.lib.TouchTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:shadowColor="@color/TransparentGrey"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="0.01"
+        android:text="大冬瓜"
+        android:textColor="#eeffffff"
+        android:textSize="24sp"
+        android:translationX="20dp"
+        android:translationY="18dp" />
+
+    <com.open.lib.TouchTextView
+        android:id="@+id/sub_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="大冬瓜，大冬瓜，爱吃鱼，啦啦啦啦啦~~~"
+        android:textColor="#eeffffff"
+        android:textSize="14sp"
+        android:translationX="20dp"
+        android:translationY="60dp" />
+
+    <com.open.lib.TouchTextView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:text="Hot+"
+        android:textColor="#eeffffff"
+        android:textSize="24sp"
+        android:translationX="-60dp"
+        android:translationY="11dp" />
+
+    <com.open.lib.TouchImageView
+        android:id="@+id/more"
+        android:layout_width="4dp"
+        android:layout_height="30dp"
+        android:layout_gravity="right"
+        android:src="@drawable/more"
+        android:translationX="-30dp"
+        android:translationY="13dp" />
+
+</com.open.lib.TouchView>

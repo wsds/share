@@ -1,93 +1,74 @@
 {
-	shareMap : {
-		"1001" : {
-			shareMessagesOrder : ["1575", "1576", "1577", "1578", "1579", "1570"],
-			shareMessagesMap : {
-				"1575" : {
-					mType : 1,
-					gsid : 1575,
-					type : "imagetext",
-					phone : "15210721344",
-					time : 1387467785445,
-					praiseusers : ["15210721344", "18612450783", "15120088197", "151"],
-					comments : [{
+	123 : {
+		id = 123,
+		type : "account"
+		setting : {},
+		info : {
+			title : "大冬瓜",
+			createTime : 13435456666,
+			lastModifyTime : 13435456666
+		},
 
-							phone : "151",
-							nickName : "151Name",
-							head : "",
-							phoneTo : "",
-							nickNameTo : "",
-							headTo : "",
-							contentType : "text",
-							content : "aaaasaaa",
-							time : 1356546894
-						}
-					],
-					content : "[{\"type\":\"text\",\"detail\":\"test\"},{\"type\":\"image\",\"detail\":\"ffffa90e22debc302b7f9ec2731277377efe556c.jpg\"}]"
-				},
-				"1576" : {
-					mType : 1,
-					gsid : 1576,
-					type : "imagetext",
-					phone : "18640488253",
-					time : 1387467785446,
-					praiseusers : [],
-					comments : [{
-
-							phone : "",
-							nickName : "",
-							head : "",
-							phoneTo : "",
-							nickNameTo : "",
-							headTo : "",
-							contentType : "text",
-							content : "",
-							time : 1356546894
-						}
-					],
-					content : "[{\"type\":\"image\",\"detail\":\"a504549431c7c8d863046fc98257353073cc3d7b.jpg\"}]"
-				},
-				"1577" : {
-					mType : 1,
-					gsid : 1577,
-					type : "imagetext",
-					phone : "15210721344",
-					time : 1387467785447,
-					praiseusers : [],
-					comments : [],
-					content : "[{\"type\":\"text\",\"detail\":\"test\"},{\"type\":\"image\",\"detail\":\"ffffa90e22debc302b7f9ec2731277377efe556c.jpg\"}]"
-				},
-				"1578" : {
-					mType : 1,
-					gsid : 1578,
-					type : "imagetext",
-					phone : "18640488253",
-					time : 1387467785448,
-					praiseusers : [],
-					comments : [],
-					content : "[{\"type\":\"image\",\"detail\":\"a504549431c7c8d863046fc98257353073cc3d7b.jpg\"}]"
-				},
-				"1579" : {
-					mType : 1,
-					gsid : 1579,
-					type : "imagetext",
-					phone : "15210721344",
-					time : 1387467785449,
-					praiseusers : [],
-					comments : [],
-					content : "[{\"type\":\"text\",\"detail\":\"test\"},{\"type\":\"image\",\"detail\":\"ffffa90e22debc302b7f9ec2731277377efe556c.jpg\"}]"
-				},
-				"1570" : {
-					mType : 1,
-					gsid : 1570,
-					type : "imagetext",
-					phone : "18640488253",
-					time : 1387467785440,
-					praiseusers : [],
-					comments : [],
-					content : "[{\"type\":\"image\",\"detail\":\"a504549431c7c8d863046fc98257353073cc3d7b.jpg\"}]"
-				}
-			}
+		content : {
+			1 : "{text:'啦啦啦1'}",
+			2 : "{text:'啦啦啦2'}",
+			3 : "{text:'啦啦啦3'}",
+			4 : "{text:'啦啦啦4'}"
 		}
+		children : [156, 123, 448],
+	},
+	156 : {
+		id = 123,
+		type : "account"
+		setting : {},
+		info : {
+			title : "大冬瓜",
+			createTime : 13435456666,
+			lastModifyTime : 13435456666
+		},
+
+		content : {
+			1 : "{text:'156啦啦啦1'}",
+			2 : "{text:'啦啦啦2'}",
+			3 : "{text:'啦啦啦3'}",
+			4 : "{text:'啦啦啦4'}"
+		}
+		children : [156, 123, 448],
+	},
+	448 : {
+		id = 123,
+		type : "account"
+		setting : {},
+		info : {
+			title : "大冬瓜",
+			createTime : 13435456666,
+			lastModifyTime : 13435456666
+		},
+
+		content : {
+			1 : "{text:'448啦啦啦1'}",
+			2 : "{text:'啦啦啦2'}",
+			3 : "{text:'啦啦啦3'}",
+			4 : "{text:'啦啦啦4'}"
+		}
+		children : [156, 123, 448],
+	},
+	668 : {
+		id = 123,
+		type : "account"
+		setting : {},
+		info : {
+			title : "大冬瓜",
+			createTime : 13435456666,
+			lastModifyTime : 13435456666
+		},
+
+		content : {
+			1 : "{text:'668啦啦啦1'}",
+			2 : "{text:'啦啦啦2'}",
+			3 : "{text:'啦啦啦3'}",
+			4 : "{text:'啦啦啦4'}"
+		}
+		children : [156, 123, 448],
 	}
 }

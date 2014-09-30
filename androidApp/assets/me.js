@@ -7,9 +7,6 @@
 		createTime : 13435456666,
 		lastModifyTime : 13435456666
 	},
-	floorCount : 186,
-	1 : "",
 	children : [],
-	groups : []
-
+	groups : [156, 123, 448]
 }
