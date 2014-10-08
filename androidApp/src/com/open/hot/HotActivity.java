@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 import com.open.hot.controller.HotController;
 import com.open.hot.model.Data;
@@ -88,6 +89,13 @@ public class HotActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		return thisController.onKeyDown(keyCode, event);
+	}
+	
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		super.onTouchEvent(event);
+		return thisController.onTouchEvent(event);
 	}
 
 }

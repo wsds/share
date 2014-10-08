@@ -2,6 +2,9 @@ package com.open.hot.controller;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +41,7 @@ public class HotController {
 	public MySpringListener mSpringListener = new MySpringListener();
 
 	public InputMethodManager mInputMethodManager;
+	public GestureDetector mGesture;
 
 	public HotController(Activity activity) {
 		this.context = activity;
@@ -79,6 +83,8 @@ public class HotController {
 
 	public void onCreate() {
 		thisView.status = Status.loginOrRegister;
+		
+		mGesture = new GestureDetector(thisActivity, new GestureListener());
 	}
 
 	public void onResume() {
@@ -116,6 +122,29 @@ public class HotController {
 		}
 		return flag;
 	}
-
+	
+	public boolean onTouchEvent(MotionEvent event) {
+		int motionEvent = event.getAction();
+		if (motionEvent == MotionEvent.ACTION_DOWN) {
+			Log.d(tag, "Activity on touch down");
+			thisView.mainPagerBody.onTouchDown(event);
+		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
+			thisView.mainPagerBody.onTouchMove(event);
+		} else if (motionEvent == MotionEvent.ACTION_UP) {
+			thisView.mainPagerBody.onTouchUp(event);
+		}
+		mGesture.onTouchEvent(event);
+		return true;
+	}
+	
+	class GestureListener extends SimpleOnGestureListener {
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
+				thisView.mainPagerBody.onFling(velocityX, velocityY);
+			}
+			return true;
+		}
+	}
 
 }

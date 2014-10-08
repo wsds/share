@@ -254,7 +254,9 @@ public class PagerBody {
 		this.x = this.pre_x + deltaX;
 
 		float pager_indicator_position = -(this.pre_x + deltaX) * (float) pager_indicator_trip / (float) displayMetrics.widthPixels;
-		pager_indicator.setX(pager_indicator_position);
+		if (pager_indicator != null) {
+			pager_indicator.setX(pager_indicator_position);
+		}
 
 		for (MyPagerItemBody childBody : this.childrenBodys) {
 			childBody.myPagerItemView.setX(childBody.pre_x + deltaX);
@@ -279,8 +281,9 @@ public class PagerBody {
 		this.x = x;
 
 		float pager_indicator_position = -(x) * (float) pager_indicator_trip / (float) displayMetrics.widthPixels;
-		pager_indicator.setX(pager_indicator_position);
-
+		if (pager_indicator != null) {
+			pager_indicator.setX(pager_indicator_position);
+		}
 		for (MyPagerItemBody childBody : this.childrenBodys) {
 			childBody.myPagerItemView.setX(childBody.x + x);
 		}
