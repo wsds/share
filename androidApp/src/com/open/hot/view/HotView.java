@@ -1,14 +1,15 @@
 package com.open.hot.view;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.a.a.a.a.d;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
@@ -53,7 +54,7 @@ public class HotView {
 
 	public Status status = Status.welcome;
 
-	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(80, 12);
+	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(160, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
 	public Spring mScaleSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
@@ -86,6 +87,10 @@ public class HotView {
 
 	public TouchImageView background_image3 = null;
 
+	Drawable card_background_ff;
+
+	Drawable card_background;
+
 	public void initView() {
 		displayMetrics = new DisplayMetrics();
 
@@ -116,7 +121,7 @@ public class HotView {
 		TouchTextView title1 = (TouchTextView) bigCardView1.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title1, 0);
 		TouchImageView background_image1 = (TouchImageView) bigCardView1.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image1, options);
+		imageLoader.displayImage("drawable://" + R.drawable.test_2, background_image1, options);
 
 		bigCardView = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
 		main_container.addView(bigCardView, 0);
@@ -126,7 +131,7 @@ public class HotView {
 		TouchTextView title = (TouchTextView) bigCardView.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title, 1);
 		TouchImageView background_image = (TouchImageView) bigCardView.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_2, background_image, options);
+		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
 
 		TouchView bigCardView2 = (TouchView) mInflater.inflate(R.layout.view_card, null);
 		main_container.addView(bigCardView2, 0);
@@ -134,7 +139,7 @@ public class HotView {
 		TouchTextView title2 = (TouchTextView) bigCardView2.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title2, 2);
 		TouchImageView background_image2 = (TouchImageView) bigCardView2.findViewById(R.id.content_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image2, options);
+		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image2, options);
 
 		big_card_container = (TouchView) bigCardView1.findViewById(R.id.big_card_container);
 
@@ -160,7 +165,7 @@ public class HotView {
 
 		String key2 = "card2";
 		CardItem cardItem2 = new CardItem(this.cardListBody);
-		TouchView cardView2 = cardItem2.initialize();
+		TouchView cardView2 = cardItem2.initialize2();
 		big_card_container.addView(cardView2, layoutParams);
 		this.cardListBody.listItemBodiesMap.put(key2, cardItem2);
 		this.cardListBody.listItemsSequence.add(key2);
@@ -168,8 +173,8 @@ public class HotView {
 		cardItem2.y = this.cardListBody.height;
 		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 2;
 
-		background_image3 = (TouchImageView) cardView2.findViewById(R.id.content_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image3, options);
+		// background_image3 = (TouchImageView) cardView2.findViewById(R.id.content_image);
+		// imageLoader.displayImage("drawable://" + R.drawable.test1, background_image3, options);
 
 		cardView2Clicked = cardView2;
 
@@ -185,6 +190,9 @@ public class HotView {
 		this.cardListBody.containerHeight = displayMetrics.widthPixels;
 
 		cardViewClickedRight = cardView3;
+
+		card_background_ff = thisActivity.getResources().getDrawable(R.drawable.card_background_white_ff_radius);
+		card_background = thisActivity.getResources().getDrawable(R.drawable.card_background_white_radius);
 
 		SpringListener mSpringListener = new SpringListener();
 		mScaleCardSpring.addListener(mSpringListener);
@@ -218,6 +226,24 @@ public class HotView {
 			return cardView;
 		}
 
+		public TouchView initialize2() {
+
+			TouchView cardView;
+
+			cardView = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
+
+			int cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
+			int cardHeight = (int) (cardWidth * 1.78f);
+
+			cardView.setY(displayMetrics.heightPixels - 38 - cardHeight);
+
+			TouchImageView background_image = (TouchImageView) cardView.findViewById(R.id.background_image);
+
+			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
+
+			return cardView;
+		}
+
 		public void setContent() {
 		}
 
@@ -225,44 +251,6 @@ public class HotView {
 		}
 	}
 
-	public TouchView drawCardView() {
-
-		TouchView cardView;
-
-		cardView = (TouchView) mInflater.inflate(R.layout.view_card, null);
-
-		int cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
-		int cardHeight = (int) (cardWidth * 1.78f);
-
-		int imageHeight = (int) (cardWidth - displayMetrics.density * 20);
-		cardView.setY(displayMetrics.heightPixels - 38 - cardHeight);
-
-		TouchImageView cardImage = (TouchImageView) cardView.findViewById(R.id.content_image);
-
-		TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
-		cardImage.setLayoutParams(imageLayoutParams);
-		cardImage.setY(cardHeight - imageHeight - displayMetrics.density * 20);
-
-		return cardView;
-	}
-
-	public TouchView drawCardView1() {
-
-		TouchView cardView;
-
-		cardView = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
-
-		int cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
-		int cardHeight = (int) (cardWidth * 1.78f);
-
-		cardView.setY(displayMetrics.heightPixels - 38 - cardHeight);
-
-		TouchImageView background_image = (TouchImageView) cardView.findViewById(R.id.background_image);
-
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image, options);
-
-		return cardView;
-	}
 
 	public class SpringListener extends SimpleSpringListener {
 		@Override
@@ -275,6 +263,7 @@ public class HotView {
 
 	TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
 
+	@SuppressLint("NewApi")
 	public void render() {
 		double value = mScaleCardSpring.getCurrentValue();
 		cardView2Clicked.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
@@ -291,16 +280,18 @@ public class HotView {
 		cardViewClickedLeft.setLayoutParams(renderParams);
 		cardViewClickedRight.setLayoutParams(renderParams);
 
-		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + 100 * (1 - value));
-		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + 100 * (1 - value));
-		background_image3.setLayoutParams(imageParams);
+		// imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
+		// imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
+		// background_image3.setLayoutParams(imageParams);
 
 		if (value < 0.1) {
 			logo.setTextColor(0xff0099cd);
 			more.setColorFilter(0xff0099cd);
+			cardView2Clicked.setBackground(card_background_ff);
 		} else {
 			logo.setTextColor(0xeeffffff);
 			more.setColorFilter(0xeeffffff);
+			cardView2Clicked.setBackground(card_background);
 		}
 
 	}

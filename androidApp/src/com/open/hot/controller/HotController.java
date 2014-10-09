@@ -130,7 +130,62 @@ public class HotController {
 		return flag;
 	}
 
+	float touch_pre_x = 0;
+	float touch_pre_y = 0;
+
+	boolean scale = true;
+
 	public boolean onTouchEvent(MotionEvent event) {
+		int motionEvent = event.getAction();
+		float x = event.getX();
+		float y = event.getY();
+		if (motionEvent == MotionEvent.ACTION_DOWN) {
+			touch_pre_x = x;
+			touch_pre_y = y;
+			double value = thisView.mScaleCardSpring.getCurrentValue();
+			if (value > 0.5) {
+				scale = true;
+			} else {
+				scale = false;
+			}
+		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
+
+			float ratio = -(y - touch_pre_y) / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
+
+			if (scale == true) {
+				if (ratio > 1) {
+					ratio = 1;
+				}
+				if (ratio < 0) {
+					ratio = 0;
+				}
+				thisView.mScaleCardSpring.setCurrentValue(1 - ratio);
+				thisView.mScaleCardSpring.setEndValue(1 - ratio);
+			} else {
+				if (ratio < -1) {
+					ratio = -1;
+				}
+				if (ratio > 0) {
+					ratio = 0;
+				}
+				thisView.mScaleCardSpring.setCurrentValue(-ratio);
+				thisView.mScaleCardSpring.setEndValue(-ratio);
+			}
+			thisView.render();
+		} else if (motionEvent == MotionEvent.ACTION_UP) {
+
+			double value = thisView.mScaleCardSpring.getCurrentValue();
+			if (value > 0.5) {
+				thisView.mScaleCardSpring.setEndValue(1);
+			} else {
+				thisView.mScaleCardSpring.setEndValue(0);
+			}
+		}
+		mGesture.onTouchEvent(event);
+		return true;
+	}
+
+	public boolean onTouchEvent1(MotionEvent event) {
 		int motionEvent = event.getAction();
 		float y = event.getY();
 		if (motionEvent == MotionEvent.ACTION_DOWN) {
@@ -160,10 +215,18 @@ public class HotController {
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
-				thisView.mainPagerBody.onFling(velocityX, velocityY);
+			// if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
+			// thisView.mainPagerBody.onFling(velocityX, velocityY);
+			// }
+			// thisView.cardListBody.onFling(velocityX, velocityY);
+			if (velocityY * velocityY > 1000000) {
+				// double value = thisView.mScaleCardSpring.getEndValue();
+				if (velocityY > 0) {
+					thisView.mScaleCardSpring.setEndValue(1);
+				} else {
+					thisView.mScaleCardSpring.setEndValue(0);
+				}
 			}
-			thisView.cardListBody.onFling(velocityX, velocityY);
 			return true;
 		}
 	}
