@@ -4,9 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.animation.Animation;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.a.a.a.a.d;
 import com.facebook.rebound.BaseSpringSystem;
+import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
@@ -17,6 +22,9 @@ import com.open.lib.TouchImageView;
 import com.open.lib.TouchTextView;
 import com.open.lib.TouchView;
 import com.open.lib.viewbody.BodyCallback;
+import com.open.lib.viewbody.ListBody1;
+import com.open.lib.viewbody.ListBody2;
+import com.open.lib.viewbody.ListBody2.MyListItemBody;
 import com.open.lib.viewbody.PagerBody;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -45,10 +53,12 @@ public class HotView {
 
 	public Status status = Status.welcome;
 
-	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(10, 2);
+	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(80, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
 	public Spring mScaleSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
+
+	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
 
 	public HotView(Activity activity) {
 		this.context = activity;
@@ -63,6 +73,19 @@ public class HotView {
 
 	public PagerBody mainPagerBody;
 
+	public ListBody2 cardListBody;
+
+	public TextView logo;
+	public ImageView more;
+
+	public int cardWidth = 0;
+	public int cardHeight = 0;
+	public TouchView cardView2Clicked = null;
+	public TouchView cardViewClickedLeft = null;
+	public TouchView cardViewClickedRight = null;
+
+	public TouchImageView background_image3 = null;
+
 	public void initView() {
 		displayMetrics = new DisplayMetrics();
 
@@ -75,6 +98,9 @@ public class HotView {
 		thisActivity.setContentView(R.layout.activity_hot);
 		// thisActivity.setContentView(R.layout.view_card);
 		main_container = (TouchView) thisActivity.findViewById(R.id.main_container);
+
+		logo = (TextView) main_container.findViewById(R.id.logo);
+		more = (ImageView) main_container.findViewById(R.id.more);
 
 		BodyCallback myBodyCallback = new BodyCallback();
 
@@ -90,17 +116,17 @@ public class HotView {
 		TouchTextView title1 = (TouchTextView) bigCardView1.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title1, 0);
 		TouchImageView background_image1 = (TouchImageView) bigCardView1.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_2, background_image1, options);
+		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image1, options);
 
 		bigCardView = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
 		main_container.addView(bigCardView, 0);
 		mainPagerBody.addChildView(bigCardView);
 		bigCardView.setX(-0);
-		big_card_container = (TouchView) bigCardView.findViewById(R.id.big_card_container);
+
 		TouchTextView title = (TouchTextView) bigCardView.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title, 1);
-		TouchImageView background_image = (TouchImageView) big_card_container.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image, options);
+		TouchImageView background_image = (TouchImageView) bigCardView.findViewById(R.id.background_image);
+		imageLoader.displayImage("drawable://" + R.drawable.login_background_2, background_image, options);
 
 		TouchView bigCardView2 = (TouchView) mInflater.inflate(R.layout.view_card, null);
 		main_container.addView(bigCardView2, 0);
@@ -110,22 +136,93 @@ public class HotView {
 		TouchImageView background_image2 = (TouchImageView) bigCardView2.findViewById(R.id.content_image);
 		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image2, options);
 
-		int cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
-		int cardHeight = (int) (cardWidth * 1.78f);
+		big_card_container = (TouchView) bigCardView1.findViewById(R.id.big_card_container);
+
+		cardListBody = new ListBody2();
+		cardListBody.initialize(displayMetrics, big_card_container);
+
+		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
+		cardHeight = (int) (cardWidth * 1.78f);
 		TouchView.LayoutParams layoutParams = new TouchView.LayoutParams(cardWidth, cardHeight);
 
-		TouchView cardView1 = drawCardView();
+		String key1 = "card1";
+		CardItem cardItem1 = new CardItem(this.cardListBody);
+		TouchView cardView1 = cardItem1.initialize();
+		this.cardListBody.height = cardWidth + 2 * displayMetrics.density;
+		this.cardListBody.listItemBodiesMap.put(key1, cardItem1);
+		this.cardListBody.listItemsSequence.add(key1);
 		big_card_container.addView(cardView1, layoutParams);
 		cardView1.setX(0);
+		cardItem1.y = 0;
+		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 1;
 
-		TouchView cardView2 = drawCardView1();
+		cardViewClickedLeft = cardView1;
+
+		String key2 = "card2";
+		CardItem cardItem2 = new CardItem(this.cardListBody);
+		TouchView cardView2 = cardItem2.initialize();
 		big_card_container.addView(cardView2, layoutParams);
+		this.cardListBody.listItemBodiesMap.put(key2, cardItem2);
+		this.cardListBody.listItemsSequence.add(key2);
 		cardView2.setX(cardWidth + 2 * displayMetrics.density);
+		cardItem2.y = this.cardListBody.height;
+		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 2;
 
-		TouchView cardView3 = drawCardView();
+		background_image3 = (TouchImageView) cardView2.findViewById(R.id.content_image);
+		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image3, options);
+
+		cardView2Clicked = cardView2;
+
+		String key3 = "card3";
+		CardItem cardItem3 = new CardItem(this.cardListBody);
+		TouchView cardView3 = cardItem3.initialize();
 		big_card_container.addView(cardView3, layoutParams);
+		this.cardListBody.listItemBodiesMap.put(key3, cardItem3);
+		this.cardListBody.listItemsSequence.add(key3);
 		cardView3.setX((cardWidth + 2 * displayMetrics.density) * 2);
+		cardItem3.y = this.cardListBody.height;
+		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 3;
+		this.cardListBody.containerHeight = displayMetrics.widthPixels;
 
+		cardViewClickedRight = cardView3;
+
+		SpringListener mSpringListener = new SpringListener();
+		mScaleCardSpring.addListener(mSpringListener);
+		mScaleCardSpring.setCurrentValue(0);
+	}
+
+	public class CardItem extends MyListItemBody {
+		CardItem(ListBody2 listBody) {
+			listBody.super();
+		}
+
+		public TouchView cardView;
+
+		public TouchView initialize() {
+			cardView = (TouchView) mInflater.inflate(R.layout.view_card, null);
+
+			int cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
+			int cardHeight = (int) (cardWidth * 1.78f);
+
+			int imageHeight = (int) (cardWidth - displayMetrics.density * 20);
+			cardView.setY(displayMetrics.heightPixels - 38 - cardHeight);
+
+			TouchImageView cardImage = (TouchImageView) cardView.findViewById(R.id.content_image);
+
+			TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
+			cardImage.setLayoutParams(imageLayoutParams);
+			cardImage.setY(cardHeight - imageHeight - displayMetrics.density * 20);
+
+			this.itemHeight = cardWidth;
+			super.initialize(cardView);
+			return cardView;
+		}
+
+		public void setContent() {
+		}
+
+		public void setViewLayout() {
+		}
 	}
 
 	public TouchView drawCardView() {
@@ -165,5 +262,46 @@ public class HotView {
 		imageLoader.displayImage("drawable://" + R.drawable.login_background_1, background_image, options);
 
 		return cardView;
+	}
+
+	public class SpringListener extends SimpleSpringListener {
+		@Override
+		public void onSpringUpdate(Spring spring) {
+			render();
+		}
+	}
+
+	TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+
+	TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
+
+	public void render() {
+		double value = mScaleCardSpring.getCurrentValue();
+		cardView2Clicked.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
+		cardView2Clicked.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+
+		cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
+		cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
+
+		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
+		renderParams.height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
+		cardView2Clicked.setLayoutParams(renderParams);
+		cardViewClickedLeft.setLayoutParams(renderParams);
+		cardViewClickedRight.setLayoutParams(renderParams);
+
+		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + 100 * (1 - value));
+		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + 100 * (1 - value));
+		background_image3.setLayoutParams(imageParams);
+
+		if (value < 0.1) {
+			logo.setTextColor(0xff0099cd);
+			more.setColorFilter(0xff0099cd);
+		} else {
+			logo.setTextColor(0xeeffffff);
+			more.setColorFilter(0xeeffffff);
+		}
+
 	}
 }

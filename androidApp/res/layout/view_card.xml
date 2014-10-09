@@ -38,7 +38,7 @@
     <com.open.lib.TouchImageView
         android:id="@+id/content_image"
         android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_height="160dp"
         android:layout_gravity="bottom|center_horizontal"
         android:scaleType="centerCrop"
         android:src="@drawable/login_background_2"

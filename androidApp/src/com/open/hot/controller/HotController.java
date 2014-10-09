@@ -25,7 +25,6 @@ public class HotController {
 	public Data data = Data.getInstance();
 	public String tag = "LoginController";
 
-
 	public Context context;
 	public HotView thisView;
 	public HotController thisController;
@@ -34,7 +33,6 @@ public class HotController {
 	public OnFocusChangeListener mOnFocusChangeListener;
 	public OnClickListener mOnClickListener;
 	public OnTouchListener onTouchListener;
-
 
 	public Gson gson = new Gson();
 
@@ -73,17 +71,26 @@ public class HotController {
 
 			@Override
 			public void onClick(View view) {
+				if (view.equals(thisView.logo)) {
+					Log.d(tag, "logo");
+					if (thisView.mScaleCardSpring.getEndValue() == 0) {
+						thisView.mScaleCardSpring.setEndValue(1);
+					} else {
+						thisView.mScaleCardSpring.setEndValue(0);
+					}
+				}
 			}
 		};
 
 	}
 
 	public void bindEvent() {
+		thisView.logo.setOnClickListener(mOnClickListener);
 	}
 
 	public void onCreate() {
 		thisView.status = Status.loginOrRegister;
-		
+
 		mGesture = new GestureDetector(thisActivity, new GestureListener());
 	}
 
@@ -122,27 +129,41 @@ public class HotController {
 		}
 		return flag;
 	}
-	
+
 	public boolean onTouchEvent(MotionEvent event) {
 		int motionEvent = event.getAction();
+		float y = event.getY();
 		if (motionEvent == MotionEvent.ACTION_DOWN) {
-			Log.d(tag, "Activity on touch down");
-			thisView.mainPagerBody.onTouchDown(event);
+			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
+				thisView.mainPagerBody.onTouchDown(event);
+			} else {
+				thisView.cardListBody.onTouchDown(event);
+			}
+
 		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
-			thisView.mainPagerBody.onTouchMove(event);
+			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
+				thisView.mainPagerBody.onTouchMove(event);
+			} else {
+				thisView.cardListBody.onTouchMove(event);
+			}
 		} else if (motionEvent == MotionEvent.ACTION_UP) {
-			thisView.mainPagerBody.onTouchUp(event);
+			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
+				thisView.mainPagerBody.onTouchUp(event);
+			} else {
+				thisView.cardListBody.onTouchUp(event);
+			}
 		}
 		mGesture.onTouchEvent(event);
 		return true;
 	}
-	
+
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
 				thisView.mainPagerBody.onFling(velocityX, velocityY);
 			}
+			thisView.cardListBody.onFling(velocityX, velocityY);
 			return true;
 		}
 	}
