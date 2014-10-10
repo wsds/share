@@ -28,9 +28,13 @@ public class LaunchActivity extends Activity {
 
 		data = Data.getInstance();
 
+		
+		parser.parse();
+		
+		
 		startActivity(new Intent(LaunchActivity.this, HotActivity.class));
 		LaunchActivity.this.finish();
-		// parser.parse();
+
 		// parser.saveDataToLocal();
 		// parser.readSdFileToData();
 

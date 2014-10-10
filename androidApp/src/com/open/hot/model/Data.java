@@ -26,12 +26,10 @@ public class Data {
 	public class LocalStatus {
 	}
 
-	public Hot me;
-
 	public class Hot {
 
 		public String id;
-		public String type;// "account" | "grounp" | "hot"
+		public String type;// "account" | "group" | "hot"
 
 		public Settings settings;
 
@@ -41,13 +39,16 @@ public class Data {
 
 		public Information information;
 
-		class Information {
-			String title;
-			String createTime;
-			String lastModifyTime;
+		public class Information {
+			public String title;
+			public String createTime;
+			public String lastModifyTime;
+			public String permission;// none|me|group|public
+			public String subPost;// none|fold|show
+			public String background;
 		}
 
-		public List<Hot> children = new ArrayList<Hot>();
+		public List<String> children = new ArrayList<String>();
 
 		public Map<String, String> content = new HashMap<String, String>();
 
@@ -70,6 +71,7 @@ public class Data {
 
 	}
 
+	public Hot me;
 	public Map<String, Hot> hotMap = new HashMap<String, Hot>();
 
 }

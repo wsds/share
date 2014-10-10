@@ -7,22 +7,27 @@
     <com.open.lib.TouchImageView
         android:id="@+id/background_image"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"/>
+        android:layout_height="fill_parent" />
 
-    <com.open.lib.TouchTextView
+    <com.open.lib.TouchView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:shadowColor="@color/TransparentGrey"
-        android:shadowDx="2"
-        android:shadowDy="2"
-        android:shadowRadius="0.01"
-        android:text="大冬瓜"
-        android:textColor="#eeffffff"
-        android:textSize="24sp"
-        android:translationX="20dp"
-        android:translationY="18dp" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" >
+        <com.open.lib.TouchTextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:shadowColor="@color/TransparentGrey"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="0.01"
+            android:text="大冬瓜"
+            android:textColor="#eeffffff"
+            android:textSize="24sp"
+            android:translationX="20dp"
+            android:translationY="18dp" />
+    </com.open.lib.TouchView>
 
     <com.open.lib.TouchTextView
         android:id="@+id/sub_title"

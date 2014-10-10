@@ -10,27 +10,25 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.a.a.a.a.d;
+
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
-import com.open.hot.R;
-import com.open.hot.controller.HotController;
-import com.open.hot.model.Data;
-import com.open.lib.TouchImageView;
-import com.open.lib.TouchTextView;
-import com.open.lib.TouchView;
-import com.open.lib.viewbody.BodyCallback;
-import com.open.lib.viewbody.ListBody1;
-import com.open.lib.viewbody.ListBody2;
-import com.open.lib.viewbody.ListBody2.MyListItemBody;
-import com.open.lib.viewbody.PagerBody;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.open.hot.R;
+import com.open.hot.controller.HotController;
+import com.open.hot.model.Data;
+import com.open.lib.TouchImageView;
+import com.open.lib.TouchView;
+import com.open.lib.viewbody.BodyCallback;
+import com.open.lib.viewbody.ListBody2;
+import com.open.lib.viewbody.ListBody2.MyListItemBody;
+import com.open.lib.viewbody.PagerBody;
 
 public class HotView {
 	public Data data = Data.getInstance();
@@ -54,7 +52,7 @@ public class HotView {
 
 	public Status status = Status.welcome;
 
-	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(160, 12);
+	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(240, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
 	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
@@ -121,7 +119,7 @@ public class HotView {
 		TouchView bigCardView1 = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
 		main_container.addView(bigCardView1, 0);
 		mainPagerBody.addChildView(bigCardView1);
-		TouchTextView title1 = (TouchTextView) bigCardView1.findViewById(R.id.title);
+		TouchView title1 = (TouchView) bigCardView1.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title1, 0);
 		TouchImageView background_image1 = (TouchImageView) bigCardView1.findViewById(R.id.background_image);
 		imageLoader.displayImage("drawable://" + R.drawable.test_2, background_image1, options);
@@ -131,7 +129,7 @@ public class HotView {
 		mainPagerBody.addChildView(bigCardView);
 		bigCardView.setX(-0);
 
-		TouchTextView title = (TouchTextView) bigCardView.findViewById(R.id.title);
+		TouchView title = (TouchView) bigCardView.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title, 1);
 		TouchImageView background_image = (TouchImageView) bigCardView.findViewById(R.id.background_image);
 		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
@@ -139,7 +137,7 @@ public class HotView {
 		TouchView bigCardView2 = (TouchView) mInflater.inflate(R.layout.view_card, null);
 		main_container.addView(bigCardView2, 0);
 		mainPagerBody.addChildView(bigCardView2);
-		TouchTextView title2 = (TouchTextView) bigCardView2.findViewById(R.id.title);
+		TouchView title2 = (TouchView) bigCardView2.findViewById(R.id.title);
 		mainPagerBody.setTitleView(title2, 2);
 		TouchImageView background_image2 = (TouchImageView) bigCardView2.findViewById(R.id.content_image);
 		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image2, options);
@@ -168,7 +166,7 @@ public class HotView {
 
 		String key2 = "card2";
 		CardItem cardItem2 = new CardItem(this.cardListBody);
-		TouchView cardView2 = cardItem2.initialize2();
+		TouchView cardView2 = cardItem2.initialize();
 		big_card_container.addView(cardView2, layoutParams);
 		this.cardListBody.listItemBodiesMap.put(key2, cardItem2);
 		this.cardListBody.listItemsSequence.add(key2);
@@ -183,7 +181,7 @@ public class HotView {
 
 		String key3 = "card3";
 		CardItem cardItem3 = new CardItem(this.cardListBody);
-		TouchView cardView3 = cardItem3.initialize();
+		TouchView cardView3 = cardItem3.initialize2();
 		big_card_container.addView(cardView3, layoutParams);
 		this.cardListBody.listItemBodiesMap.put(key3, cardItem3);
 		this.cardListBody.listItemsSequence.add(key3);
