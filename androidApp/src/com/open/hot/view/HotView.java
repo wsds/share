@@ -57,9 +57,8 @@ public class HotView {
 	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(160, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
-	public Spring mScaleSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
-
 	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
+	public Spring mFoldCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
 
 	public HotView(Activity activity) {
 		this.context = activity;
@@ -78,6 +77,8 @@ public class HotView {
 
 	public TextView logo;
 	public ImageView more;
+
+	public ImageView album;
 
 	public int cardWidth = 0;
 	public int cardHeight = 0;
@@ -106,6 +107,8 @@ public class HotView {
 
 		logo = (TextView) main_container.findViewById(R.id.logo);
 		more = (ImageView) main_container.findViewById(R.id.more);
+
+		album = (ImageView) main_container.findViewById(R.id.album);
 
 		BodyCallback myBodyCallback = new BodyCallback();
 
@@ -196,7 +199,11 @@ public class HotView {
 
 		SpringListener mSpringListener = new SpringListener();
 		mScaleCardSpring.addListener(mSpringListener);
-		mScaleCardSpring.setCurrentValue(0);
+		mScaleCardSpring.setEndValue(1);
+
+		FoldCardSpringListener mFoldCardSpringListener = new FoldCardSpringListener();
+		mFoldCardSpring.addListener(mFoldCardSpringListener);
+		mFoldCardSpring.setEndValue(1);
 	}
 
 	public class CardItem extends MyListItemBody {
@@ -241,6 +248,8 @@ public class HotView {
 
 			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
 
+			this.itemHeight = cardWidth;
+			super.initialize(cardView);
 			return cardView;
 		}
 
@@ -251,11 +260,17 @@ public class HotView {
 		}
 	}
 
-
 	public class SpringListener extends SimpleSpringListener {
 		@Override
 		public void onSpringUpdate(Spring spring) {
 			render();
+		}
+	}
+
+	public class FoldCardSpringListener extends SimpleSpringListener {
+		@Override
+		public void onSpringUpdate(Spring spring) {
+			renderFoldCard();
 		}
 	}
 
@@ -292,6 +307,37 @@ public class HotView {
 			logo.setTextColor(0xeeffffff);
 			more.setColorFilter(0xeeffffff);
 			cardView2Clicked.setBackground(card_background);
+		}
+
+	}
+
+	public void renderFoldCard() {
+		double value = mFoldCardSpring.getCurrentValue();
+
+		cardView2Clicked.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
+
+		cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
+
+		cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
+		cardView2Clicked.setAlpha((float) (value));
+		cardViewClickedLeft.setAlpha((float) (value));
+		cardViewClickedRight.setAlpha((float) (value));
+
+		if (value < 0.2) {
+			album.setVisibility(View.VISIBLE);
+			album.setScaleX((float) (1 + 2 * value));
+			album.setScaleY((float) (1 + 2 * value));
+
+			cardView2Clicked.setVisibility(View.INVISIBLE);
+			cardViewClickedLeft.setVisibility(View.INVISIBLE);
+			cardViewClickedRight.setVisibility(View.INVISIBLE);
+		}  else {
+			album.setVisibility(View.INVISIBLE);
+
+			cardView2Clicked.setVisibility(View.VISIBLE);
+			cardViewClickedLeft.setVisibility(View.VISIBLE);
+			cardViewClickedRight.setVisibility(View.VISIBLE);
+
 		}
 
 	}

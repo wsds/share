@@ -36,8 +36,6 @@ public class HotController {
 
 	public Gson gson = new Gson();
 
-	public MySpringListener mSpringListener = new MySpringListener();
-
 	public InputMethodManager mInputMethodManager;
 	public GestureDetector mGesture;
 
@@ -53,9 +51,7 @@ public class HotController {
 			public boolean onTouch(View v, MotionEvent event) {
 				int action = event.getAction();
 				if (action == MotionEvent.ACTION_DOWN) {
-					thisView.mScaleSpring.setEndValue(1);
 				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
-					thisView.mScaleSpring.setEndValue(0);
 				}
 				return true;
 			}
@@ -73,10 +69,22 @@ public class HotController {
 			public void onClick(View view) {
 				if (view.equals(thisView.logo)) {
 					Log.d(tag, "logo");
-					if (thisView.mScaleCardSpring.getEndValue() == 0) {
-						thisView.mScaleCardSpring.setEndValue(1);
+					// if (thisView.mScaleCardSpring.getEndValue() == 0) {
+					// thisView.mScaleCardSpring.setEndValue(1);
+					// } else {
+					// thisView.mScaleCardSpring.setEndValue(0);
+					// }
+
+					if (thisView.mFoldCardSpring.getEndValue() == 0) {
+						thisView.mFoldCardSpring.setEndValue(1);
 					} else {
-						thisView.mScaleCardSpring.setEndValue(0);
+						thisView.mFoldCardSpring.setEndValue(0);
+					}
+				} else if (view.equals(thisView.album)) {
+					if (thisView.mFoldCardSpring.getEndValue() == 0) {
+						thisView.mFoldCardSpring.setEndValue(1);
+					} else {
+						thisView.mFoldCardSpring.setEndValue(0);
 					}
 				}
 			}
@@ -86,6 +94,7 @@ public class HotController {
 
 	public void bindEvent() {
 		thisView.logo.setOnClickListener(mOnClickListener);
+		thisView.album.setOnClickListener(mOnClickListener);
 	}
 
 	public void onCreate() {
@@ -95,22 +104,13 @@ public class HotController {
 	}
 
 	public void onResume() {
-		thisView.mScaleSpring.addListener(mSpringListener);
 	}
 
 	public void onPause() {
-		thisView.mScaleSpring.removeListener(mSpringListener);
 	}
 
 	public void onDestroy() {
 
-	}
-
-	private class MySpringListener extends SimpleSpringListener {
-		@Override
-		public void onSpringUpdate(Spring spring) {
-			float mappedValue = (float) SpringUtil.mapValueFromRangeToRange(spring.getCurrentValue(), 0, 1, 1, 0.5);
-		}
 	}
 
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -135,7 +135,7 @@ public class HotController {
 
 	boolean scale = true;
 
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent1(MotionEvent event) {
 		int motionEvent = event.getAction();
 		float x = event.getX();
 		float y = event.getY();
@@ -185,7 +185,7 @@ public class HotController {
 		return true;
 	}
 
-	public boolean onTouchEvent1(MotionEvent event) {
+	public boolean onTouchEvent(MotionEvent event) {
 		int motionEvent = event.getAction();
 		float y = event.getY();
 		if (motionEvent == MotionEvent.ACTION_DOWN) {
@@ -215,18 +215,17 @@ public class HotController {
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
-			// thisView.mainPagerBody.onFling(velocityX, velocityY);
-			// }
-			// thisView.cardListBody.onFling(velocityX, velocityY);
-			if (velocityY * velocityY > 1000000) {
-				// double value = thisView.mScaleCardSpring.getEndValue();
-				if (velocityY > 0) {
-					thisView.mScaleCardSpring.setEndValue(1);
-				} else {
-					thisView.mScaleCardSpring.setEndValue(0);
-				}
+			if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
+				thisView.mainPagerBody.onFling(velocityX, velocityY);
 			}
+			thisView.cardListBody.onFling(velocityX, velocityY);
+			// if (velocityY * velocityY > 1000000) {
+			// if (velocityY > 0) {
+			// thisView.mScaleCardSpring.setEndValue(1);
+			// } else {
+			// thisView.mScaleCardSpring.setEndValue(0);
+			// }
+			// }
 			return true;
 		}
 	}
