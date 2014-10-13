@@ -145,7 +145,7 @@ public class HotController {
 
 	public SubCardStatus subCardStatus = new SubCardStatus();
 
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent1(MotionEvent event) {
 		int motionEvent = event.getAction();
 		float x = event.getX();
 		float y = event.getY();
@@ -250,7 +250,7 @@ public class HotController {
 		return true;
 	}
 
-	public boolean onTouchEvent1(MotionEvent event) {
+	public boolean onTouchEvent(MotionEvent event) {
 		int motionEvent = event.getAction();
 		float y = event.getY();
 		if (motionEvent == MotionEvent.ACTION_DOWN) {
@@ -280,36 +280,36 @@ public class HotController {
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
-			// thisView.mainPagerBody.onFling(velocityX, velocityY);
-			// }
-			// thisView.cardListBody.onFling(velocityX, velocityY);
-			if (velocityY * velocityY > 1000000) {
-
-				if (velocityY > 0) {
-
-					if (subCardStatus.state == subCardStatus.SCALED) {
-						thisView.mScaleCardSpring.setEndValue(1);
-						subCardStatus.state = subCardStatus.NORMAL;
-					} else if (subCardStatus.state == subCardStatus.NORMAL) {
-						thisView.mFoldCardSpring.setEndValue(0);
-						subCardStatus.state = subCardStatus.FOLD;
-					} else if (subCardStatus.state == subCardStatus.FOLD) {
-					}
-
-				} else {
-
-					if (subCardStatus.state == subCardStatus.SCALED) {
-					} else if (subCardStatus.state == subCardStatus.NORMAL) {
-						thisView.mScaleCardSpring.setEndValue(0);
-						subCardStatus.state = subCardStatus.SCALED;
-					} else if (subCardStatus.state == subCardStatus.FOLD) {
-						thisView.mFoldCardSpring.setEndValue(1);
-						subCardStatus.state = subCardStatus.NORMAL;
-					}
-
-				}
+			if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
+				thisView.mainPagerBody.onFling(velocityX, velocityY);
 			}
+			thisView.cardListBody.onFling(velocityX, velocityY);
+			// if (velocityY * velocityY > 250000) {
+			//
+			// if (velocityY > 0) {
+			//
+			// if (subCardStatus.state == subCardStatus.SCALED) {
+			// thisView.mScaleCardSpring.setEndValue(1);
+			// subCardStatus.state = subCardStatus.NORMAL;
+			// } else if (subCardStatus.state == subCardStatus.NORMAL) {
+			// thisView.mFoldCardSpring.setEndValue(0);
+			// subCardStatus.state = subCardStatus.FOLD;
+			// } else if (subCardStatus.state == subCardStatus.FOLD) {
+			// }
+			//
+			// } else {
+			//
+			// if (subCardStatus.state == subCardStatus.SCALED) {
+			// } else if (subCardStatus.state == subCardStatus.NORMAL) {
+			// thisView.mScaleCardSpring.setEndValue(0);
+			// subCardStatus.state = subCardStatus.SCALED;
+			// } else if (subCardStatus.state == subCardStatus.FOLD) {
+			// thisView.mFoldCardSpring.setEndValue(1);
+			// subCardStatus.state = subCardStatus.NORMAL;
+			// }
+			//
+			// }
+			// }
 			return true;
 		}
 	}

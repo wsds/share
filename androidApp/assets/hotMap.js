@@ -8,7 +8,8 @@
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
 			permission : "me",
-			subPost : "show"
+			subPost : "show",
+			abstractStr : "your favourite web content is collected here."
 		},
 		children : ["132", "156", "448"]
 	},
@@ -34,7 +35,8 @@
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
 			permission : "public",
-			subPost : "none"
+			subPost : "none",
+			abstractStr : "买香蕉、卖香蕉、种香蕉尽在中国香蕉网,海南香蕉代办,云南香蕉种植技术,国内最专业的香蕉行业网站,提供广西,广东,福建,台湾香蕉价格,供应求购信息!"
 		},
 		content : {
 			"1" : "{text:'668啦啦啦1'}",
@@ -52,7 +54,7 @@
 			title : "大冬瓜",
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
-						permission : "public",
+			permission : "public",
 			subPost : "none"
 		},
 		content : {
@@ -71,7 +73,7 @@
 			title : "大冬瓜",
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
-						permission : "public",
+			permission : "public",
 			subPost : "none"
 		},
 
@@ -91,7 +93,7 @@
 			title : "大冬瓜",
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
-						permission : "public",
+			permission : "public",
 			subPost : "none"
 		},
 
@@ -111,7 +113,7 @@
 			title : "大冬瓜",
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
-						permission : "public",
+			permission : "public",
 			subPost : "none"
 		},
 

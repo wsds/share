@@ -6,6 +6,7 @@ import java.util.List;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.facebook.rebound.SimpleSpringListener;
@@ -25,11 +26,13 @@ public class PagerBody {
 	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(200, 15);
 
 	BodyCallback bodyCallback;
+	ViewGroup container;
 
-	public View initialize(DisplayMetrics displayMetrics, BodyCallback bodyCallback) {
+	public View initialize(DisplayMetrics displayMetrics, BodyCallback bodyCallback, ViewGroup container) {
 
 		this.bodyCallback = bodyCallback;
 		this.displayMetrics = displayMetrics;
+		this.container = container;
 
 		SpringSystem mSpringSystem = SpringSystem.create();
 		mSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
@@ -204,7 +207,7 @@ public class PagerBody {
 			return;
 		}
 		if (this.bodyStatus.state == this.bodyStatus.HOMING) {
-			if (velocityX * velocityX > 1000000) {
+			if (velocityX * velocityX > 250000) {
 				if (velocityX > 0) {
 					this.flip(-1);
 				} else {
@@ -236,6 +239,9 @@ public class PagerBody {
 		childView.setVisibility(View.VISIBLE);
 
 		childrenBodys.add(childBody);
+		if (container != null) {
+			container.addView(childView, 0);
+		}
 	}
 
 	public void setTitleView(View myPagerTitleView, int index) {

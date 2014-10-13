@@ -1,5 +1,7 @@
 package com.open.hot.view;
 
+import java.util.Map;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -16,13 +18,11 @@ import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.open.hot.R;
 import com.open.hot.controller.HotController;
 import com.open.hot.model.Data;
+import com.open.hot.model.Data.Hot;
 import com.open.lib.TouchImageView;
 import com.open.lib.TouchView;
 import com.open.lib.viewbody.BodyCallback;
@@ -39,8 +39,7 @@ public class HotView {
 	public HotController thisController;
 	public Activity thisActivity;
 
-	public ImageLoader imageLoader = ImageLoader.getInstance();
-	public DisplayImageOptions options;
+	ViewManage viewManage = ViewManage.getInstance();
 
 	public Animation animationBackIn;
 
@@ -65,6 +64,8 @@ public class HotView {
 
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
+	public ImageLoader imageLoader = ImageLoader.getInstance();
+
 	public TouchView main_container;
 	public TouchView bigCardView;
 	public TouchView big_card_container;
@@ -91,13 +92,9 @@ public class HotView {
 	Drawable card_background;
 
 	public void initView() {
-		displayMetrics = new DisplayMetrics();
-
-		thisActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		mInflater = thisActivity.getLayoutInflater();
-
-		imageLoader.init(ImageLoaderConfiguration.createDefault(this.thisActivity));
-		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_error).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
+		viewManage.initialize(thisActivity);
+		mInflater = viewManage.mInflater;
+		displayMetrics = viewManage.displayMetrics;
 
 		thisActivity.setContentView(R.layout.activity_hot);
 		// thisActivity.setContentView(R.layout.view_card);
@@ -112,37 +109,29 @@ public class HotView {
 
 		mainPagerBody = new PagerBody();
 		mainPagerBody.tag = "mainPagerBody";
-		mainPagerBody.pager_indicator = null;
-		mainPagerBody.pager_indicator_trip = 10;
-		mainPagerBody.initialize(displayMetrics, myBodyCallback);
+		mainPagerBody.initialize(displayMetrics, myBodyCallback, main_container);
 
-		TouchView bigCardView1 = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
-		main_container.addView(bigCardView1, 0);
+		PostBody post1 = new PostBody();
+		View bigCardView1 = post1.initialize(data.me);
 		mainPagerBody.addChildView(bigCardView1);
-		TouchView title1 = (TouchView) bigCardView1.findViewById(R.id.title);
-		mainPagerBody.setTitleView(title1, 0);
-		TouchImageView background_image1 = (TouchImageView) bigCardView1.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.test_2, background_image1, options);
+		mainPagerBody.setTitleView(post1.titleView, 0);
 
-		bigCardView = (TouchView) mInflater.inflate(R.layout.view_card_big, null);
-		main_container.addView(bigCardView, 0);
-		mainPagerBody.addChildView(bigCardView);
-		bigCardView.setX(-0);
-
-		TouchView title = (TouchView) bigCardView.findViewById(R.id.title);
-		mainPagerBody.setTitleView(title, 1);
-		TouchImageView background_image = (TouchImageView) bigCardView.findViewById(R.id.background_image);
-		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
-
-		TouchView bigCardView2 = (TouchView) mInflater.inflate(R.layout.view_card, null);
-		main_container.addView(bigCardView2, 0);
+		Map<String, Hot> hotMap = data.hotMap;
+		
+		PostBody post2= new PostBody();
+		View bigCardView2 = post2.initialize(hotMap.get("2001"));
 		mainPagerBody.addChildView(bigCardView2);
-		TouchView title2 = (TouchView) bigCardView2.findViewById(R.id.title);
-		mainPagerBody.setTitleView(title2, 2);
-		TouchImageView background_image2 = (TouchImageView) bigCardView2.findViewById(R.id.content_image);
-		imageLoader.displayImage("drawable://" + R.drawable.test1, background_image2, options);
+		mainPagerBody.setTitleView(post2.titleView, 1);
+		
 
-		big_card_container = (TouchView) bigCardView1.findViewById(R.id.big_card_container);
+		PostBody post3= new PostBody();
+		View bigCardView3 = post3.initialize(hotMap.get("2003"));
+		mainPagerBody.addChildView(bigCardView3);
+		mainPagerBody.setTitleView(post3.titleView, 2);
+		
+		
+
+		big_card_container = (TouchView) bigCardView2.findViewById(R.id.view_container);
 
 		cardListBody = new ListBody2();
 		cardListBody.initialize(displayMetrics, big_card_container);
@@ -244,7 +233,7 @@ public class HotView {
 
 			TouchImageView background_image = (TouchImageView) cardView.findViewById(R.id.background_image);
 
-			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, options);
+			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, viewManage.options);
 
 			this.itemHeight = cardWidth;
 			super.initialize(cardView);
@@ -329,7 +318,7 @@ public class HotView {
 			cardView2Clicked.setVisibility(View.INVISIBLE);
 			cardViewClickedLeft.setVisibility(View.INVISIBLE);
 			cardViewClickedRight.setVisibility(View.INVISIBLE);
-		}  else {
+		} else {
 			album.setVisibility(View.INVISIBLE);
 
 			cardView2Clicked.setVisibility(View.VISIBLE);

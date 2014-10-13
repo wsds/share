@@ -46,6 +46,7 @@ public class Data {
 			public String permission;// none|me|group|public
 			public String subPost;// none|fold|show
 			public String background;
+			public String abstractStr;
 		}
 
 		public List<String> children = new ArrayList<String>();

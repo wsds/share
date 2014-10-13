@@ -1,6 +1,15 @@
 package com.open.hot.view;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.open.hot.R;
+
+import android.app.Activity;
 import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 
 public class ViewManage {
 
@@ -19,6 +28,22 @@ public class ViewManage {
 		return viewManager;
 	}
 
+	public ImageLoader imageLoader = ImageLoader.getInstance();
+	public DisplayImageOptions options;
+	public DisplayMetrics displayMetrics;
+	public LayoutInflater mInflater;
+	
+	void initialize(Activity thisActivity){
+		displayMetrics = new DisplayMetrics();
+
+		thisActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		mInflater = thisActivity.getLayoutInflater();
+
+		imageLoader.init(ImageLoaderConfiguration.createDefault(thisActivity));
+		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_error).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
+
+	}
+	
 	public void postNotifyView(final String viewName) {
 		handler.post(new Runnable() {
 			@Override
