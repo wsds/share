@@ -110,16 +110,16 @@ public class HotView {
 		mainPagerBody = new PagerBody();
 		mainPagerBody.tag = "mainPagerBody";
 		mainPagerBody.initialize(displayMetrics, myBodyCallback, main_container);
+		Map<String, Hot> hotMap = data.hotMap;
 
 		PostBody post1 = new PostBody();
-		View bigCardView1 = post1.initialize(data.me);
+		View bigCardView1 = post1.initialize(hotMap.get("2001"));
 		mainPagerBody.addChildView(bigCardView1);
 		mainPagerBody.setTitleView(post1.titleView, 0);
 
-		Map<String, Hot> hotMap = data.hotMap;
 		
 		PostBody post2= new PostBody();
-		View bigCardView2 = post2.initialize(hotMap.get("2001"));
+		View bigCardView2 = post2.initialize(hotMap.get("2004"));
 		mainPagerBody.addChildView(bigCardView2);
 		mainPagerBody.setTitleView(post2.titleView, 1);
 		
@@ -131,7 +131,7 @@ public class HotView {
 		
 		
 
-		big_card_container = (TouchView) bigCardView2.findViewById(R.id.view_container);
+		big_card_container = (TouchView) bigCardView1.findViewById(R.id.view_container);
 
 		cardListBody = new ListBody2();
 		cardListBody.initialize(displayMetrics, big_card_container);

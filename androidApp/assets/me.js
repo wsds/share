@@ -8,7 +8,7 @@
 		lastModifyTime : 13435456666,
 		permission : "public",
 		subPost : "show",
-		background : "test1.osj",
+		background : "test_abc_121212.jpg",
 		abstractStr:"爱吃香蕉爱吃鱼"
 	},
 	children : [2001, 2002, 2003],

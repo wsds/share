@@ -9,6 +9,7 @@
 			lastModifyTime : "13435456666",
 			permission : "me",
 			subPost : "show",
+			background : "test_abc_002.jpg",
 			abstractStr : "your favourite web content is collected here."
 		},
 		children : ["132", "156", "448"]
@@ -18,11 +19,16 @@
 		type : "Groups",
 		setting : {},
 		information : {
-			title : "大冬瓜",
+			title : "Github",
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
 			permission : "public",
-			subPost : "show"
+			background : "test_abc_121212.jpg",
+			subPost : "show",
+			abstractStr : "Hot+ ideas is very very good!,One of the great features on GitHub is the ability to see what other people are working on and who they are connecting with. When you follow someone, you&apos;ll get notifications on your dashboard about their GitHub activity."
+		},
+		content : {
+			"image" : "{text:'668啦啦啦1'}"
 		},
 		children : ["156", "123", "448"]
 	},
@@ -45,7 +51,24 @@
 			"4" : "{text:'啦啦啦4'}"
 		}
 	},
-
+	"2004" : {
+		id = 2004,
+		type : "hot",
+		setting : {},
+		information : {
+			title : "Github",
+			createTime : "13435456666",
+			lastModifyTime : "13435456666",
+			permission : "public",
+			background : "test_abc_121212.jpg",
+			subPost : "show",
+			abstractStr : "Hot+ ideas is very very good!,One of the great features on GitHub is the ability to see what other people are working on and who they are connecting with. When you follow someone, you&apos;ll get notifications on your dashboard about their GitHub activity."
+		},
+		content : {
+			"image" : "{text:'668啦啦啦1'}"
+		},
+		children : ["156", "123", "448"]
+	},
 	"123" : {
 		id = 123,
 		type : "account",
