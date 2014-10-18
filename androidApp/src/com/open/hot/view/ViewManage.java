@@ -7,6 +7,7 @@ import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.open.hot.R;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -28,12 +29,18 @@ public class ViewManage {
 		return viewManager;
 	}
 
+	public ViewPool postViewPool = new ViewPool();
+	
 	public ImageLoader imageLoader = ImageLoader.getInstance();
 	public DisplayImageOptions options;
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
 	
-	void initialize(Activity thisActivity){
+	public Drawable card_background_ff;
+
+	public Drawable card_background;
+
+	void initialize(Activity thisActivity) {
 		displayMetrics = new DisplayMetrics();
 
 		thisActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -42,8 +49,10 @@ public class ViewManage {
 		imageLoader.init(ImageLoaderConfiguration.createDefault(thisActivity));
 		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_error).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
 
+		card_background_ff = thisActivity.getResources().getDrawable(R.drawable.card_background_white_ff_radius);
+		card_background = thisActivity.getResources().getDrawable(R.drawable.card_background_white_radius);
 	}
-	
+
 	public void postNotifyView(final String viewName) {
 		handler.post(new Runnable() {
 			@Override
@@ -55,7 +64,5 @@ public class ViewManage {
 
 	public void notifyView(String viewName) {
 
-	
-	
 	}
 }

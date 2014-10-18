@@ -1,12 +1,11 @@
 package com.open.hot.view;
 
 import java.io.File;
-
+import android.annotation.SuppressLint;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.open.hot.R;
 import com.open.hot.model.Data.Hot;
@@ -18,7 +17,7 @@ import com.open.hot.model.FileHandlers;
 
 public class PostBody {
 	public String tag = "PostBody";
-	
+
 	public ViewManage viewManage = ViewManage.getInstance();
 	public ImageLoader imageLoader = ImageLoader.getInstance();
 	public DisplayMetrics displayMetrics;
@@ -43,6 +42,8 @@ public class PostBody {
 
 	public TouchView titleView;
 
+	public int cardWidth = 0;
+	public int cardHeight = 0;
 
 	public String determineHotType(Hot hot) {
 		if (!hot.type.equals("hot")) {
@@ -52,16 +53,20 @@ public class PostBody {
 		} else if (hot.content.size() == 1) {
 			hotType = "photo";
 		} else {
-			Log.d(tag, ""+hot.content.size());
+			Log.d(tag, "" + hot.content.size());
 			hotType = "paper";
 		}
 
 		return hotType;
 	}
 
+	@SuppressLint("NewApi")
 	public View initialize(Hot hot) {
 		mInflater = viewManage.mInflater;
 		displayMetrics = viewManage.displayMetrics;
+
+		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
+		cardHeight = (int) (cardWidth * 1.78f);
 
 		determineHotType(hot);
 		this.hot = hot;
@@ -85,6 +90,8 @@ public class PostBody {
 			String filepath = "file://" + currentImageFile.getAbsolutePath();
 			imageLoader.displayImage(filepath, background_image1, viewManage.options);
 
+			background_image1.setVisibility(View.GONE);
+
 		} else if (hotType.equals("paper")) {
 			postView = mInflater.inflate(R.layout.post_paper, null);
 
@@ -99,9 +106,15 @@ public class PostBody {
 			TouchImageView content_image = (TouchImageView) postView.findViewById(R.id.content_image);
 			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, content_image, viewManage.options);
 
+			int imageHeight = (int) (cardWidth - displayMetrics.density * 20);
+			TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
+			content_image.setLayoutParams(imageLayoutParams);
+			content_image.setY(cardHeight - imageHeight - displayMetrics.density * 10);
+			content_image.setX(displayMetrics.density * 10);
+
 		} else if (hotType.equals("photo")) {
-			
-			Log.d(tag, ""+hot.content.size());
+
+			Log.d(tag, "" + hot.content.size());
 			postView = mInflater.inflate(R.layout.post_photo, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
