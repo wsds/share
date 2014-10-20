@@ -48,8 +48,7 @@
         android:layout_width="120dp"
         android:layout_height="160dp"
         android:layout_gravity="bottom|center_horizontal"
-        android:scaleType="centerCrop"
-        android:src="@drawable/login_background_1"
-        android:translationY="-0dp" />
+        android:scaleType="fitStart"
+        android:translationY="-30dp" />
 
 </com.open.lib.TouchView>

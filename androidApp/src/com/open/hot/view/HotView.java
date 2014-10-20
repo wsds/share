@@ -139,11 +139,10 @@ public class HotView {
 
 		background_image3 = (TouchImageView) cardView2.findViewById(R.id.content_image);
 
-		imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image3, viewManage.options);
 
 		PostBody post1 = new PostBody();
-		View bigCardView1 = post1.initialize(hotMap.get("2001"));
-		viewManage.postViewPool.putView("2001", post1.postView);
+		View bigCardView1 = post1.initialize(hotMap.get("2004"));
+		viewManage.postViewPool.putView("2004", post1.postView);
 		mainPagerBody.addChildView(post1.postView);
 		mainPagerBody.setTitleView(post1.titleView, 0);
 
@@ -154,8 +153,8 @@ public class HotView {
 		mainPagerBody.setTitleView(post2.titleView, 1);
 
 		PostBody post3 = new PostBody();
-		post3.initialize(hotMap.get("2004"));
-		viewManage.postViewPool.putView("2004", post3.postView);
+		post3.initialize(hotMap.get("2002"));
+		viewManage.postViewPool.putView("2002", post3.postView);
 		mainPagerBody.addChildView(post3.postView);
 		mainPagerBody.setTitleView(post3.titleView, 2);
 

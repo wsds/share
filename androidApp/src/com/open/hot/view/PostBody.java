@@ -14,6 +14,7 @@ import com.open.lib.TouchImageView;
 import com.open.lib.TouchTextView;
 import com.open.lib.TouchView;
 import com.open.hot.model.FileHandlers;
+import android.widget.ImageView;
 
 public class PostBody {
 	public String tag = "PostBody";
@@ -41,6 +42,8 @@ public class PostBody {
 	public View postView;
 
 	public TouchView titleView;
+
+	public TouchView children_list_view;
 
 	public int cardWidth = 0;
 	public int cardHeight = 0;
@@ -92,6 +95,85 @@ public class PostBody {
 
 			background_image1.setVisibility(View.GONE);
 
+			int imageHeight = (int) (cardWidth - displayMetrics.density * 24) / 3;
+			mImageFile = fileHandlers.sdcardImageFolder;
+			TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
+			TouchView.LayoutParams text_container_layoutParams = new TouchView.LayoutParams((int) (cardWidth - imageHeight - displayMetrics.density * 24), imageHeight);
+
+			children_list_view = (TouchView) postView.findViewById(R.id.children_list);
+			children_list_view.setVisibility(View.VISIBLE);
+			children_list_view.setY(cardHeight - imageHeight * 5 - displayMetrics.density * 18);
+
+			TouchView content_text_5_container = (TouchView) postView.findViewById(R.id.content_text_5_container);
+			content_text_5_container.setLayoutParams(text_container_layoutParams);
+			content_text_5_container.setX(imageHeight + displayMetrics.density * 14);
+			content_text_5_container.setY(displayMetrics.density * 8 + imageHeight * 4);
+			TouchTextView content_text_5 = (TouchTextView) postView.findViewById(R.id.content_text_5);
+			content_text_5.setText("text5");
+			TouchImageView content_image_5 = (TouchImageView) postView.findViewById(R.id.content_image_5);
+			content_image_5.setLayoutParams(imageLayoutParams);
+			content_image_5.setX(displayMetrics.density * 10);
+			content_image_5.setY(displayMetrics.density * 8 + imageHeight * 4);
+			currentImageFile = new File(mImageFile, "pp5.jpg");
+			filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image_5, viewManage.options);
+
+			TouchView content_text_4_container = (TouchView) postView.findViewById(R.id.content_text_4_container);
+			content_text_4_container.setLayoutParams(text_container_layoutParams);
+			content_text_4_container.setX(imageHeight + displayMetrics.density * 14);
+			content_text_4_container.setY(displayMetrics.density * 6 + imageHeight * 3);
+			TouchTextView content_text_4 = (TouchTextView) postView.findViewById(R.id.content_text_4);
+			content_text_4.setText("text4");
+			TouchImageView content_image_4 = (TouchImageView) postView.findViewById(R.id.content_image_4);
+			content_image_4.setLayoutParams(imageLayoutParams);
+			content_image_4.setX(displayMetrics.density * 10);
+			content_image_4.setY(displayMetrics.density * 6 + imageHeight * 3);
+			currentImageFile = new File(mImageFile, "pp4.jpg");
+			filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image_4, viewManage.options);
+
+			TouchView content_text_3_container = (TouchView) postView.findViewById(R.id.content_text_3_container);
+			content_text_3_container.setLayoutParams(text_container_layoutParams);
+			content_text_3_container.setX(imageHeight + displayMetrics.density * 14);
+			content_text_3_container.setY(displayMetrics.density * 4 + imageHeight * 2);
+			TouchTextView content_text_3 = (TouchTextView) postView.findViewById(R.id.content_text_3);
+			content_text_3.setText("text3");
+			TouchImageView content_image_3 = (TouchImageView) postView.findViewById(R.id.content_image_3);
+			content_image_3.setLayoutParams(imageLayoutParams);
+			content_image_3.setX(displayMetrics.density * 10);
+			content_image_3.setY(displayMetrics.density * 4 + imageHeight * 2);
+			currentImageFile = new File(mImageFile, "pp3.jpg");
+			filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image_3, viewManage.options);
+
+			TouchView content_text_2_container = (TouchView) postView.findViewById(R.id.content_text_2_container);
+			content_text_2_container.setLayoutParams(text_container_layoutParams);
+			content_text_2_container.setX(imageHeight + displayMetrics.density * 14);
+			content_text_2_container.setY(displayMetrics.density * 2 + imageHeight);
+			TouchTextView content_text_2 = (TouchTextView) postView.findViewById(R.id.content_text_2);
+			content_text_2.setText("text2");
+			TouchImageView content_image_2 = (TouchImageView) postView.findViewById(R.id.content_image_2);
+			content_image_2.setLayoutParams(imageLayoutParams);
+			content_image_2.setX(displayMetrics.density * 10);
+			content_image_2.setY(displayMetrics.density * 2 + imageHeight);
+			currentImageFile = new File(mImageFile, "pp2.jpg");
+			filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image_2, viewManage.options);
+
+			TouchView content_text_1_container = (TouchView) postView.findViewById(R.id.content_text_1_container);
+			content_text_1_container.setLayoutParams(text_container_layoutParams);
+			content_text_1_container.setX(imageHeight + displayMetrics.density * 14);
+			content_text_1_container.setY(displayMetrics.density * 0);
+			TouchTextView content_text_1 = (TouchTextView) postView.findViewById(R.id.content_text_1);
+			content_text_1.setText("text1");
+			TouchImageView content_image_1 = (TouchImageView) postView.findViewById(R.id.content_image_1);
+			content_image_1.setLayoutParams(imageLayoutParams);
+			content_image_1.setX(displayMetrics.density * 10);
+			content_image_1.setY(displayMetrics.density * 0);
+			currentImageFile = new File(mImageFile, "pp1.jpg");
+			filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image_1, viewManage.options);
+
 		} else if (hotType.equals("paper")) {
 			postView = mInflater.inflate(R.layout.post_paper, null);
 
@@ -104,13 +186,19 @@ public class PostBody {
 			content_view.setText(information.abstractStr);
 
 			TouchImageView content_image = (TouchImageView) postView.findViewById(R.id.content_image);
-			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, content_image, viewManage.options);
 
 			int imageHeight = (int) (cardWidth - displayMetrics.density * 20);
-			TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
-			content_image.setLayoutParams(imageLayoutParams);
+			// TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
+			// content_image.setLayoutParams(imageLayoutParams);
 			content_image.setY(cardHeight - imageHeight - displayMetrics.density * 10);
 			content_image.setX(displayMetrics.density * 10);
+
+			content_image.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+			mImageFile = fileHandlers.sdcardImageFolder;
+			File currentImageFile = new File(mImageFile, information.background);
+			String filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, content_image, viewManage.options);
 
 		} else if (hotType.equals("photo")) {
 
@@ -130,5 +218,4 @@ public class PostBody {
 		}
 		return postView;
 	}
-
 }

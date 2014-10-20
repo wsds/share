@@ -41,6 +41,7 @@
 			createTime : "13435456666",
 			lastModifyTime : "13435456666",
 			permission : "public",
+			background : "pp4.jpg",
 			subPost : "none",
 			abstractStr : "买香蕉、卖香蕉、种香蕉尽在中国香蕉网,海南香蕉代办,云南香蕉种植技术,国内最专业的香蕉行业网站,提供广西,广东,福建,台湾香蕉价格,供应求购信息!"
 		},

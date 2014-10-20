@@ -14,6 +14,7 @@
         android:id="@+id/content_image"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:scaleType="centerCrop"
         android:visibility="gone" />
 
     <com.open.lib.TouchView
@@ -28,33 +29,124 @@
             android:layout_gravity="left"
             android:text="大冬瓜"
             android:textColor="#aa000000"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:translationX="10dp"
             android:translationY="10dp" />
     </com.open.lib.TouchView>
+
     <com.open.lib.TouchView
         android:id="@+id/children_list"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
-        android:visibility="gone">
+        android:layout_height="fill_parent"
+        android:visibility="gone" >
 
-        <com.open.lib.TouchTextView
-            android:id="@+id/title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:text="大冬瓜"
-            android:textColor="#aa000000"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:translationX="10dp"
-            android:translationY="10dp" />
+        <com.open.lib.TouchImageView
+            android:id="@+id/content_image_1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop" />
+
+        <com.open.lib.TouchView
+            android:id="@+id/content_text_1_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+            <com.open.lib.TouchTextView
+                android:id="@+id/content_text_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="大冬瓜"
+                android:textColor="#aa000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </com.open.lib.TouchView>
+
+        <com.open.lib.TouchImageView
+            android:id="@+id/content_image_2"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop" />
+
+        <com.open.lib.TouchView
+            android:id="@+id/content_text_2_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+            <com.open.lib.TouchTextView
+                android:id="@+id/content_text_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="大冬瓜"
+                android:textColor="#aa000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </com.open.lib.TouchView>
+
+        <com.open.lib.TouchImageView
+            android:id="@+id/content_image_3"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop" />
+
+        <com.open.lib.TouchView
+            android:id="@+id/content_text_3_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+            <com.open.lib.TouchTextView
+                android:id="@+id/content_text_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="大冬瓜"
+                android:textColor="#aa000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </com.open.lib.TouchView>
+
+        <com.open.lib.TouchImageView
+            android:id="@+id/content_image_4"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop" />
+
+        <com.open.lib.TouchView
+            android:id="@+id/content_text_4_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+            <com.open.lib.TouchTextView
+                android:id="@+id/content_text_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="大冬瓜"
+                android:textColor="#aa000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </com.open.lib.TouchView>
+
+        <com.open.lib.TouchImageView
+            android:id="@+id/content_image_5"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scaleType="centerCrop" />
+
+        <com.open.lib.TouchView
+            android:id="@+id/content_text_5_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+            <com.open.lib.TouchTextView
+                android:id="@+id/content_text_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="大冬瓜"
+                android:textColor="#aa000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </com.open.lib.TouchView>
     </com.open.lib.TouchView>
-    
-    
-    
-    
+
     <com.open.lib.TouchTextView
         android:id="@+id/sub_title"
         android:layout_width="wrap_content"
