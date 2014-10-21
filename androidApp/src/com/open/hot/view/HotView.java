@@ -24,6 +24,7 @@ import com.open.hot.controller.HotController;
 import com.open.hot.model.Data;
 import com.open.hot.model.Data.Hot;
 import com.open.lib.TouchImageView;
+import com.open.lib.TouchTextView;
 import com.open.lib.TouchView;
 import com.open.lib.viewbody.BodyCallback;
 import com.open.lib.viewbody.ListBody2;
@@ -88,6 +89,10 @@ public class HotView {
 	public TouchImageView background_image1 = null;
 	public TouchImageView background_image2 = null;
 	public TouchImageView background_image3 = null;
+	
+	public TouchTextView sub_title_view = null;
+
+	public TouchView children_list_view;
 
 	public void initView() {
 		viewManage.initialize(thisActivity);
@@ -136,9 +141,9 @@ public class HotView {
 		cardView2.setX(cardWidth + 2 * displayMetrics.density);
 		cardItem2.y = this.cardListBody.height;
 		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 2;
-
-		background_image3 = (TouchImageView) cardView2.findViewById(R.id.content_image);
-
+		children_list_view = (TouchView) cardView2.findViewById(R.id.children_list);
+		background_image3 = (TouchImageView) cardView2.findViewById(R.id.background_image);
+		sub_title_view = (TouchTextView) cardView2.findViewById(R.id.sub_title);
 
 		PostBody post1 = new PostBody();
 		View bigCardView1 = post1.initialize(hotMap.get("2004"));
@@ -223,7 +228,7 @@ public class HotView {
 
 			TouchImageView background_image = (TouchImageView) cardView.findViewById(R.id.background_image);
 
-			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, viewManage.options);
+			imageLoader.displayImage("drawable://" + R.drawable.test1, background_image, viewManage.roundOptions);
 
 			this.itemHeight = cardWidth;
 			super.initialize(cardView);
@@ -288,14 +293,18 @@ public class HotView {
 
 		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
-		background_image3.setLayoutParams(imageParams);
+		// background_image3.setLayoutParams(imageParams);
 		background_image1.setLayoutParams(imageParams);
 
+		background_image3.setAlpha((float) (1 - value * value));
+		children_list_view.setAlpha((float) (value * value));
 		if (value < 0.1) {
+			sub_title_view.setVisibility(View.VISIBLE);
 			logo.setTextColor(0xff0099cd);
 			more.setColorFilter(0xff0099cd);
 			cardView2Clicked.setBackground(viewManage.card_background_ff);
 		} else {
+			sub_title_view.setVisibility(View.GONE);
 			logo.setTextColor(0xeeffffff);
 			more.setColorFilter(0xeeffffff);
 			cardView2Clicked.setBackground(viewManage.card_background);
@@ -311,6 +320,7 @@ public class HotView {
 		cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
 
 		cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
+		
 		cardView2Clicked.setAlpha((float) (value));
 		cardViewClickedLeft.setAlpha((float) (value));
 		cardViewClickedRight.setAlpha((float) (value));

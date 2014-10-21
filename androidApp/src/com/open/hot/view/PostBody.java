@@ -32,6 +32,8 @@ public class PostBody {
 		public int state = NORMAL;
 	}
 
+	double endValue = 1;
+
 	public Hot hot;
 	public Information information;
 
@@ -91,9 +93,9 @@ public class PostBody {
 			mImageFile = fileHandlers.sdcardImageFolder;
 			File currentImageFile = new File(mImageFile, information.background);
 			String filepath = "file://" + currentImageFile.getAbsolutePath();
-			imageLoader.displayImage(filepath, background_image1, viewManage.options);
+			imageLoader.displayImage(filepath, background_image1, viewManage.roundOptions);
 
-			background_image1.setVisibility(View.GONE);
+			background_image1.setAlpha((float) 0);
 
 			int imageHeight = (int) (cardWidth - displayMetrics.density * 24) / 3;
 			mImageFile = fileHandlers.sdcardImageFolder;
@@ -214,7 +216,7 @@ public class PostBody {
 			sub_title_view.setText(information.abstractStr);
 
 			TouchImageView background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
-			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image1, viewManage.options);
+			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image1, viewManage.roundOptions);
 		}
 		return postView;
 	}
