@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:maxLines="4"
         android:layout_margin="10dp"
-        android:text="Hot+ ideas is very very good!,One of the great features on GitHub is the ability to see what other people are working on and who they are connecting with. When you follow someone, you&apos;ll get notifications on your dashboard about their GitHub activity."
+        android:text="Hot+1 ideas is very very good!,One of the great features on GitHub is the ability to see what other people are working on and who they are connecting with. When you follow someone, you&apos;ll get notifications on your dashboard about their GitHub activity."
         android:textColor="#99000000"
         android:textSize="12sp"
         android:translationX="0dp"

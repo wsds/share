@@ -1,20 +1,23 @@
 package com.open.hot.view;
 
 import java.io.File;
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.open.hot.R;
 import com.open.hot.model.Data.Hot;
 import com.open.hot.model.Data.Hot.Information;
+import com.open.hot.model.FileHandlers;
 import com.open.lib.TouchImageView;
 import com.open.lib.TouchTextView;
 import com.open.lib.TouchView;
-import com.open.hot.model.FileHandlers;
-import android.widget.ImageView;
 
 public class PostBody {
 	public String tag = "PostBody";
@@ -27,14 +30,21 @@ public class PostBody {
 	public FileHandlers fileHandlers = FileHandlers.getInstance();
 	public File mImageFile;
 
+	public PostBody parent = null;
+	public PostBody left = null;
+	public PostBody right = null;
+	public ArrayList<PostBody> children = null;
+
 	public class Status {
-		public int NORMAL = 0, SCALED = 1, FOLD = 2;
+		public int NORMAL = 0, SCALED = 1, FOLD = 2, FREED = 3;;
 		public int state = NORMAL;
 	}
 
-	double endValue = 1;
+	public double endValue = 1;
 
 	public Hot hot;
+
+	public String key;
 	public Information information;
 
 	public Status status = new Status();
@@ -44,7 +54,7 @@ public class PostBody {
 	public View postView;
 
 	public TouchView titleView;
-
+	public TouchTextView sub_title_view;
 	public TouchView children_list_view;
 	public TouchImageView background_image1;
 	public TouchImageView content_image;
@@ -68,6 +78,9 @@ public class PostBody {
 
 	@SuppressLint("NewApi")
 	public View initialize(Hot hot, double endValue) {
+		if (hot == null) {
+			return null;
+		}
 		mInflater = viewManage.mInflater;
 		displayMetrics = viewManage.displayMetrics;
 
@@ -77,6 +90,7 @@ public class PostBody {
 		determineHotType(hot);
 		this.hot = hot;
 		information = hot.information;
+		this.key = hot.id;
 		// hotType = "pape22r";
 		if (hotType.equals("container")) {
 			postView = mInflater.inflate(R.layout.post_container, null);
@@ -86,7 +100,7 @@ public class PostBody {
 			TouchTextView title_text_view = (TouchTextView) titleView.findViewById(R.id.title_text);
 			title_text_view.setText(information.title);
 
-			TouchTextView sub_title_view = (TouchTextView) postView.findViewById(R.id.sub_title);
+			sub_title_view = (TouchTextView) postView.findViewById(R.id.sub_title);
 			sub_title_view.setText(information.abstractStr);
 
 			background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
@@ -220,36 +234,48 @@ public class PostBody {
 			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image1, viewManage.roundOptions);
 		}
 		this.endValue = endValue;
-		this.render(endValue);
+
+		viewManage.postPool.putView(hot.id, this);
+		render(endValue);
+
 		return postView;
 	}
 
-	TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+	public TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
 
-	TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
+	public TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
 
 	@SuppressLint("NewApi")
 	public void render(double value) {
-		postView.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
 		postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 
+		// postView.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
 		// cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
 		// cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
 
-		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels+50);
+		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
 		renderParams.height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
 		postView.setLayoutParams(renderParams);
-		// cardViewClickedLeft.setLayoutParams(renderParams);
-		// cardViewClickedRight.setLayoutParams(renderParams);
 
 		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		if (content_image != null) {
 			content_image.setLayoutParams(imageParams);
 		}
-		// background_image1.setLayoutParams(imageParams);
+		if (left != null) {
+			left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+			left.postView.setLayoutParams(renderParams);
+			if (left.content_image != null) {
+				left.content_image.setLayoutParams(imageParams);
+			}
+		}
+		if (right != null) {
+			right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+			right.postView.setLayoutParams(renderParams);
+			if (right.content_image != null) {
+				right.content_image.setLayoutParams(imageParams);
+			}
+		}
 
 		if (background_image1 != null) {
 			background_image1.setAlpha((float) (1 - value * value));
@@ -258,14 +284,14 @@ public class PostBody {
 			children_list_view.setAlpha((float) (value * value));
 		}
 		if (value < 0.1) {
-			// sub_title_view.setVisibility(View.VISIBLE);
-			// logo.setTextColor(0xff0099cd);
-			// more.setColorFilter(0xff0099cd);
+			if (sub_title_view != null) {
+				sub_title_view.setVisibility(View.VISIBLE);
+			}
 			postView.setBackground(viewManage.card_background_ff);
 		} else {
-			// sub_title_view.setVisibility(View.GONE);
-			// logo.setTextColor(0xeeffffff);
-			// more.setColorFilter(0xeeffffff);
+			if (sub_title_view != null) {
+				sub_title_view.setVisibility(View.GONE);
+			}
 			postView.setBackground(viewManage.card_background);
 		}
 

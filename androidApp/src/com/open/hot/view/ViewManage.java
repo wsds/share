@@ -29,14 +29,14 @@ public class ViewManage {
 		return viewManager;
 	}
 
-	public ViewPool postViewPool = new ViewPool();
-	
+	 public PostPool postPool = new PostPool();
+
 	public ImageLoader imageLoader = ImageLoader.getInstance();
 	public DisplayImageOptions roundOptions;
 	public DisplayImageOptions options;
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
-	
+
 	public Drawable card_background_ff;
 
 	public Drawable card_background;

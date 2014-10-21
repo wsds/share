@@ -35,6 +35,8 @@ public class ListBody2 {
 
 	}
 
+	public MyListItemBody lastAddItem = null;
+
 	public class MyListItemBody {
 
 		public boolean isVisible = true;
