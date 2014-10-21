@@ -46,7 +46,8 @@ public class PostBody {
 	public TouchView titleView;
 
 	public TouchView children_list_view;
-
+	public TouchImageView background_image1;
+	public TouchImageView content_image;
 	public int cardWidth = 0;
 	public int cardHeight = 0;
 
@@ -66,7 +67,7 @@ public class PostBody {
 	}
 
 	@SuppressLint("NewApi")
-	public View initialize(Hot hot) {
+	public View initialize(Hot hot, double endValue) {
 		mInflater = viewManage.mInflater;
 		displayMetrics = viewManage.displayMetrics;
 
@@ -88,7 +89,7 @@ public class PostBody {
 			TouchTextView sub_title_view = (TouchTextView) postView.findViewById(R.id.sub_title);
 			sub_title_view.setText(information.abstractStr);
 
-			TouchImageView background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
+			background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
 
 			mImageFile = fileHandlers.sdcardImageFolder;
 			File currentImageFile = new File(mImageFile, information.background);
@@ -187,7 +188,7 @@ public class PostBody {
 			TouchTextView content_view = (TouchTextView) postView.findViewById(R.id.content);
 			content_view.setText(information.abstractStr);
 
-			TouchImageView content_image = (TouchImageView) postView.findViewById(R.id.content_image);
+			content_image = (TouchImageView) postView.findViewById(R.id.content_image);
 
 			int imageHeight = (int) (cardWidth - displayMetrics.density * 20);
 			// TouchView.LayoutParams imageLayoutParams = new TouchView.LayoutParams(imageHeight, imageHeight);
@@ -218,6 +219,56 @@ public class PostBody {
 			TouchImageView background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
 			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image1, viewManage.roundOptions);
 		}
+		this.endValue = endValue;
+		this.render(endValue);
 		return postView;
 	}
+
+	TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+
+	TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
+
+	@SuppressLint("NewApi")
+	public void render(double value) {
+		postView.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
+		postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+
+		// cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
+		// cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
+
+		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels+50);
+		renderParams.height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
+		postView.setLayoutParams(renderParams);
+		// cardViewClickedLeft.setLayoutParams(renderParams);
+		// cardViewClickedRight.setLayoutParams(renderParams);
+
+		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
+		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
+		if (content_image != null) {
+			content_image.setLayoutParams(imageParams);
+		}
+		// background_image1.setLayoutParams(imageParams);
+
+		if (background_image1 != null) {
+			background_image1.setAlpha((float) (1 - value * value));
+		}
+		if (children_list_view != null) {
+			children_list_view.setAlpha((float) (value * value));
+		}
+		if (value < 0.1) {
+			// sub_title_view.setVisibility(View.VISIBLE);
+			// logo.setTextColor(0xff0099cd);
+			// more.setColorFilter(0xff0099cd);
+			postView.setBackground(viewManage.card_background_ff);
+		} else {
+			// sub_title_view.setVisibility(View.GONE);
+			// logo.setTextColor(0xeeffffff);
+			// more.setColorFilter(0xeeffffff);
+			postView.setBackground(viewManage.card_background);
+		}
+
+	}
+
 }

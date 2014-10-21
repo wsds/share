@@ -86,13 +86,7 @@ public class HotView {
 	public TouchView cardViewClickedLeft = null;
 	public TouchView cardViewClickedRight = null;
 
-	public TouchImageView background_image1 = null;
-	public TouchImageView background_image2 = null;
-	public TouchImageView background_image3 = null;
-	
-	public TouchTextView sub_title_view = null;
-
-	public TouchView children_list_view;
+	public PostBody postBody;
 
 	public void initView() {
 		viewManage.initialize(thisActivity);
@@ -129,36 +123,33 @@ public class HotView {
 		cardView1.setX(0);
 		cardItem1.y = 0;
 		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 1;
-		background_image1 = (TouchImageView) cardView1.findViewById(R.id.content_image);
 
 		cardViewClickedLeft = cardView1;
 
 		String key2 = "card2";
 		CardItem cardItem2 = new CardItem(this.cardListBody);
 		TouchView cardView2 = cardItem2.initialize3("2001");
+		postBody = cardItem2.postBody;
 		this.cardListBody.listItemBodiesMap.put(key2, cardItem2);
 		this.cardListBody.listItemsSequence.add(key2);
-		cardView2.setX(cardWidth + 2 * displayMetrics.density);
 		cardItem2.y = this.cardListBody.height;
 		this.cardListBody.height = (cardWidth + 2 * displayMetrics.density) * 2;
-		children_list_view = (TouchView) cardView2.findViewById(R.id.children_list);
-		background_image3 = (TouchImageView) cardView2.findViewById(R.id.background_image);
-		sub_title_view = (TouchTextView) cardView2.findViewById(R.id.sub_title);
 
 		PostBody post1 = new PostBody();
-		View bigCardView1 = post1.initialize(hotMap.get("2004"));
-		viewManage.postViewPool.putView("2004", post1.postView);
+		View bigCardView1 = post1.initialize(data.me, 0);
+		viewManage.postViewPool.putView("112", post1.postView);
+		post1.render(post1.endValue);
 		mainPagerBody.addChildView(post1.postView);
 		mainPagerBody.setTitleView(post1.titleView, 0);
 
 		PostBody post2 = new PostBody();
-		post2.initialize(hotMap.get("2003"));
+		post2.initialize(hotMap.get("2003"), 0);
 		viewManage.postViewPool.putView("2003", post2.postView);
 		mainPagerBody.addChildView(post2.postView);
 		mainPagerBody.setTitleView(post2.titleView, 1);
 
 		PostBody post3 = new PostBody();
-		post3.initialize(hotMap.get("2002"));
+		post3.initialize(hotMap.get("2002"), 0);
 		viewManage.postViewPool.putView("2002", post3.postView);
 		mainPagerBody.addChildView(post3.postView);
 		mainPagerBody.setTitleView(post3.titleView, 2);
@@ -199,6 +190,7 @@ public class HotView {
 		}
 
 		public TouchView cardView;
+		public PostBody postBody;
 
 		public TouchView initialize() {
 			cardView = (TouchView) mInflater.inflate(R.layout.post_paper, null);
@@ -239,10 +231,11 @@ public class HotView {
 
 			Map<String, Hot> hotMap = data.hotMap;
 
-			PostBody post2 = new PostBody();
-			post2.initialize(hotMap.get(key));
-			viewManage.postViewPool.putView("2004", post2.postView);
-			cardView = (TouchView) post2.postView;
+			postBody = new PostBody();
+			postBody.initialize(hotMap.get(key), 1);
+			viewManage.postViewPool.putView(key, postBody.postView);
+			postBody.render(postBody.endValue);
+			cardView = (TouchView) postBody.postView;
 
 			this.itemHeight = cardWidth;
 			super.initialize(cardView);
@@ -277,39 +270,7 @@ public class HotView {
 	@SuppressLint("NewApi")
 	public void render() {
 		double value = mScaleCardSpring.getCurrentValue();
-		cardView2Clicked.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
-		cardView2Clicked.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-
-		cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
-		cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
-
-		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
-		renderParams.height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
-		cardView2Clicked.setLayoutParams(renderParams);
-		cardViewClickedLeft.setLayoutParams(renderParams);
-		cardViewClickedRight.setLayoutParams(renderParams);
-
-		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
-		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
-		// background_image3.setLayoutParams(imageParams);
-		background_image1.setLayoutParams(imageParams);
-
-		background_image3.setAlpha((float) (1 - value * value));
-		children_list_view.setAlpha((float) (value * value));
-		if (value < 0.1) {
-			sub_title_view.setVisibility(View.VISIBLE);
-			logo.setTextColor(0xff0099cd);
-			more.setColorFilter(0xff0099cd);
-			cardView2Clicked.setBackground(viewManage.card_background_ff);
-		} else {
-			sub_title_view.setVisibility(View.GONE);
-			logo.setTextColor(0xeeffffff);
-			more.setColorFilter(0xeeffffff);
-			cardView2Clicked.setBackground(viewManage.card_background);
-		}
-
+		postBody.render(value);
 	}
 
 	public void renderFoldCard() {
@@ -320,7 +281,7 @@ public class HotView {
 		cardViewClickedLeft.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
 
 		cardViewClickedRight.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
-		
+
 		cardView2Clicked.setAlpha((float) (value));
 		cardViewClickedLeft.setAlpha((float) (value));
 		cardViewClickedRight.setAlpha((float) (value));
