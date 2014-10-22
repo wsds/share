@@ -6,6 +6,7 @@ import java.util.Map;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,11 +52,12 @@ public class HotView {
 
 	public Status status = Status.welcome;
 
-	public SpringConfig ORIGAMI_SPRING_CONFIG = SpringConfig.fromOrigamiTensionAndFriction(240, 12);
+	public SpringConfig fast_config = SpringConfig.fromOrigamiTensionAndFriction(240, 12);
+	public SpringConfig slow_config = SpringConfig.fromOrigamiTensionAndFriction(60, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
-	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
-	public Spring mFoldCardSpring = mSpringSystem.createSpring().setSpringConfig(ORIGAMI_SPRING_CONFIG);
+	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
+	public Spring mFoldCardSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
 
 	public HotView(Activity activity) {
 		this.context = activity;
@@ -151,11 +153,9 @@ public class HotView {
 	public void setCurrentPost(Hot hot) {
 		PostBody currentPost = viewManage.postPool.getPost(hot.id);
 		if (currentPost == null) {
-			Log.d(tag, "currentPost==null");
 			currentPost = new PostBody();
 			currentPost.initialize(hot, 0);
 		} else {
-			Log.d(tag, "currentPost exist!");
 			currentPost.endValue = 0;
 			currentPost.render(0);
 		}
@@ -170,8 +170,21 @@ public class HotView {
 			}
 		}
 		this.mFoldCardSpring.setCurrentValue(0);
+		this.mFoldCardSpring.setEndValue(0);
+
 		this.renderFoldCard();
-		this.mFoldCardSpring.setEndValue(1);
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				mFoldCardSpring.setSpringConfig(slow_config);
+				mFoldCardSpring.setEndValue(1);
+			}
+		}, 300);
+		new Handler().postDelayed(new Runnable() {
+			public void run() {
+				mFoldCardSpring.setSpringConfig(fast_config);
+			}
+		}, 1000);
+
 	}
 
 	public void addToCardList(Hot hot) {
