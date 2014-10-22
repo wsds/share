@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -40,7 +39,7 @@ public class HotView {
 	public HotController thisController;
 	public Activity thisActivity;
 
-	ViewManage viewManage = ViewManage.getInstance();
+	public ViewManage viewManage = ViewManage.getInstance();
 
 	public Animation animationBackIn;
 
@@ -222,6 +221,11 @@ public class HotView {
 			cardView = (TouchView) postBody.postView;
 			cardView.setX(listBody.height);
 
+			cardView.setTag(R.id.tag_class, "CardView");
+			cardView.setTag(R.id.tag_key, postBody.key);
+
+			cardView.setOnTouchListener(thisController.onTouchListener);
+
 			this.itemHeight = cardWidth;
 
 			listBody.height = listBody.height + cardWidth + 2 * displayMetrics.density;
@@ -255,8 +259,10 @@ public class HotView {
 		}
 
 		if (value < 0.1) {
-			logo.setTextColor(0xff0099cd);
-			more.setColorFilter(0xff0099cd);
+			if (postBodyClick.hotType.type == postBodyClick.hotType.PAPER) {
+				logo.setTextColor(0xff0099cd);
+				more.setColorFilter(0xff0099cd);
+			}
 		} else {
 			logo.setTextColor(0xeeffffff);
 			more.setColorFilter(0xeeffffff);

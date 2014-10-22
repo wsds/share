@@ -14,9 +14,11 @@ import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
 
 import com.google.gson.Gson;
+import com.open.hot.R;
 import com.open.hot.model.Data;
 import com.open.hot.model.Parser;
 import com.open.hot.view.HotView;
+import com.open.hot.view.PostBody;
 import com.open.hot.view.HotView.Status;
 
 public class HotController {
@@ -42,16 +44,30 @@ public class HotController {
 		this.thisActivity = activity;
 	}
 
+	public PostBody postBodyClick;
+
 	public void initializeListeners() {
 		onTouchListener = new OnTouchListener() {
 
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+			public boolean onTouch(View view, MotionEvent event) {
 				int action = event.getAction();
 				if (action == MotionEvent.ACTION_DOWN) {
+					String view_class = (String) view.getTag(R.id.tag_class);
+					if (view_class.equals("CardView")) {
+						String key = (String) view.getTag(R.id.tag_key);
+						postBodyClick = thisView.viewManage.postPool.pool.get(key);
+						Log.d(tag, "Touch: " + postBodyClick.key);
+						thisView.postBodyClick = postBodyClick;
+						if (postBodyClick.endValue == 1 && thisView.mScaleCardSpring.getCurrentValue() == 1) {
+							postBodyClick.recordX();
+						}
+
+					}
+
 				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
 				}
-				return true;
+				return false;
 			}
 		};
 		mOnFocusChangeListener = new OnFocusChangeListener() {

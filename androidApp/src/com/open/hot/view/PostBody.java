@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,9 @@ public class PostBody {
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
 
+	public Drawable card_background_ff;
+	public Drawable card_background;
+
 	public FileHandlers fileHandlers = FileHandlers.getInstance();
 	public File mImageFile;
 
@@ -49,7 +53,12 @@ public class PostBody {
 
 	public Status status = new Status();
 
-	public String hotType;// "container" | "paper" | "photo"
+	public HotType hotType=new HotType();;// "container" | "paper" | "photo"
+
+	public class HotType {
+		public int CONTAINER = 0, PAPER = 1, PHOTO = 2;
+		public int type = CONTAINER;
+	}
 
 	public View postView;
 
@@ -61,16 +70,16 @@ public class PostBody {
 	public int cardWidth = 0;
 	public int cardHeight = 0;
 
-	public String determineHotType(Hot hot) {
+	public HotType determineHotType(Hot hot) {
 		if (!hot.type.equals("hot")) {
-			hotType = "container";
+			hotType.type=hotType.CONTAINER;
 		} else if (hot.content == null || hot.content.size() == 0) {
-			hotType = "container";
+			hotType.type=hotType.CONTAINER;
 		} else if (hot.content.size() == 1) {
-			hotType = "photo";
+			hotType.type=hotType.PHOTO;
 		} else {
 			Log.d(tag, "" + hot.content.size());
-			hotType = "paper";
+			hotType.type=hotType.PAPER;
 		}
 
 		return hotType;
@@ -87,12 +96,15 @@ public class PostBody {
 		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
 		cardHeight = (int) (cardWidth * 1.78f);
 
+		card_background_ff = viewManage.thisActivity.getResources().getDrawable(R.drawable.card_background_white_ff_radius);
+		card_background = viewManage.thisActivity.getResources().getDrawable(R.drawable.card_background_white_radius);
+
 		determineHotType(hot);
 		this.hot = hot;
 		information = hot.information;
 		this.key = hot.id;
 		// hotType = "pape22r";
-		if (hotType.equals("container")) {
+		if (hotType.type==hotType.CONTAINER) {
 			postView = mInflater.inflate(R.layout.post_container, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
@@ -191,7 +203,7 @@ public class PostBody {
 			filepath = "file://" + currentImageFile.getAbsolutePath();
 			imageLoader.displayImage(filepath, content_image_1, viewManage.options);
 
-		} else if (hotType.equals("paper")) {
+		} else if (hotType.type==hotType.PAPER) {
 			postView = mInflater.inflate(R.layout.post_paper, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
@@ -217,7 +229,7 @@ public class PostBody {
 			String filepath = "file://" + currentImageFile.getAbsolutePath();
 			imageLoader.displayImage(filepath, content_image, viewManage.options);
 
-		} else if (hotType.equals("photo")) {
+		} else if (hotType.type==hotType.PHOTO) {
 
 			Log.d(tag, "" + hot.content.size());
 			postView = mInflater.inflate(R.layout.post_photo, null);
@@ -245,11 +257,17 @@ public class PostBody {
 
 	public TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
 
+	public float x;
+
+	public void recordX() {
+		x = postView.getX();
+	}
+
 	@SuppressLint("NewApi")
 	public void render(double value) {
 		postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 
-		// postView.setX((float) ((cardWidth + 2 * displayMetrics.density) * value));
+		postView.setX((float) (x * value));
 		// cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
 		// cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
 
@@ -264,16 +282,38 @@ public class PostBody {
 		}
 		if (left != null) {
 			left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+			left.postView.setX((float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (x - displayMetrics.density * 2 - cardWidth) * value));
 			left.postView.setLayoutParams(renderParams);
 			if (left.content_image != null) {
 				left.content_image.setLayoutParams(imageParams);
 			}
+
+			if (left.left != null) {
+				left.left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+				left.left.postView.setX((float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (x - displayMetrics.density * 4 - 2 * cardWidth) * value));
+				left.left.postView.setLayoutParams(renderParams);
+				if (left.left.content_image != null) {
+					left.left.content_image.setLayoutParams(imageParams);
+				}
+			}
 		}
 		if (right != null) {
 			right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+			right.postView.setX((float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (x + displayMetrics.density * 2 + cardWidth) * value));
+
 			right.postView.setLayoutParams(renderParams);
 			if (right.content_image != null) {
 				right.content_image.setLayoutParams(imageParams);
+			}
+
+			if (right.right != null) {
+				right.right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+				right.right.postView.setX((float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (x + displayMetrics.density * 4 + 2 * cardWidth) * value));
+
+				right.right.postView.setLayoutParams(renderParams);
+				if (right.right.content_image != null) {
+					right.right.content_image.setLayoutParams(imageParams);
+				}
 			}
 		}
 
@@ -287,14 +327,15 @@ public class PostBody {
 			if (sub_title_view != null) {
 				sub_title_view.setVisibility(View.VISIBLE);
 			}
-			postView.setBackground(viewManage.card_background_ff);
+			postView.setBackground(card_background_ff);
+			endValue = 0;
 		} else {
 			if (sub_title_view != null) {
 				sub_title_view.setVisibility(View.GONE);
 			}
-			postView.setBackground(viewManage.card_background);
+			postView.setBackground(card_background);
+			endValue = 1;
 		}
 
 	}
-
 }

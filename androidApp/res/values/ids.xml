@@ -5,4 +5,4 @@
     <item name="tag_second" type="id"></item>
     <item name="tag_third" type="id"></item>
     <item name="tag_class" type="id"></item>
-</resources>
+    <item name="tag_key" type="id"></item></resources>

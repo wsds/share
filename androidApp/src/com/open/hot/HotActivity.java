@@ -55,9 +55,9 @@ public class HotActivity extends Activity {
 
 		viewManager.loginView = this.thisView;
 
-		thisView.initView();
 		thisController.onCreate();
 		thisController.initializeListeners();
+		thisView.initView();
 		thisController.bindEvent();
 	}
 

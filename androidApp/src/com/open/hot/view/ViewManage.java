@@ -37,11 +37,12 @@ public class ViewManage {
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
 
-	public Drawable card_background_ff;
 
-	public Drawable card_background;
+	
+	public Activity thisActivity;
 
 	void initialize(Activity thisActivity) {
+		this.thisActivity=thisActivity;
 		displayMetrics = new DisplayMetrics();
 
 		thisActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -50,9 +51,6 @@ public class ViewManage {
 		imageLoader.init(ImageLoaderConfiguration.createDefault(thisActivity));
 		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).build();
 		roundOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
-
-		card_background_ff = thisActivity.getResources().getDrawable(R.drawable.card_background_white_ff_radius);
-		card_background = thisActivity.getResources().getDrawable(R.drawable.card_background_white_radius);
 	}
 
 	public void postNotifyView(final String viewName) {
