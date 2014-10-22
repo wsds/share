@@ -49,7 +49,7 @@ public class Data {
 			public String abstractStr;
 		}
 
-		public List<String> children = new ArrayList<String>();
+		public ArrayList<String> children = new ArrayList<String>();
 
 		public Map<String, String> content = new HashMap<String, String>();
 

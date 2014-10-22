@@ -235,7 +235,7 @@ public class PostBody {
 		}
 		this.endValue = endValue;
 
-		viewManage.postPool.putView(hot.id, this);
+		viewManage.postPool.putPost(hot.id, this);
 		render(endValue);
 
 		return postView;

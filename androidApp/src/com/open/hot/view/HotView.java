@@ -1,5 +1,6 @@
 package com.open.hot.view;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import android.annotation.SuppressLint;
@@ -107,7 +108,8 @@ public class HotView {
 		BodyCallback myBodyCallback = new BodyCallback();
 
 		viewManage.postPool.container = main_container;
-		Map<String, Hot> hotMap = data.hotMap;
+		viewManage.postPool.pool.clear();
+		hotMap = data.hotMap;
 
 		mainPagerBody = new PagerBody();
 		mainPagerBody.tag = "mainPagerBody";
@@ -115,29 +117,9 @@ public class HotView {
 
 		cardListBody = new ListBody2();
 		cardListBody.initialize(displayMetrics, big_card_container);
-		CardItem cardItem = null;
 
-		postBody = new PostBody();
-		postBody.initialize(hotMap.get("2003"), 1);
-		cardItem = new CardItem(this.cardListBody);
-		cardItem.initialize3(postBody);
-
-		postBody = new PostBody();
-		postBody.initialize(hotMap.get("2001"), 1);
-		cardItem = new CardItem(this.cardListBody);
-		cardItem.initialize3(postBody);
-		postBodyClick = postBody;
-
-		postBody = new PostBody();
-		postBody.initialize(hotMap.get("2002"), 1);
-		cardItem = new CardItem(this.cardListBody);
-		cardItem.initialize3(postBody);
-
-		postBody = new PostBody();
-		postBody.initialize(data.me, 0);
-
-		mainPagerBody.addChildView(postBody.postView);
-		mainPagerBody.setTitleView(postBody.titleView, 0);
+		// mainPagerBody.addChildView(postBody.postView);
+		// mainPagerBody.setTitleView(postBody.titleView, 0);
 
 		SpringListener mSpringListener = new SpringListener();
 		mScaleCardSpring.addListener(mSpringListener);
@@ -148,6 +130,63 @@ public class HotView {
 		mFoldCardSpring.addListener(mFoldCardSpringListener);
 		mFoldCardSpring.setCurrentValue(1);
 		mFoldCardSpring.setEndValue(1);
+
+		setPost(data.me);
+	}
+
+	Map<String, Hot> hotMap;
+
+	public void setPost(Hot hot) {
+		setCardList(hot.children);
+		setCurrentPost(hot);
+	}
+
+	public void setCurrentPost(String key) {
+		Hot hot = hotMap.get(key);
+		if (hot != null) {
+			setCurrentPost(hot);
+		}
+	}
+
+	public void setCurrentPost(Hot hot) {
+		PostBody currentPost = viewManage.postPool.getPost(hot.id);
+		if (currentPost == null) {
+			Log.d(tag, "currentPost==null");
+			currentPost = new PostBody();
+			currentPost.initialize(hot, 0);
+		} else {
+			Log.d(tag, "currentPost exist!");
+			currentPost.endValue = 0;
+			currentPost.render(0);
+		}
+	}
+
+	public void setCardList(ArrayList<String> children) {
+		this.cardListBody.clear();
+		for (String key : children) {
+			Hot hot = hotMap.get(key);
+			if (hot != null) {
+				addToCardList(hot);
+			}
+		}
+		this.mFoldCardSpring.setCurrentValue(0);
+		this.renderFoldCard();
+		this.mFoldCardSpring.setEndValue(1);
+	}
+
+	public void addToCardList(Hot hot) {
+
+		PostBody post = viewManage.postPool.getPost(hot.id);
+		if (post == null) {
+			post = new PostBody();
+			post.initialize(hot, 1);
+		} else {
+			post.endValue = 1;
+			post.render(1);
+		}
+
+		CardItem cardItem = new CardItem(this.cardListBody);
+		cardItem.initialize3(post);
 	}
 
 	public class CardItem extends MyListItemBody {
@@ -198,7 +237,9 @@ public class HotView {
 	@SuppressLint("NewApi")
 	public void render() {
 		double value = mScaleCardSpring.getCurrentValue();
-		postBodyClick.render(value);
+		if (postBodyClick != null) {
+			postBodyClick.render(value);
+		}
 
 		if (value < 0.1) {
 			logo.setTextColor(0xff0099cd);

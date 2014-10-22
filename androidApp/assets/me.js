@@ -9,14 +9,14 @@
 		permission : "public",
 		subPost : "show",
 		background : "test_abc_121212.jpg",
-		abstractStr:"爱吃香蕉爱吃鱼"
+		abstractStr:"爱吃香蕉,爱吃鱼,也爱吃玉米"
 	},
-	children : [2001, 2002, 2003],
+	children : [2001, 2003, 2002],
 
 	account : {
 		nickName : "很大的冬瓜",
 		mainBusiness : "爱吃香蕉爱吃鱼",
-		head : "defanlt",
+		head : "default",
 		groups : [156, 123, 448]
 	}
 }

@@ -105,6 +105,8 @@ public class HotController {
 	}
 
 	public void onResume() {
+		Log.d(tag, "onResume");
+		// thisView.setPost(data.me);
 	}
 
 	public void onPause() {

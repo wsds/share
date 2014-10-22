@@ -396,6 +396,12 @@ public class ListBody2 {
 	public List<String> listItemsSequence = new ArrayList<String>();
 	public Map<String, MyListItemBody> listItemBodiesMap = new HashMap<String, MyListItemBody>();
 
+	public void clear() {
+		listItemsSequence.clear();
+		listItemBodiesMap.clear();
+		this.height = 0;
+	}
+
 	public void sliding(float speedY) {
 		this.dySpeed = speedY;
 		bodyStatus.state = bodyStatus.FLINGHOMING;
