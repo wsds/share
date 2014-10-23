@@ -28,7 +28,7 @@ public class ViewManage {
 		return viewManager;
 	}
 
-	 public PostPool postPool = new PostPool();
+	public PostPool postPool = new PostPool();
 
 	public ImageLoader imageLoader = ImageLoader.getInstance();
 	public DisplayImageOptions roundOptions;
@@ -36,12 +36,16 @@ public class ViewManage {
 	public DisplayMetrics displayMetrics;
 	public LayoutInflater mInflater;
 
+	public int cardWidth;
+	public int cardHeight;
+	public int position_A;
+	public int position_B;
+	public int position_C;
 
-	
 	public Activity thisActivity;
 
 	void initialize(Activity thisActivity) {
-		this.thisActivity=thisActivity;
+		this.thisActivity = thisActivity;
 		displayMetrics = new DisplayMetrics();
 
 		thisActivity.getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -50,6 +54,13 @@ public class ViewManage {
 		imageLoader.init(ImageLoaderConfiguration.createDefault(thisActivity));
 		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).build();
 		roundOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
+		
+		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
+		cardHeight = (int) (cardWidth * 1.78f);
+
+		position_A = 38;
+		position_B = displayMetrics.heightPixels - cardHeight;
+		position_C = (int) (displayMetrics.heightPixels - 60 * displayMetrics.density);
 	}
 
 	public void postNotifyView(final String viewName) {
