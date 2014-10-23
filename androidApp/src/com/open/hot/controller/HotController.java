@@ -57,10 +57,10 @@ public class HotController {
 					if (view_class.equals("CardView")) {
 						String key = (String) view.getTag(R.id.tag_key);
 						postBodyClick = thisView.viewManage.postPool.pool.get(key);
-						Log.d(tag, "Touch: " + postBodyClick.key);
-						thisView.postBodyClick = postBodyClick;
 						if (postBodyClick.endValue == 1 && thisView.mScaleCardSpring.getCurrentValue() == 1) {
+							Log.d(tag, "Touch: " + postBodyClick.key);
 							postBodyClick.recordX();
+							thisView.postClick = postBodyClick;
 						}
 
 					}
@@ -198,7 +198,7 @@ public class HotController {
 					thisView.mScaleCardSpring.setCurrentValue(-ratio);
 					thisView.mScaleCardSpring.setEndValue(-ratio);
 
-					thisView.render();
+					thisView.renderScaleCard();
 				} else if (subCardStatus.state == subCardStatus.NORMAL) {
 					if (ratio1 > 1) {
 						ratio1 = 1;
@@ -229,7 +229,7 @@ public class HotController {
 					thisView.mFoldCardSpring.setCurrentValue(1);
 					thisView.mFoldCardSpring.setEndValue(1);
 
-					thisView.render();
+					thisView.renderScaleCard();
 				} else if (subCardStatus.state == subCardStatus.FOLD) {
 
 					if (ratio1 < -1) {

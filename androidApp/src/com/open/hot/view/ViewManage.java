@@ -1,16 +1,15 @@
 package com.open.hot.view;
 
+import android.app.Activity;
+import android.os.Handler;
+import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
+
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.open.hot.R;
-
-import android.app.Activity;
-import android.graphics.drawable.Drawable;
-import android.os.Handler;
-import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 
 public class ViewManage {
 

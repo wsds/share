@@ -17,14 +17,14 @@ public class PostPool {
 	public void putPost(String key, PostBody postBody) {
 		pool.put(key, postBody);
 		if (container != null) {
-			container.addView(postBody.postView, 0);
+			container.addView(postBody.postView);
 		}
 	}
 
 	public void putPost(String key, PostBody postBody, TouchView.LayoutParams layoutParams) {
 		pool.put(key, postBody);
 		if (container != null) {
-			container.addView(postBody.postView, 0, layoutParams);
+			container.addView(postBody.postView, layoutParams);
 		}
 	}
 	

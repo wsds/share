@@ -397,6 +397,16 @@ public class ListBody2 {
 	public Map<String, MyListItemBody> listItemBodiesMap = new HashMap<String, MyListItemBody>();
 
 	public void clear() {
+
+		lastAddItem = null;
+		// int listSize = listItemsSequence.size();
+		//
+		// for (int i = 0; i < listSize; i++) {
+		// String key = listItemsSequence.get(i);
+		// MyListItemBody myListItemBody = listItemBodiesMap.get(key);
+		// // myListItemBody.myListItemView.setVisibility(View.GONE);
+		// }
+
 		listItemsSequence.clear();
 		listItemBodiesMap.clear();
 		this.height = 0;

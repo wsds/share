@@ -53,7 +53,7 @@ public class PostBody {
 
 	public Status status = new Status();
 
-	public HotType hotType=new HotType();;// "container" | "paper" | "photo"
+	public HotType hotType = new HotType();;// "container" | "paper" | "photo"
 
 	public class HotType {
 		public int CONTAINER = 0, PAPER = 1, PHOTO = 2;
@@ -72,14 +72,14 @@ public class PostBody {
 
 	public HotType determineHotType(Hot hot) {
 		if (!hot.type.equals("hot")) {
-			hotType.type=hotType.CONTAINER;
+			hotType.type = hotType.CONTAINER;
 		} else if (hot.content == null || hot.content.size() == 0) {
-			hotType.type=hotType.CONTAINER;
+			hotType.type = hotType.CONTAINER;
 		} else if (hot.content.size() == 1) {
-			hotType.type=hotType.PHOTO;
+			hotType.type = hotType.PHOTO;
 		} else {
 			Log.d(tag, "" + hot.content.size());
-			hotType.type=hotType.PAPER;
+			hotType.type = hotType.PAPER;
 		}
 
 		return hotType;
@@ -104,7 +104,7 @@ public class PostBody {
 		information = hot.information;
 		this.key = hot.id;
 		// hotType = "pape22r";
-		if (hotType.type==hotType.CONTAINER) {
+		if (hotType.type == hotType.CONTAINER) {
 			postView = mInflater.inflate(R.layout.post_container, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
@@ -203,7 +203,7 @@ public class PostBody {
 			filepath = "file://" + currentImageFile.getAbsolutePath();
 			imageLoader.displayImage(filepath, content_image_1, viewManage.options);
 
-		} else if (hotType.type==hotType.PAPER) {
+		} else if (hotType.type == hotType.PAPER) {
 			postView = mInflater.inflate(R.layout.post_paper, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
@@ -229,7 +229,7 @@ public class PostBody {
 			String filepath = "file://" + currentImageFile.getAbsolutePath();
 			imageLoader.displayImage(filepath, content_image, viewManage.options);
 
-		} else if (hotType.type==hotType.PHOTO) {
+		} else if (hotType.type == hotType.PHOTO) {
 
 			Log.d(tag, "" + hot.content.size());
 			postView = mInflater.inflate(R.layout.post_photo, null);
@@ -243,7 +243,10 @@ public class PostBody {
 			sub_title_view.setText(information.abstractStr);
 
 			TouchImageView background_image1 = (TouchImageView) postView.findViewById(R.id.background_image);
-			imageLoader.displayImage("drawable://" + R.drawable.test_abc_121212, background_image1, viewManage.roundOptions);
+			mImageFile = fileHandlers.sdcardImageFolder;
+			File currentImageFile = new File(mImageFile, information.background);
+			String filepath = "file://" + currentImageFile.getAbsolutePath();
+			imageLoader.displayImage(filepath, background_image1, viewManage.options);
 		}
 		this.endValue = endValue;
 

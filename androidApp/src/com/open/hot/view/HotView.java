@@ -8,6 +8,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -86,8 +87,8 @@ public class HotView {
 	public TouchView cardViewClickedLeft = null;
 	public TouchView cardViewClickedRight = null;
 
-	public PostBody postBody;
-	public PostBody postBodyClick;
+	public PostBody currentPost;
+	public PostBody postClick;
 
 	public void initView() {
 		viewManage.initialize(thisActivity);
@@ -101,10 +102,10 @@ public class HotView {
 		// thisActivity.setContentView(R.layout.view_card);
 		main_container = (TouchView) thisActivity.findViewById(R.id.main_container);
 
-		logo = (TextView) main_container.findViewById(R.id.logo);
-		more = (ImageView) main_container.findViewById(R.id.more);
+		logo = (TextView) thisActivity.findViewById(R.id.logo);
+		more = (ImageView) thisActivity.findViewById(R.id.more);
 
-		album = (ImageView) main_container.findViewById(R.id.album);
+		album = (ImageView) thisActivity.findViewById(R.id.album);
 
 		BodyCallback myBodyCallback = new BodyCallback();
 
@@ -122,7 +123,7 @@ public class HotView {
 		// mainPagerBody.addChildView(postBody.postView);
 		// mainPagerBody.setTitleView(postBody.titleView, 0);
 
-		SpringListener mSpringListener = new SpringListener();
+		ScaleCardSpringListener mSpringListener = new ScaleCardSpringListener();
 		mScaleCardSpring.addListener(mSpringListener);
 		mScaleCardSpring.setCurrentValue(1);
 		mScaleCardSpring.setEndValue(1);
@@ -138,8 +139,8 @@ public class HotView {
 	Map<String, Hot> hotMap;
 
 	public void setPost(Hot hot) {
-		setCardList(hot.children);
 		setCurrentPost(hot);
+		setCardList(hot.children);
 	}
 
 	public void setCurrentPost(String key) {
@@ -150,7 +151,7 @@ public class HotView {
 	}
 
 	public void setCurrentPost(Hot hot) {
-		PostBody currentPost = viewManage.postPool.getPost(hot.id);
+		currentPost = viewManage.postPool.getPost(hot.id);
 		if (currentPost == null) {
 			currentPost = new PostBody();
 			currentPost.initialize(hot, 0);
@@ -160,7 +161,13 @@ public class HotView {
 		}
 	}
 
+	public long delayMillis = 300;
+
 	public void setCardList(ArrayList<String> children) {
+		if (children == null) {
+			return;
+		}
+		Log.d(tag, "Show children List: " + children.toString());
 		this.cardListBody.clear();
 		for (String key : children) {
 			Hot hot = hotMap.get(key);
@@ -168,16 +175,17 @@ public class HotView {
 				addToCardList(hot);
 			}
 		}
-		this.mFoldCardSpring.setCurrentValue(0);
-		this.mFoldCardSpring.setEndValue(0);
+		this.mFoldCardSpring.setCurrentValue(0.2);
+		this.mFoldCardSpring.setEndValue(0.2);
 
 		this.renderFoldCard();
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
 				mFoldCardSpring.setSpringConfig(slow_config);
 				mFoldCardSpring.setEndValue(1);
+				delayMillis = 20;
 			}
-		}, 300);
+		}, delayMillis);
 		new Handler().postDelayed(new Runnable() {
 			public void run() {
 				mFoldCardSpring.setSpringConfig(fast_config);
@@ -194,6 +202,12 @@ public class HotView {
 			post.initialize(hot, 1);
 		} else {
 			post.endValue = 1;
+			post.postView.setVisibility(View.VISIBLE);
+			main_container.removeView(post.postView);
+			main_container.addView(post.postView);
+			Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
+			post.left = null;
+			post.right = null;
 			post.render(1);
 		}
 
@@ -211,15 +225,22 @@ public class HotView {
 		public TouchView cardView;
 		public PostBody postBody;
 
+		public TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+
 		public TouchView initialize3(PostBody postBody) {
 
 			this.postBody = postBody;
+
 			if (listBody.lastAddItem != null) {
 				postBody.left = ((CardItem) listBody.lastAddItem).postBody;
 				postBody.left.right = postBody;
 			}
 			cardView = (TouchView) postBody.postView;
+			cardView.setVisibility(View.VISIBLE);
+
 			cardView.setX(listBody.height);
+			cardView.setY((float) (displayMetrics.heightPixels - 38 - cardHeight));
+			cardView.setLayoutParams(renderParams);
 
 			cardView.setTag(R.id.tag_class, "CardView");
 			cardView.setTag(R.id.tag_key, postBody.key);
@@ -237,10 +258,37 @@ public class HotView {
 		}
 	}
 
-	public class SpringListener extends SimpleSpringListener {
+	public class ScaleCardSpringListener extends SimpleSpringListener {
 		@Override
 		public void onSpringUpdate(Spring spring) {
-			render();
+			renderScaleCard();
+		}
+
+		@Override
+		public void onSpringAtRest(Spring spring) {
+			double value = mScaleCardSpring.getCurrentValue();
+			Log.d(tag, "onSpringAtRest 2: " + value);
+			if (value == 0) {
+				if (postClick != null) {
+					postClick.parent = currentPost;
+					setPost(postClick.hot);
+					postClick.postView.setVisibility(View.VISIBLE);
+
+					postClick = null;
+
+					mScaleCardSpring.setCurrentValue(1);
+					mScaleCardSpring.setEndValue(1);
+				}
+
+			} else if (value == 1) {
+				if (postClick != null && postClick.parent != null) {
+					// setPost(postClick.parent.hot);
+
+					mScaleCardSpring.setCurrentValue(1);
+					mScaleCardSpring.setEndValue(1);
+					// renderScaleCard();
+				}
+			}
 		}
 	}
 
@@ -252,14 +300,14 @@ public class HotView {
 	}
 
 	@SuppressLint("NewApi")
-	public void render() {
+	public void renderScaleCard() {
 		double value = mScaleCardSpring.getCurrentValue();
-		if (postBodyClick != null) {
-			postBodyClick.render(value);
+		if (postClick != null) {
+			postClick.render(value);
 		}
 
 		if (value < 0.1) {
-			if (postBodyClick.hotType.type == postBodyClick.hotType.PAPER) {
+			if (postClick != null && postClick.hotType.type == postClick.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
 				more.setColorFilter(0xff0099cd);
 			}
