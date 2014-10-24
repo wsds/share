@@ -47,6 +47,7 @@ public class HotController {
 	}
 
 	public PostBody postClick;
+	public PostBody currentPost;
 	public PostBody postClick_debug;
 
 	public ViewManage viewManage = ViewManage.getInstance();
@@ -62,7 +63,7 @@ public class HotController {
 					if (view_class.equals("CardView")) {
 						String key = (String) view.getTag(R.id.tag_key);
 						PostBody post = thisView.viewManage.postPool.pool.get(key);
-						if (post != null && post.endValue == 1 && thisView.mScaleCardSpring.getCurrentValue() == 1) {
+						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
 							postClick = post;
 							postClick.recordX();
@@ -166,8 +167,8 @@ public class HotController {
 
 	public SubCardStatus subCardStatus = new SubCardStatus();
 
-	public boolean AtPostTop = true;
-	public boolean AtPostBottom = true;
+	public boolean atPostTop = true;
+	public boolean atPostBottom = true;
 
 	public class EventStatus {
 		public int Done = 0, Fold = 1, UnFold = 2, ScrollPost = 3, ClosePost = 4, FlipPage = 5, OpenPost = 6, ScrollList = 7, ScrollPost_Horizontal = 8;
@@ -242,7 +243,15 @@ public class HotController {
 			} else if (touchStatus.state == touchStatus.Horizontal) {
 
 			} else if (touchStatus.state == touchStatus.Vertical) {
-				if (touchDownArea.area == touchDownArea.B) {
+				if (touchDownArea.area == touchDownArea.A) {
+					if (Δy < 0) {
+
+					} else {
+						if (atPostTop == true) {
+							closePost(Δy);
+						}
+					}
+				} else if (touchDownArea.area == touchDownArea.B) {
 					if (Δy < 0) {
 						if (subCardStatus.state == subCardStatus.UNFOLD) {
 							openPost(Δy);
@@ -252,8 +261,7 @@ public class HotController {
 							foldCard(Δy);
 						}
 					}
-				}
-				if (touchDownArea.area == touchDownArea.C) {
+				} else if (touchDownArea.area == touchDownArea.C) {
 					if (Δy < 0) {
 						if (subCardStatus.state != subCardStatus.UNFOLD) {
 							foldCard(Δy);
@@ -284,11 +292,11 @@ public class HotController {
 						}
 					}
 				} else if (eventStatus.state == eventStatus.OpenPost) {
-					double value = thisView.mScaleCardSpring.getCurrentValue();
+					double value = thisView.mOpenPostSpring.getCurrentValue();
 					if (value > 0.5) {
-						thisView.mScaleCardSpring.setEndValue(1);
+						thisView.mOpenPostSpring.setEndValue(1);
 					} else {
-						thisView.mScaleCardSpring.setEndValue(0);
+						thisView.mOpenPostSpring.setEndValue(0);
 					}
 				}
 			}
@@ -298,7 +306,10 @@ public class HotController {
 	}
 
 	public void onClick() {
-		if (touchDownArea.area == touchDownArea.C || touchDownArea.area == touchDownArea.B) {
+		if (touchDownArea.area == touchDownArea.A) {
+			thisView.clicker.performClick();
+			foldCard(true);
+		} else if (touchDownArea.area == touchDownArea.C || touchDownArea.area == touchDownArea.B) {
 			thisView.clicker.performClick();
 			openPost();
 		}
@@ -341,8 +352,8 @@ public class HotController {
 			thisView.mFoldCardSpring.setCurrentValue(1 - ratio1);
 			thisView.mFoldCardSpring.setEndValue(1 - ratio1);
 
-			thisView.mScaleCardSpring.setCurrentValue(1);
-			thisView.mScaleCardSpring.setEndValue(1);
+			thisView.mOpenPostSpring.setCurrentValue(1);
+			thisView.mOpenPostSpring.setEndValue(1);
 		} else {
 			if (ratio1 < -1) {
 				ratio1 = -1;
@@ -357,13 +368,25 @@ public class HotController {
 		thisView.renderFoldCard();
 	}
 
+	public void closePost(float Δy) {
+
+		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
+
+		if (ratio < -1) {
+			ratio = -1;
+		}
+		if (ratio > 0) {
+			ratio = 0;
+		}
+		thisView.mClosePostSpring.setCurrentValue(-ratio);
+		thisView.mClosePostSpring.setEndValue(-ratio);
+
+		thisView.renderClosePost();
+	}
+
 	public void openPost() {
-		Log.d(tag, " openPost");
-
 		if (postClick != null) {
-			Log.d(tag, " setEndValue 0" + "postClick key:" + postClick.key);
-
-			thisView.mScaleCardSpring.setEndValue(0);
+			thisView.mOpenPostSpring.setEndValue(0);
 		}
 	}
 
@@ -382,13 +405,13 @@ public class HotController {
 			ratio = 0;
 		}
 
-		thisView.mScaleCardSpring.setCurrentValue(1 - ratio);
-		thisView.mScaleCardSpring.setEndValue(1 - ratio);
+		thisView.mOpenPostSpring.setCurrentValue(1 - ratio);
+		thisView.mOpenPostSpring.setEndValue(1 - ratio);
 
 		thisView.mFoldCardSpring.setCurrentValue(1);
 		thisView.mFoldCardSpring.setEndValue(1);
 
-		thisView.renderScaleCard();
+		thisView.renderOpenPost();
 	}
 
 	class GestureListener extends SimpleOnGestureListener {

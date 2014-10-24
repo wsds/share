@@ -56,7 +56,8 @@ public class HotView {
 	public SpringConfig slow_config = SpringConfig.fromOrigamiTensionAndFriction(60, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
-	public Spring mScaleCardSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
+	public Spring mOpenPostSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
+	public Spring mClosePostSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
 	public Spring mFoldCardSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
 
 	public HotView(Activity activity) {
@@ -88,7 +89,6 @@ public class HotView {
 	public TouchView cardViewClickedLeft = null;
 	public TouchView cardViewClickedRight = null;
 
-	public PostBody currentPost;
 
 	public void initView() {
 		viewManage.initialize(thisActivity);
@@ -124,10 +124,15 @@ public class HotView {
 		// mainPagerBody.addChildView(postBody.postView);
 		// mainPagerBody.setTitleView(postBody.titleView, 0);
 
-		ScaleCardSpringListener mSpringListener = new ScaleCardSpringListener();
-		mScaleCardSpring.addListener(mSpringListener);
-		mScaleCardSpring.setCurrentValue(1);
-		mScaleCardSpring.setEndValue(1);
+		OpenPostSpringListener mOpenPostSpringListener = new OpenPostSpringListener();
+		mOpenPostSpring.addListener(mOpenPostSpringListener);
+		mOpenPostSpring.setCurrentValue(1);
+		mOpenPostSpring.setEndValue(1);
+
+		ClosePostSpringListener mClosePostSpringListener = new ClosePostSpringListener();
+		mClosePostSpring.addListener(mClosePostSpringListener);
+		mClosePostSpring.setCurrentValue(0);
+		mClosePostSpring.setEndValue(0);
 
 		FoldCardSpringListener mFoldCardSpringListener = new FoldCardSpringListener();
 		mFoldCardSpring.addListener(mFoldCardSpringListener);
@@ -152,13 +157,13 @@ public class HotView {
 	}
 
 	public void setCurrentPost(Hot hot) {
-		currentPost = viewManage.postPool.getPost(hot.id);
-		if (currentPost == null) {
-			currentPost = new PostBody();
-			currentPost.initialize(hot, 0);
+		thisController.currentPost = viewManage.postPool.getPost(hot.id);
+		if (thisController.currentPost == null) {
+			thisController.currentPost = new PostBody();
+			thisController.currentPost.initialize(hot, 0);
 		} else {
-			currentPost.endValue = 0;
-			currentPost.render(0);
+			thisController.currentPost.endValue = 0;
+			thisController.currentPost.render(0);
 		}
 	}
 
@@ -206,7 +211,7 @@ public class HotView {
 			post.postView.setVisibility(View.VISIBLE);
 			main_container.removeView(post.postView);
 			main_container.addView(post.postView);
-			Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
+			// Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
 			post.left = null;
 			post.right = null;
 			post.render(1);
@@ -259,38 +264,56 @@ public class HotView {
 		}
 	}
 
-	public class ScaleCardSpringListener extends SimpleSpringListener {
+	public class OpenPostSpringListener extends SimpleSpringListener {
 		@Override
 		public void onSpringUpdate(Spring spring) {
-			renderScaleCard();
+			renderOpenPost();
 		}
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
-			double value = mScaleCardSpring.getCurrentValue();
-			Log.d(tag, "onSpringAtRest 2: " + value);
+			double value = mOpenPostSpring.getCurrentValue();
 			if (value == 0) {
 				if (thisController.postClick != null) {
-					thisController.postClick.parent = currentPost;
+					thisController.postClick.parent = thisController.currentPost;
 					setPost(thisController.postClick.hot);
 					thisController.postClick.postView.setVisibility(View.VISIBLE);
 
 					thisController.postClick = null;
 
-					mScaleCardSpring.setCurrentValue(1);
-					mScaleCardSpring.setEndValue(1);
+					mOpenPostSpring.setCurrentValue(1);
+					mOpenPostSpring.setEndValue(1);
 				}
+
+			} else if (value == 1) {
+			}
+			if (thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+				thisController.eventStatus.state = thisController.eventStatus.Done;
+			}
+		}
+	}
+
+	public class ClosePostSpringListener extends SimpleSpringListener {
+		@Override
+		public void onSpringUpdate(Spring spring) {
+			renderOpenPost();
+		}
+
+		@Override
+		public void onSpringAtRest(Spring spring) {
+			double value = mOpenPostSpring.getCurrentValue();
+			if (value == 0) {
 
 			} else if (value == 1) {
 				if (thisController.postClick != null && thisController.postClick.parent != null) {
 					// setPost(postClick.parent.hot);
 
-					mScaleCardSpring.setCurrentValue(1);
-					mScaleCardSpring.setEndValue(1);
+					mClosePostSpring.setCurrentValue(0);
+					mClosePostSpring.setEndValue(0);
 					// renderScaleCard();
 				}
 			}
-			if (thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+			if (thisController.eventStatus.state == thisController.eventStatus.ClosePost) {
 				thisController.eventStatus.state = thisController.eventStatus.Done;
 			}
 		}
@@ -304,7 +327,7 @@ public class HotView {
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
-			double value = mScaleCardSpring.getCurrentValue();
+			double value = mOpenPostSpring.getCurrentValue();
 			if (thisController.subCardStatus.state == thisController.subCardStatus.MOVING) {
 				if (value == 0) {
 					thisController.subCardStatus.state = thisController.subCardStatus.FOLD;
@@ -319,8 +342,8 @@ public class HotView {
 	}
 
 	@SuppressLint("NewApi")
-	public void renderScaleCard() {
-		double value = mScaleCardSpring.getCurrentValue();
+	public void renderOpenPost() {
+		double value = mOpenPostSpring.getCurrentValue();
 		if (thisController.postClick != null) {
 			thisController.postClick.render(value);
 		}
@@ -336,6 +359,14 @@ public class HotView {
 		}
 	}
 
+	@SuppressLint("NewApi")
+	public void renderClosePost() {
+		double value = mClosePostSpring.getCurrentValue();
+		if (thisController.currentPost != null) {
+			thisController.currentPost.render(value);
+		}
+	}
+	
 	public void renderFoldCard() {
 		double value = mFoldCardSpring.getCurrentValue();
 
