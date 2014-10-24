@@ -375,12 +375,13 @@ public class HotController {
 
 		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 
-		if (ratio > 1) {
-			ratio = 1;
+		if (ratio >= 1) {
+			ratio = 0.994f;
 		}
 		if (ratio < 0) {
 			ratio = 0;
 		}
+
 		thisView.mScaleCardSpring.setCurrentValue(1 - ratio);
 		thisView.mScaleCardSpring.setEndValue(1 - ratio);
 
