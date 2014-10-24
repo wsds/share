@@ -46,7 +46,8 @@ public class HotController {
 		this.thisActivity = activity;
 	}
 
-	public PostBody postBodyClick;
+	public PostBody postClick;
+	public PostBody postClick_debug;
 
 	public ViewManage viewManage = ViewManage.getInstance();
 
@@ -60,15 +61,13 @@ public class HotController {
 					String view_class = (String) view.getTag(R.id.tag_class);
 					if (view_class.equals("CardView")) {
 						String key = (String) view.getTag(R.id.tag_key);
-						postBodyClick = thisView.viewManage.postPool.pool.get(key);
-						if (postBodyClick.endValue == 1 && thisView.mScaleCardSpring.getCurrentValue() == 1) {
-							Log.d(tag, "Touch: " + postBodyClick.key);
-							postBodyClick.recordX();
-							thisView.postClick = postBodyClick;
+						PostBody post = thisView.viewManage.postPool.pool.get(key);
+						if (post != null && post.endValue == 1 && thisView.mScaleCardSpring.getCurrentValue() == 1) {
+							Log.d(tag, "Touch: " + post.key);
+							postClick = post;
+							postClick.recordX();
 						}
-
 					}
-
 				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
 				}
 				return false;
@@ -309,14 +308,14 @@ public class HotController {
 		if (isFord == true) {
 
 			if (subCardStatus.state != subCardStatus.FOLD) {
-				postBodyClick = null;
+				postClick = null;
 				thisView.mFoldCardSpring.setEndValue(0);
 				eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
 			}
 		} else {
 			if (subCardStatus.state != subCardStatus.UNFOLD) {
-				postBodyClick = null;
+				postClick = null;
 				thisView.mFoldCardSpring.setEndValue(1);
 				eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
@@ -359,7 +358,11 @@ public class HotController {
 	}
 
 	public void openPost() {
-		if (postBodyClick != null) {
+		Log.d(tag, " openPost");
+
+		if (postClick != null) {
+			Log.d(tag, " setEndValue 0" + "postClick key:" + postClick.key);
+
 			thisView.mScaleCardSpring.setEndValue(0);
 		}
 	}

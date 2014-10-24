@@ -89,7 +89,6 @@ public class HotView {
 	public TouchView cardViewClickedRight = null;
 
 	public PostBody currentPost;
-	public PostBody postClick;
 
 	public void initView() {
 		viewManage.initialize(thisActivity);
@@ -271,19 +270,19 @@ public class HotView {
 			double value = mScaleCardSpring.getCurrentValue();
 			Log.d(tag, "onSpringAtRest 2: " + value);
 			if (value == 0) {
-				if (postClick != null) {
-					postClick.parent = currentPost;
-					setPost(postClick.hot);
-					postClick.postView.setVisibility(View.VISIBLE);
+				if (thisController.postClick != null) {
+					thisController.postClick.parent = currentPost;
+					setPost(thisController.postClick.hot);
+					thisController.postClick.postView.setVisibility(View.VISIBLE);
 
-					postClick = null;
+					thisController.postClick = null;
 
 					mScaleCardSpring.setCurrentValue(1);
 					mScaleCardSpring.setEndValue(1);
 				}
 
 			} else if (value == 1) {
-				if (postClick != null && postClick.parent != null) {
+				if (thisController.postClick != null && thisController.postClick.parent != null) {
 					// setPost(postClick.parent.hot);
 
 					mScaleCardSpring.setCurrentValue(1);
@@ -322,12 +321,12 @@ public class HotView {
 	@SuppressLint("NewApi")
 	public void renderScaleCard() {
 		double value = mScaleCardSpring.getCurrentValue();
-		if (postClick != null) {
-			postClick.render(value);
+		if (thisController.postClick != null) {
+			thisController.postClick.render(value);
 		}
 
 		if (value < 0.1) {
-			if (postClick != null && postClick.hotType.type == postClick.hotType.PAPER) {
+			if (thisController.postClick != null && thisController.postClick.hotType.type == thisController.postClick.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
 				more.setColorFilter(0xff0099cd);
 			}
