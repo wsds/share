@@ -1,6 +1,0 @@
-{
-prepareUploadImagesList:[],
-prepareDownloadImagesList:[],
-currentSelectedGroup:"",
-currentSelectedSquare:""
-}

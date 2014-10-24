@@ -270,28 +270,29 @@ public class HotController {
 
 			if (touchStatus.state == touchStatus.Down) {
 				onClick();
-			} else if (eventStatus.state == eventStatus.Fold) {
-				double value = thisView.mFoldCardSpring.getCurrentValue();
-				if (value > 0.5) {
-					if (value != 1) {
-						subCardStatus.state = subCardStatus.MOVING;
-						thisView.mFoldCardSpring.setEndValue(1);
+			} else if (touchDownArea.area == touchDownArea.C || touchDownArea.area == touchDownArea.B) {
+				if (eventStatus.state == eventStatus.Fold) {
+					double value = thisView.mFoldCardSpring.getCurrentValue();
+					if (value > 0.5) {
+						if (value != 1) {
+							subCardStatus.state = subCardStatus.MOVING;
+							thisView.mFoldCardSpring.setEndValue(1);
+						}
+					} else {
+						if (value != 0) {
+							subCardStatus.state = subCardStatus.MOVING;
+							thisView.mFoldCardSpring.setEndValue(0);
+						}
 					}
-				} else {
-					if (value != 0) {
-						subCardStatus.state = subCardStatus.MOVING;
-						thisView.mFoldCardSpring.setEndValue(0);
+				} else if (eventStatus.state == eventStatus.OpenPost) {
+					double value = thisView.mScaleCardSpring.getCurrentValue();
+					if (value > 0.5) {
+						thisView.mScaleCardSpring.setEndValue(1);
+					} else {
+						thisView.mScaleCardSpring.setEndValue(0);
 					}
-				}
-			} else if (eventStatus.state == eventStatus.OpenPost) {
-				double value = thisView.mScaleCardSpring.getCurrentValue();
-				if (value > 0.5) {
-					thisView.mScaleCardSpring.setEndValue(1);
-				} else {
-					thisView.mScaleCardSpring.setEndValue(0);
 				}
 			}
-
 		}
 		mGesture.onTouchEvent(event);
 		return true;

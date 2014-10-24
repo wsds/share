@@ -1,6 +1,0 @@
-{
-	groupEvents : [],
-	groupEventsMap : {},
-	userEvents : [],
-	userEventsMap : {}
-}
