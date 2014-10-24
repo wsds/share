@@ -7,9 +7,10 @@
 
     <com.open.lib.TouchImageView
         android:id="@+id/background_image"
-        android:alpha="1.0"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"
+        android:alpha="1.0"
+        android:scaleType="centerCrop" />
 
     <com.open.lib.TouchImageView
         android:id="@+id/content_image"
@@ -52,6 +53,7 @@
             android:id="@+id/content_text_1_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
+
             <com.open.lib.TouchTextView
                 android:id="@+id/content_text_1"
                 android:layout_width="wrap_content"
@@ -73,6 +75,7 @@
             android:id="@+id/content_text_2_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
+
             <com.open.lib.TouchTextView
                 android:id="@+id/content_text_2"
                 android:layout_width="wrap_content"
@@ -94,6 +97,7 @@
             android:id="@+id/content_text_3_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
+
             <com.open.lib.TouchTextView
                 android:id="@+id/content_text_3"
                 android:layout_width="wrap_content"
@@ -115,6 +119,7 @@
             android:id="@+id/content_text_4_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
+
             <com.open.lib.TouchTextView
                 android:id="@+id/content_text_4"
                 android:layout_width="wrap_content"
@@ -136,6 +141,7 @@
             android:id="@+id/content_text_5_container"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent" >
+
             <com.open.lib.TouchTextView
                 android:id="@+id/content_text_5"
                 android:layout_width="wrap_content"

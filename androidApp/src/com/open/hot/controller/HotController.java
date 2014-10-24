@@ -12,16 +12,16 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.open.hot.R;
 import com.open.hot.model.Data;
 import com.open.hot.model.Parser;
 import com.open.hot.view.HotView;
+import com.open.hot.view.HotView.Status;
 import com.open.hot.view.PostBody;
 import com.open.hot.view.ViewManage;
-import com.open.hot.view.HotView.Status;
-import com.open.lib.viewbody.ListBody2.TouchStatus;
 
 public class HotController {
 	public Data data = Data.getInstance();
@@ -116,6 +116,7 @@ public class HotController {
 	public void bindEvent() {
 		thisView.logo.setOnClickListener(mOnClickListener);
 		thisView.album.setOnClickListener(mOnClickListener);
+		thisView.clicker.setOnClickListener(mOnClickListener);
 	}
 
 	public void onCreate() {
@@ -146,7 +147,6 @@ public class HotController {
 
 			} else if (thisView.status == Status.verifyPhoneForResetPassword) {
 			} else {
-				thisActivity.finish();
 			}
 		} else {
 		}
@@ -161,8 +161,8 @@ public class HotController {
 	boolean fold = true;
 
 	public class SubCardStatus {
-		public int NORMAL = 0, SCALED = 1, FOLD = 2;
-		public int state = NORMAL;
+		public int UNFOLD = 0, MOVING = 1, FOLD = 2;
+		public int state = UNFOLD;
 	}
 
 	public SubCardStatus subCardStatus = new SubCardStatus();
@@ -199,19 +199,16 @@ public class HotController {
 			Log.d(tag, "ACTION_DOWN");
 			touch_pre_x = x;
 			touch_pre_y = y;
-			double value = thisView.mScaleCardSpring.getCurrentValue();
 			double value1 = thisView.mFoldCardSpring.getCurrentValue();
-			if (value < 0.5) {
-				subCardStatus.state = subCardStatus.SCALED;
-			} else if (value1 < 0.5) {
+			if (value1 < 0.5) {
 				subCardStatus.state = subCardStatus.FOLD;
 			} else {
-				subCardStatus.state = subCardStatus.NORMAL;
+				subCardStatus.state = subCardStatus.UNFOLD;
 			}
 
 			if (y < viewManage.position_B) {
 				touchDownArea.area = touchDownArea.A;
-				foldCard();
+				// foldCard();
 			} else if (y > viewManage.position_C) {
 				touchDownArea.area = touchDownArea.C;
 			} else {
@@ -223,7 +220,7 @@ public class HotController {
 			}
 			touchStatus.state = touchStatus.Down;
 		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
-			Log.d(tag, " ACTION_MOVE");
+			// Log.d(tag, " ACTION_MOVE");
 			float Δy = (y - touch_pre_y);
 			float Δx = (x - touch_pre_x);
 			if (touchStatus.state == touchStatus.Down) {
@@ -238,219 +235,235 @@ public class HotController {
 					}
 					touch_pre_x = x;
 					touch_pre_y = y;
+
+					if (touchDownArea.area == touchDownArea.A) {
+						foldCard(true);
+					}
 				}
 			} else if (touchStatus.state == touchStatus.Horizontal) {
 
 			} else if (touchStatus.state == touchStatus.Vertical) {
 				if (touchDownArea.area == touchDownArea.B) {
 					if (Δy < 0) {
-						openPost();
+						if (subCardStatus.state == subCardStatus.UNFOLD) {
+							openPost(Δy);
+						}
 					} else {
-						foldCard(Δy);
+						if (subCardStatus.state != subCardStatus.FOLD) {
+							foldCard(Δy);
+						}
+					}
+				}
+				if (touchDownArea.area == touchDownArea.C) {
+					if (Δy < 0) {
+						if (subCardStatus.state != subCardStatus.UNFOLD) {
+							foldCard(Δy);
+						} else {
+							openPost(Δy);
+						}
+					} else {
 					}
 				}
 
 			}
-		}
+		} else if (motionEvent == MotionEvent.ACTION_UP) {
 
+			if (touchStatus.state == touchStatus.Down) {
+				onClick();
+			} else if (eventStatus.state == eventStatus.Fold) {
+				double value = thisView.mFoldCardSpring.getCurrentValue();
+				if (value > 0.5) {
+					if (value != 1) {
+						subCardStatus.state = subCardStatus.MOVING;
+						thisView.mFoldCardSpring.setEndValue(1);
+					}
+				} else {
+					if (value != 0) {
+						subCardStatus.state = subCardStatus.MOVING;
+						thisView.mFoldCardSpring.setEndValue(0);
+					}
+				}
+			} else if (eventStatus.state == eventStatus.OpenPost) {
+				double value = thisView.mScaleCardSpring.getCurrentValue();
+				if (value > 0.5) {
+					thisView.mScaleCardSpring.setEndValue(1);
+				} else {
+					thisView.mScaleCardSpring.setEndValue(0);
+				}
+			}
+
+		}
 		mGesture.onTouchEvent(event);
 		return true;
 	}
 
-	public void foldCard() {
-		if (subCardStatus.state == subCardStatus.NORMAL) {
-			thisView.mFoldCardSpring.setEndValue(0);
-			subCardStatus.state = subCardStatus.FOLD;
+	public void onClick() {
+		if (touchDownArea.area == touchDownArea.C || touchDownArea.area == touchDownArea.B) {
+			thisView.clicker.performClick();
+			openPost();
+		}
+	}
+
+	public void foldCard(boolean isFord) {
+		if (isFord == true) {
+
+			if (subCardStatus.state != subCardStatus.FOLD) {
+				postBodyClick = null;
+				thisView.mFoldCardSpring.setEndValue(0);
+				eventStatus.state = eventStatus.Fold;
+				subCardStatus.state = subCardStatus.MOVING;
+			}
+		} else {
+			if (subCardStatus.state != subCardStatus.UNFOLD) {
+				postBodyClick = null;
+				thisView.mFoldCardSpring.setEndValue(1);
+				eventStatus.state = eventStatus.Fold;
+				subCardStatus.state = subCardStatus.MOVING;
+			}
 		}
 	}
 
 	public void foldCard(float Δy) {
-		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
+		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.Fold && eventStatus.state != eventStatus.OpenPost) {
+			return;
+		}
+		eventStatus.state = eventStatus.Fold;
+		// float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 		float ratio1 = Δy / (thisView.cardHeight);
 
-		if (ratio1 > 1) {
-			ratio1 = 1;
+		if (Δy > 0) {
+			if (ratio1 > 1) {
+				ratio1 = 1;
+			}
+			if (ratio1 < 0) {
+				ratio1 = 0;
+			}
+			thisView.mFoldCardSpring.setCurrentValue(1 - ratio1);
+			thisView.mFoldCardSpring.setEndValue(1 - ratio1);
+
+			thisView.mScaleCardSpring.setCurrentValue(1);
+			thisView.mScaleCardSpring.setEndValue(1);
+		} else {
+			if (ratio1 < -1) {
+				ratio1 = -1;
+			}
+			if (ratio1 > 0) {
+				ratio1 = 0;
+			}
+			thisView.mFoldCardSpring.setCurrentValue(-ratio1);
+			thisView.mFoldCardSpring.setEndValue(-ratio1);
 		}
-		if (ratio1 < 0) {
-			ratio1 = 0;
-		}
-		thisView.mFoldCardSpring.setCurrentValue(1 - ratio1);
-		thisView.mFoldCardSpring.setEndValue(1 - ratio1);
 
 		thisView.renderFoldCard();
 	}
 
 	public void openPost() {
-
+		if (postBodyClick != null) {
+			thisView.mScaleCardSpring.setEndValue(0);
+		}
 	}
 
-	public boolean onTouchEvent2(MotionEvent event) {
-		int motionEvent = event.getAction();
-		float x = event.getX();
-		float y = event.getY();
-		if (motionEvent == MotionEvent.ACTION_DOWN) {
-			touch_pre_x = x;
-			touch_pre_y = y;
-			double value = thisView.mScaleCardSpring.getCurrentValue();
-			double value1 = thisView.mFoldCardSpring.getCurrentValue();
-			if (value < 0.5) {
-				subCardStatus.state = subCardStatus.SCALED;
-			} else if (value1 < 0.5) {
-				subCardStatus.state = subCardStatus.FOLD;
-			} else {
-				subCardStatus.state = subCardStatus.NORMAL;
-			}
-
-		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
-
-			float Δy = (y - touch_pre_y);
-
-			float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
-			float ratio1 = Δy / (thisView.cardHeight);
-
-			if (Δy > 0) {
-				if (subCardStatus.state == subCardStatus.SCALED) {
-					if (ratio < -1) {
-						ratio = -1;
-					}
-					if (ratio > 0) {
-						ratio = 0;
-					}
-					thisView.mScaleCardSpring.setCurrentValue(-ratio);
-					thisView.mScaleCardSpring.setEndValue(-ratio);
-
-					thisView.renderScaleCard();
-				} else if (subCardStatus.state == subCardStatus.NORMAL) {
-					if (ratio1 > 1) {
-						ratio1 = 1;
-					}
-					if (ratio1 < 0) {
-						ratio1 = 0;
-					}
-					thisView.mFoldCardSpring.setCurrentValue(1 - ratio1);
-					thisView.mFoldCardSpring.setEndValue(1 - ratio1);
-
-					thisView.mScaleCardSpring.setCurrentValue(1);
-					thisView.mScaleCardSpring.setEndValue(1);
-					thisView.renderFoldCard();
-				} else if (subCardStatus.state == subCardStatus.FOLD) {
-				}
-			} else {
-				if (subCardStatus.state == subCardStatus.SCALED) {
-				} else if (subCardStatus.state == subCardStatus.NORMAL) {
-					if (ratio > 1) {
-						ratio = 1;
-					}
-					if (ratio < 0) {
-						ratio = 0;
-					}
-					thisView.mScaleCardSpring.setCurrentValue(1 - ratio);
-					thisView.mScaleCardSpring.setEndValue(1 - ratio);
-
-					thisView.mFoldCardSpring.setCurrentValue(1);
-					thisView.mFoldCardSpring.setEndValue(1);
-
-					thisView.renderScaleCard();
-				} else if (subCardStatus.state == subCardStatus.FOLD) {
-
-					if (ratio1 < -1) {
-						ratio1 = -1;
-					}
-					if (ratio1 > 0) {
-						ratio1 = 0;
-					}
-					thisView.mFoldCardSpring.setCurrentValue(-ratio1);
-					thisView.mFoldCardSpring.setEndValue(-ratio1);
-
-					thisView.renderFoldCard();
-				}
-			}
-
-		} else if (motionEvent == MotionEvent.ACTION_UP) {
-
-			double value = thisView.mScaleCardSpring.getCurrentValue();
-			if (value > 0.5) {
-				thisView.mScaleCardSpring.setEndValue(1);
-			} else {
-				thisView.mScaleCardSpring.setEndValue(0);
-				subCardStatus.state = subCardStatus.SCALED;
-			}
-
-			double value1 = thisView.mFoldCardSpring.getCurrentValue();
-			if (value1 > 0.5) {
-				thisView.mFoldCardSpring.setEndValue(1);
-			} else {
-				thisView.mFoldCardSpring.setEndValue(0);
-				subCardStatus.state = subCardStatus.FOLD;
-			}
-
+	public void openPost(float Δy) {
+		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.Fold && eventStatus.state != eventStatus.OpenPost) {
+			return;
 		}
-		mGesture.onTouchEvent(event);
-		return true;
-	}
+		eventStatus.state = eventStatus.OpenPost;
 
-	public boolean onTouchEvent1(MotionEvent event) {
-		int motionEvent = event.getAction();
-		float y = event.getY();
-		if (motionEvent == MotionEvent.ACTION_DOWN) {
-			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
-				thisView.mainPagerBody.onTouchDown(event);
-			} else {
-				thisView.cardListBody.onTouchDown(event);
-			}
+		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 
-		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
-			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
-				thisView.mainPagerBody.onTouchMove(event);
-			} else {
-				thisView.cardListBody.onTouchMove(event);
-			}
-		} else if (motionEvent == MotionEvent.ACTION_UP) {
-			if (y < thisView.displayMetrics.heightPixels - thisView.cardHeight) {
-				thisView.mainPagerBody.onTouchUp(event);
-			} else {
-				thisView.cardListBody.onTouchUp(event);
-			}
+		if (ratio > 1) {
+			ratio = 1;
 		}
-		mGesture.onTouchEvent(event);
-		return true;
+		if (ratio < 0) {
+			ratio = 0;
+		}
+		thisView.mScaleCardSpring.setCurrentValue(1 - ratio);
+		thisView.mScaleCardSpring.setEndValue(1 - ratio);
+
+		thisView.mFoldCardSpring.setCurrentValue(1);
+		thisView.mFoldCardSpring.setEndValue(1);
+
+		thisView.renderScaleCard();
 	}
 
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-			// if (thisView.mainPagerBody.bodyStatus.state == thisView.mainPagerBody.bodyStatus.HOMING) {
-			// thisView.mainPagerBody.onFling(velocityX, velocityY);
-			// }
-			// thisView.cardListBody.onFling(velocityX, velocityY);
-			if (velocityY * velocityY > 250000) {
-
-				if (velocityY > 0) {
-
-					if (subCardStatus.state == subCardStatus.SCALED) {
-						thisView.mScaleCardSpring.setEndValue(1);
-						subCardStatus.state = subCardStatus.NORMAL;
-					} else if (subCardStatus.state == subCardStatus.NORMAL) {
-						thisView.mFoldCardSpring.setEndValue(0);
-						subCardStatus.state = subCardStatus.FOLD;
-					} else if (subCardStatus.state == subCardStatus.FOLD) {
-					}
+			if (velocityX * velocityX + velocityY * velocityY > 250000) {
+				if (velocityX * velocityX > velocityY * velocityY) {
 
 				} else {
 
-					if (subCardStatus.state == subCardStatus.SCALED) {
-					} else if (subCardStatus.state == subCardStatus.NORMAL) {
-						thisView.mScaleCardSpring.setEndValue(0);
-						subCardStatus.state = subCardStatus.SCALED;
-					} else if (subCardStatus.state == subCardStatus.FOLD) {
-						thisView.mFoldCardSpring.setEndValue(1);
-						subCardStatus.state = subCardStatus.NORMAL;
+					if (velocityY > 0) {
+						if (touchDownArea.area == touchDownArea.B) {
+							foldCard(true);
+						}
+
+					} else {
+						if (touchDownArea.area == touchDownArea.B) {
+							openPost();
+						} else if (touchDownArea.area == touchDownArea.C) {
+							foldCard(false);
+							openPost();
+						}
 					}
 
 				}
 			}
+
 			return true;
 		}
+
+		public void onLongPress(MotionEvent event) {
+
+			if (touchDownArea.area == touchDownArea.A) {
+				foldCard(true);
+			}
+		}
+
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+			if (touchDownArea.area == touchDownArea.A) {
+				foldCard(true);
+			}
+			return false;
+		}
+
+		public boolean onDoubleTapEvent(MotionEvent event) {
+			if (touchDownArea.area == touchDownArea.A) {
+				foldCard(true);
+			}
+			return false;
+		}
+	}
+
+	public boolean isExit = false;
+	boolean isRoot = true;
+
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (isExit) {
+				thisActivity.finish();
+			} else {
+				if (isRoot) {
+					Toast.makeText(thisActivity, "再按一次退出程序...", Toast.LENGTH_SHORT).show();
+					isExit = true;
+					new Thread() {
+						@Override
+						public void run() {
+							try {
+								sleep(2000);
+								isExit = false;
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							super.run();
+						}
+					}.start();
+				}
+			}
+		}
+		return true;
 	}
 
 }

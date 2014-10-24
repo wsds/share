@@ -80,6 +80,7 @@ public class HotView {
 	public ImageView more;
 
 	public ImageView album;
+	public ImageView clicker;
 
 	public int cardWidth = 0;
 	public int cardHeight = 0;
@@ -106,6 +107,7 @@ public class HotView {
 		more = (ImageView) thisActivity.findViewById(R.id.more);
 
 		album = (ImageView) thisActivity.findViewById(R.id.album);
+		clicker = (ImageView) thisActivity.findViewById(R.id.clicker);
 
 		BodyCallback myBodyCallback = new BodyCallback();
 
@@ -289,6 +291,9 @@ public class HotView {
 					// renderScaleCard();
 				}
 			}
+			if (thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+				thisController.eventStatus.state = thisController.eventStatus.Done;
+			}
 		}
 	}
 
@@ -296,6 +301,21 @@ public class HotView {
 		@Override
 		public void onSpringUpdate(Spring spring) {
 			renderFoldCard();
+		}
+
+		@Override
+		public void onSpringAtRest(Spring spring) {
+			double value = mScaleCardSpring.getCurrentValue();
+			if (thisController.subCardStatus.state == thisController.subCardStatus.MOVING) {
+				if (value == 0) {
+					thisController.subCardStatus.state = thisController.subCardStatus.FOLD;
+				} else if (value == 1) {
+					thisController.subCardStatus.state = thisController.subCardStatus.UNFOLD;
+				}
+			}
+			if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
+				thisController.eventStatus.state = thisController.eventStatus.Done;
+			}
 		}
 	}
 
@@ -333,7 +353,7 @@ public class HotView {
 			}
 		}
 
-		if (value < 0.2) {
+		if (value < 0.1) {
 			album.setVisibility(View.VISIBLE);
 			album.setScaleX((float) (1 + 2 * value));
 			album.setScaleY((float) (1 + 2 * value));

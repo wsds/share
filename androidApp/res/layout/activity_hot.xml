@@ -39,4 +39,13 @@
         android:translationX="15dp"
         android:translationY="-15dp" />
 
+    <ImageView
+        android:id="@+id/clicker"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="left|bottom"
+        android:src="@drawable/album"
+        android:translationX="15dp"
+        android:translationY="260dp" />
+
 </com.open.lib.TouchView>

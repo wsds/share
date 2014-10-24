@@ -89,6 +89,10 @@ public class HotActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		return thisController.onKeyDown(keyCode, event);
 	}
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		return thisController.onKeyUp(keyCode, event);
+	}
 	
 
 	@Override
