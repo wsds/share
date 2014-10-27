@@ -66,6 +66,7 @@ public class HotController {
 						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
 							postClick = post;
+							postClick.isRecordX=false;
 							postClick.recordX();
 						}
 					}
@@ -107,6 +108,9 @@ public class HotController {
 					} else {
 						thisView.mFoldCardSpring.setEndValue(0);
 					}
+				} else if (view.equals(thisView.more)) {
+					Log.d(tag, "more");
+					logEventStatus();
 				}
 			}
 		};
@@ -116,6 +120,7 @@ public class HotController {
 	public void bindEvent() {
 		thisView.logo.setOnClickListener(mOnClickListener);
 		thisView.album.setOnClickListener(mOnClickListener);
+		thisView.more.setOnClickListener(mOnClickListener);
 		thisView.clicker.setOnClickListener(mOnClickListener);
 	}
 
@@ -165,6 +170,16 @@ public class HotController {
 		public int state = UNFOLD;
 	}
 
+	public void logSubCardStatus() {
+		if (subCardStatus.state == subCardStatus.UNFOLD) {
+			Log.w(tag, "subCardStatus:   " + "UNFOLD");
+		} else if (subCardStatus.state == subCardStatus.MOVING) {
+			Log.w(tag, "subCardStatus:   " + "MOVING");
+		} else if (subCardStatus.state == subCardStatus.FOLD) {
+			Log.w(tag, "subCardStatus:   " + "FOLD");
+		}
+	}
+
 	public SubCardStatus subCardStatus = new SubCardStatus();
 
 	public boolean atPostTop = true;
@@ -173,6 +188,28 @@ public class HotController {
 	public class EventStatus {
 		public int Done = 0, Fold = 1, UnFold = 2, ScrollPost = 3, ClosePost = 4, FlipPage = 5, OpenPost = 6, ScrollList = 7, ScrollPost_Horizontal = 8;
 		public int state = Done;
+	}
+
+	public void logEventStatus() {
+		if (eventStatus.state == eventStatus.Done) {
+			Log.w(tag, "eventStatus:   " + "Done");
+		} else if (eventStatus.state == eventStatus.Fold) {
+			Log.w(tag, "eventStatus:   " + "Fold");
+		} else if (eventStatus.state == eventStatus.UnFold) {
+			Log.w(tag, "eventStatus:   " + "UnFold");
+		} else if (eventStatus.state == eventStatus.ScrollPost) {
+			Log.w(tag, "eventStatus:   " + "ScrollPost");
+		} else if (eventStatus.state == eventStatus.ClosePost) {
+			Log.w(tag, "eventStatus:   " + "ClosePost");
+		} else if (eventStatus.state == eventStatus.FlipPage) {
+			Log.w(tag, "eventStatus:   " + "FlipPage");
+		} else if (eventStatus.state == eventStatus.OpenPost) {
+			Log.w(tag, "eventStatus:   " + "OpenPost");
+		} else if (eventStatus.state == eventStatus.ScrollList) {
+			Log.w(tag, "eventStatus:   " + "ScrollList");
+		} else if (eventStatus.state == eventStatus.ScrollPost_Horizontal) {
+			Log.w(tag, "eventStatus:   " + "ScrollPost_Horizontal");
+		}
 	}
 
 	public EventStatus eventStatus = new EventStatus();
@@ -317,7 +354,11 @@ public class HotController {
 
 	public void foldCard(boolean isFord) {
 		if (isFord == true) {
-
+			Log.v(tag, "foldCard");
+			logSubCardStatus();
+			if (eventStatus.state == eventStatus.ClosePost) {
+				logEventStatus();
+			}
 			if (subCardStatus.state != subCardStatus.FOLD) {
 				postClick = null;
 				thisView.mFoldCardSpring.setEndValue(0);
@@ -370,6 +411,14 @@ public class HotController {
 
 	public void closePost(float Δy) {
 
+		if (eventStatus.state == eventStatus.Done) {
+			eventStatus.state = eventStatus.ClosePost;
+			currentPost.peekRelation();
+		} else if (eventStatus.state == eventStatus.ClosePost) {
+		} else {
+			logEventStatus();
+			return;
+		}
 		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 
 		if (ratio < -1) {
@@ -452,7 +501,7 @@ public class HotController {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
 			if (touchDownArea.area == touchDownArea.A) {
-				foldCard(true);
+				// foldCard(true);
 			}
 			return false;
 		}

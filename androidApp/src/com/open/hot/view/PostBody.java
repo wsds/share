@@ -2,6 +2,7 @@ package com.open.hot.view;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
@@ -37,7 +38,55 @@ public class PostBody {
 	public PostBody parent = null;
 	public PostBody left = null;
 	public PostBody right = null;
+
+	public PostBody left_bak = null;
+	public PostBody right_bak = null;
 	public ArrayList<PostBody> children = null;
+
+	public class Relation {
+		public String parent = null;
+		public String left = null;
+		public String right = null;
+		public float x;
+	}
+
+	public Stack<Relation> relations = new Stack<Relation>();
+
+	public void pushRelation() {
+		Relation relation = new Relation();
+		if (left != null) {
+			relation.left = left.key;
+		}
+		if (right != null) {
+			relation.right = right.key;
+		}
+		// recordX();
+		relation.x = x;
+		relations.push(relation);
+
+	}
+
+	public void peekRelation() {
+		Relation relation = relations.peek();
+		if (relation != null) {
+			left_bak = left;
+			right_bak = right;
+			this.left = viewManage.postPool.getPost(relation.left);
+			this.right = viewManage.postPool.getPost(relation.right);
+			this.x = relation.x;
+
+		}
+	}
+
+	public void unPeekRelation() {
+		left = left_bak;
+		right = right_bak;
+	}
+
+	public void popRelation() {
+		unPeekRelation();
+		relations.pop();
+	}
 
 	public class Status {
 		public int NORMAL = 0, SCALED = 1, FOLD = 2, FREED = 3;;
@@ -261,9 +310,17 @@ public class PostBody {
 	public TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
 
 	public float x;
+	public boolean isRecordX = false;
 
 	public void recordX() {
-		x = postView.getX();
+		if (isRecordX == false) {
+			x = postView.getX();
+			isRecordX = true;
+		}
+		// Log.i(tag, "recordX:  " + x + "        key:" + key);
+		// if (x < 0) {
+		// Log.e(tag, "recordX:  " + x + "        key:" + key);
+		// }
 	}
 
 	@SuppressLint("NewApi")
@@ -284,6 +341,8 @@ public class PostBody {
 			content_image.setLayoutParams(imageParams);
 		}
 		if (left != null) {
+			left.postView.setVisibility(View.VISIBLE);
+			left.postView.setAlpha(1);
 			left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 			left.postView.setX((float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (x - displayMetrics.density * 2 - cardWidth) * value));
 			left.postView.setLayoutParams(renderParams);
@@ -292,6 +351,9 @@ public class PostBody {
 			}
 
 			if (left.left != null) {
+				left.left.postView.setVisibility(View.VISIBLE);
+				left.left.postView.setAlpha(1);
+
 				left.left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 				left.left.postView.setX((float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (x - displayMetrics.density * 4 - 2 * cardWidth) * value));
 				left.left.postView.setLayoutParams(renderParams);
@@ -301,6 +363,9 @@ public class PostBody {
 			}
 		}
 		if (right != null) {
+			right.postView.setVisibility(View.VISIBLE);
+			right.postView.setAlpha(1);
+
 			right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 			right.postView.setX((float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (x + displayMetrics.density * 2 + cardWidth) * value));
 
@@ -310,6 +375,9 @@ public class PostBody {
 			}
 
 			if (right.right != null) {
+				right.right.postView.setVisibility(View.VISIBLE);
+				right.right.postView.setAlpha(1);
+
 				right.right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
 				right.right.postView.setX((float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (x + displayMetrics.density * 4 + 2 * cardWidth) * value));
 
@@ -333,11 +401,14 @@ public class PostBody {
 			postView.setBackground(card_background_ff);
 			endValue = 0;
 		} else {
+			if (value > 0.9) {
+				endValue = 1;
+			}
 			if (sub_title_view != null) {
 				sub_title_view.setVisibility(View.GONE);
 			}
 			postView.setBackground(card_background);
-			endValue = 1;
+
 		}
 
 	}

@@ -78,7 +78,7 @@ public class HotView {
 	public ListBody2 cardListBody;
 
 	public TextView logo;
-	public ImageView more;
+	public View more;
 
 	public ImageView album;
 	public ImageView clicker;
@@ -89,7 +89,6 @@ public class HotView {
 	public TouchView cardViewClickedLeft = null;
 	public TouchView cardViewClickedRight = null;
 
-
 	public void initView() {
 		viewManage.initialize(thisActivity);
 		mInflater = viewManage.mInflater;
@@ -97,13 +96,14 @@ public class HotView {
 
 		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
 		cardHeight = (int) (cardWidth * 1.78f);
+		renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
 
 		thisActivity.setContentView(R.layout.activity_hot);
 		// thisActivity.setContentView(R.layout.view_card);
 		main_container = (TouchView) thisActivity.findViewById(R.id.main_container);
 
 		logo = (TextView) thisActivity.findViewById(R.id.logo);
-		more = (ImageView) thisActivity.findViewById(R.id.more);
+		more = (View) thisActivity.findViewById(R.id.more);
 
 		album = (ImageView) thisActivity.findViewById(R.id.album);
 		clicker = (ImageView) thisActivity.findViewById(R.id.clicker);
@@ -145,6 +145,13 @@ public class HotView {
 	Map<String, Hot> hotMap;
 
 	public void setPost(Hot hot) {
+
+		if (hot == null) {
+			int a = 2;
+			a++;
+			return;
+		}
+
 		setCurrentPost(hot);
 		setCardList(hot.children);
 	}
@@ -157,6 +164,7 @@ public class HotView {
 	}
 
 	public void setCurrentPost(Hot hot) {
+
 		thisController.currentPost = viewManage.postPool.getPost(hot.id);
 		if (thisController.currentPost == null) {
 			thisController.currentPost = new PostBody();
@@ -165,6 +173,7 @@ public class HotView {
 			thisController.currentPost.endValue = 0;
 			thisController.currentPost.render(0);
 		}
+		Log.w(tag, "currentPost: " + thisController.currentPost.key);
 	}
 
 	public long delayMillis = 300;
@@ -259,6 +268,10 @@ public class HotView {
 			listBody.listItemBodiesMap.put(postBody.key, this);
 			listBody.listItemsSequence.add(postBody.key);
 			listBody.lastAddItem = this;
+			
+			postBody.isRecordX = false;
+			postBody.recordX();
+
 			super.initialize(cardView);
 			return cardView;
 		}
@@ -276,9 +289,12 @@ public class HotView {
 			if (value == 0) {
 				if (thisController.postClick != null) {
 					thisController.postClick.parent = thisController.currentPost;
+					thisController.postClick.pushRelation();
+
 					setPost(thisController.postClick.hot);
 					thisController.postClick.postView.setVisibility(View.VISIBLE);
 
+					thisController.postClick.endValue = 0;
 					thisController.postClick = null;
 
 					mOpenPostSpring.setCurrentValue(1);
@@ -327,7 +343,7 @@ public class HotView {
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
-			double value = mOpenPostSpring.getCurrentValue();
+			double value = mFoldCardSpring.getCurrentValue();
 			if (thisController.subCardStatus.state == thisController.subCardStatus.MOVING) {
 				if (value == 0) {
 					thisController.subCardStatus.state = thisController.subCardStatus.FOLD;
@@ -338,6 +354,9 @@ public class HotView {
 			if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
 				thisController.eventStatus.state = thisController.eventStatus.Done;
 			}
+			Log.e(tag, "onSpringAtRest: " + value);
+			thisController.logEventStatus();
+			thisController.logSubCardStatus();
 		}
 	}
 
@@ -351,11 +370,11 @@ public class HotView {
 		if (value < 0.1) {
 			if (thisController.postClick != null && thisController.postClick.hotType.type == thisController.postClick.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
-				more.setColorFilter(0xff0099cd);
+				// more.setColorFilter(0xff0099cd);
 			}
 		} else {
 			logo.setTextColor(0xeeffffff);
-			more.setColorFilter(0xeeffffff);
+			// more.setColorFilter(0xeeffffff);
 		}
 	}
 
@@ -366,20 +385,29 @@ public class HotView {
 			thisController.currentPost.render(value);
 		}
 	}
-	
+
+	public TouchView.LayoutParams renderParams;
+
 	public void renderFoldCard() {
 		double value = mFoldCardSpring.getCurrentValue();
 
 		int listSize = this.cardListBody.listItemsSequence.size();
 		for (int i = 0; i < listSize; i++) {
 			String key = this.cardListBody.listItemsSequence.get(i);
-			CardItem cardItem = (CardItem) this.cardListBody.listItemBodiesMap.get(key);
-			cardItem.cardView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
-			cardItem.cardView.setAlpha((float) (value));
+			PostBody post = viewManage.postPool.getPost(key);
+			post.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
+			post.postView.setAlpha((float) (value));
 			if (value < 0.2) {
-				cardItem.cardView.setVisibility(View.INVISIBLE);
+				if (post.postView.getVisibility() == View.VISIBLE) {
+					post.postView.setVisibility(View.INVISIBLE);
+					post.recordX();
+				}
 			} else {
-				cardItem.cardView.setVisibility(View.VISIBLE);
+				post.isRecordX = false;
+
+				post.postView.setVisibility(View.VISIBLE);
+				post.postView.setX(post.x);
+				post.postView.setLayoutParams(renderParams);
 			}
 		}
 

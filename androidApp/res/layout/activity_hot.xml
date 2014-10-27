@@ -20,15 +20,21 @@
         android:translationX="-60dp"
         android:translationY="11dp" />
 
-    <com.open.lib.TouchImageView
+    <FrameLayout
         android:id="@+id/more"
-        android:layout_width="4dp"
-        android:layout_height="30dp"
-        android:layout_gravity="right"
-        android:src="@drawable/more"
-        android:tint="#ee666666"
-        android:translationX="-30dp"
-        android:translationY="13dp" />
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="right" >
+
+        <ImageView
+            android:id="@+id/more_image"
+            android:layout_width="4dp"
+            android:layout_height="30dp"
+            android:src="@drawable/more"
+            android:tint="#ee666666"
+            android:translationX="10dp"
+            android:translationY="13dp" />
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/album"
