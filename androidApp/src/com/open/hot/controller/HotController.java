@@ -111,6 +111,9 @@ public class HotController {
 				} else if (view.equals(thisView.more)) {
 					Log.d(tag, "more");
 					logEventStatus();
+
+					PostBody post = viewManage.postPool.getPost("2004");
+					post.logPost();
 				}
 			}
 		};
@@ -437,7 +440,7 @@ public class HotController {
 	public void closePost(float Δy) {
 
 		if (eventStatus.state == eventStatus.Done) {
-			if (currentPost.parent == null) {
+			if (currentPost.parent == null || currentPost.relations.size() == 0) {
 				return;
 			}
 			eventStatus.state = eventStatus.ClosePost;

@@ -423,7 +423,9 @@ public class HotView {
 			if (value < 0.2) {
 				if (post.postView.getVisibility() == View.VISIBLE) {
 					post.postView.setVisibility(View.INVISIBLE);
-					post.recordX();
+					if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
+						post.recordX();
+					}
 				}
 			} else {
 				post.isRecordX = false;

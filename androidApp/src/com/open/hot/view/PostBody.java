@@ -94,7 +94,7 @@ public class PostBody {
 	}
 
 	public class Status {
-		public int NORMAL = 0, SCALED = 1, FOLD = 2, FREED = 3;;
+		public int NORMAL = 0, SCALED = 1, FOLD = 2, FREED = 3;
 		public int state = NORMAL;
 	}
 
@@ -115,6 +115,15 @@ public class PostBody {
 	}
 
 	public View postView;
+	
+	public void logPost(){
+		Log.d(tag,"Log Post:  "+this.key);
+		float x=postView.getX();
+		float y=postView.getY();
+		float alpha=postView.getAlpha();
+		float recordX=this.x;
+		Log.d(tag, "x=  " + x + "        y=" + y + "        alpha=" + alpha + "        recordX=" + recordX);
+	}
 
 	public TouchView titleView;
 	public TouchTextView sub_title_view;
@@ -321,6 +330,9 @@ public class PostBody {
 		if (isRecordX == false) {
 			x = postView.getX();
 			isRecordX = true;
+		}
+		if(x<-200){
+			logPost();
 		}
 	}
 
