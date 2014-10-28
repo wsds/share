@@ -60,6 +60,10 @@ public class PostBody {
 		if (right != null) {
 			relation.right = right.key;
 		}
+
+		if (parent != null) {
+			relation.parent = parent.key;
+		}
 		// recordX();
 		relation.x = x;
 		relations.push(relation);
@@ -73,6 +77,7 @@ public class PostBody {
 			right_bak = right;
 			this.left = viewManage.postPool.getPost(relation.left);
 			this.right = viewManage.postPool.getPost(relation.right);
+			this.parent = viewManage.postPool.getPost(relation.parent);
 			this.x = relation.x;
 
 		}
@@ -317,10 +322,6 @@ public class PostBody {
 			x = postView.getX();
 			isRecordX = true;
 		}
-		// Log.i(tag, "recordX:  " + x + "        key:" + key);
-		// if (x < 0) {
-		// Log.e(tag, "recordX:  " + x + "        key:" + key);
-		// }
 	}
 
 	@SuppressLint("NewApi")

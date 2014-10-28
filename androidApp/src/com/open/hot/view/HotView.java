@@ -146,12 +146,6 @@ public class HotView {
 
 	public void setPost(Hot hot) {
 
-		if (hot == null) {
-			int a = 2;
-			a++;
-			return;
-		}
-
 		setCurrentPost(hot);
 		setCardList(hot.children);
 	}
@@ -173,6 +167,11 @@ public class HotView {
 			thisController.currentPost.endValue = 0;
 			thisController.currentPost.render(0);
 		}
+		main_container.removeView(thisController.currentPost.postView);
+		main_container.addView(thisController.currentPost.postView);
+		thisController.currentPost.postView.setX(0);
+		thisController.currentPost.postView.setY(0);
+		thisController.currentPost.postView.setAlpha(1);
 		Log.w(tag, "currentPost: " + thisController.currentPost.key);
 	}
 
@@ -220,6 +219,7 @@ public class HotView {
 			post.postView.setVisibility(View.VISIBLE);
 			main_container.removeView(post.postView);
 			main_container.addView(post.postView);
+			post.postView.setAlpha(1);
 			// Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
 			post.left = null;
 			post.right = null;
@@ -268,7 +268,7 @@ public class HotView {
 			listBody.listItemBodiesMap.put(postBody.key, this);
 			listBody.listItemsSequence.add(postBody.key);
 			listBody.lastAddItem = this;
-			
+
 			postBody.isRecordX = false;
 			postBody.recordX();
 
@@ -292,10 +292,14 @@ public class HotView {
 					thisController.postClick.pushRelation();
 
 					setPost(thisController.postClick.hot);
-					thisController.postClick.postView.setVisibility(View.VISIBLE);
 
-					thisController.postClick.endValue = 0;
+					thisController.currentPost.postView.setVisibility(View.VISIBLE);
+
+					thisController.currentPost.endValue = 0;
 					thisController.postClick = null;
+
+					mClosePostSpring.setCurrentValue(0);
+					mClosePostSpring.setEndValue(0);
 
 					mOpenPostSpring.setCurrentValue(1);
 					mOpenPostSpring.setEndValue(1);
@@ -312,20 +316,33 @@ public class HotView {
 	public class ClosePostSpringListener extends SimpleSpringListener {
 		@Override
 		public void onSpringUpdate(Spring spring) {
-			renderOpenPost();
+			renderClosePost();
 		}
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
-			double value = mOpenPostSpring.getCurrentValue();
-			if (value == 0) {
+			double value = mClosePostSpring.getCurrentValue();
 
+			Log.d(tag, "ClosePostSpringListener onSpringAtRest: " + value);
+			if (value == 0) {
+				thisController.currentPost.unPeekRelation();
 			} else if (value == 1) {
-				if (thisController.postClick != null && thisController.postClick.parent != null) {
+				if (thisController.currentPost != null && thisController.currentPost.parent != null) {
 					// setPost(postClick.parent.hot);
+
+					thisController.currentPost.popRelation();
+					setPost(thisController.currentPost.parent.hot);
+
+					thisController.currentPost.postView.setVisibility(View.VISIBLE);
+					thisController.currentPost.endValue = 0;
+
+					thisController.postClick = null;
 
 					mClosePostSpring.setCurrentValue(0);
 					mClosePostSpring.setEndValue(0);
+
+					mOpenPostSpring.setCurrentValue(1);
+					mOpenPostSpring.setEndValue(1);
 					// renderScaleCard();
 				}
 			}
@@ -383,6 +400,12 @@ public class HotView {
 		double value = mClosePostSpring.getCurrentValue();
 		if (thisController.currentPost != null) {
 			thisController.currentPost.render(value);
+		}
+
+		if (value < 0.1) {
+			album.setVisibility(View.VISIBLE);
+		} else {
+			album.setVisibility(View.INVISIBLE);
 		}
 	}
 

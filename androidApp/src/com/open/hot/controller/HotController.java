@@ -66,7 +66,7 @@ public class HotController {
 						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
 							postClick = post;
-							postClick.isRecordX=false;
+							postClick.isRecordX = false;
 							postClick.recordX();
 						}
 					}
@@ -236,6 +236,7 @@ public class HotController {
 			Log.d(tag, "ACTION_DOWN");
 			touch_pre_x = x;
 			touch_pre_y = y;
+			last_Δy = 0;
 			double value1 = thisView.mFoldCardSpring.getCurrentValue();
 			if (value1 < 0.5) {
 				subCardStatus.state = subCardStatus.FOLD;
@@ -336,6 +337,16 @@ public class HotController {
 						thisView.mOpenPostSpring.setEndValue(0);
 					}
 				}
+			} else if (touchDownArea.area == touchDownArea.A) {
+				if (eventStatus.state == eventStatus.ClosePost) {
+					Log.v(tag, "ClosePost");
+					double value = thisView.mClosePostSpring.getCurrentValue();
+					if (value > 0.5) {
+						thisView.mClosePostSpring.setEndValue(1);
+					} else {
+						thisView.mClosePostSpring.setEndValue(0);
+					}
+				}
 			}
 		}
 		mGesture.onTouchEvent(event);
@@ -362,7 +373,7 @@ public class HotController {
 			if (subCardStatus.state != subCardStatus.FOLD) {
 				postClick = null;
 				thisView.mFoldCardSpring.setEndValue(0);
-				eventStatus.state = eventStatus.Fold;
+				// eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
 			}
 		} else {
@@ -409,20 +420,38 @@ public class HotController {
 		thisView.renderFoldCard();
 	}
 
+	public void closePost() {
+		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.ClosePost) {
+			return;
+		}
+		if (currentPost.parent == null) {
+			return;
+		}
+		eventStatus.state = eventStatus.ClosePost;
+
+		thisView.mClosePostSpring.setEndValue(1);
+	}
+
+	public float last_Δy = 0;
+
 	public void closePost(float Δy) {
 
 		if (eventStatus.state == eventStatus.Done) {
+			if (currentPost.parent == null) {
+				return;
+			}
 			eventStatus.state = eventStatus.ClosePost;
 			currentPost.peekRelation();
 		} else if (eventStatus.state == eventStatus.ClosePost) {
 		} else {
 			logEventStatus();
+			last_Δy = Δy;
 			return;
 		}
-		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
+		float ratio = -(Δy - 0) / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 
-		if (ratio < -1) {
-			ratio = -1;
+		if (ratio <= -1) {
+			ratio = -0.994f;
 		}
 		if (ratio > 0) {
 			ratio = 0;
@@ -434,6 +463,11 @@ public class HotController {
 	}
 
 	public void openPost() {
+		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.Fold && eventStatus.state != eventStatus.OpenPost) {
+			return;
+		}
+		eventStatus.state = eventStatus.OpenPost;
+
 		if (postClick != null) {
 			thisView.mOpenPostSpring.setEndValue(0);
 		}
@@ -474,6 +508,8 @@ public class HotController {
 					if (velocityY > 0) {
 						if (touchDownArea.area == touchDownArea.B) {
 							foldCard(true);
+						} else if (touchDownArea.area == touchDownArea.A) {
+							closePost();
 						}
 
 					} else {
