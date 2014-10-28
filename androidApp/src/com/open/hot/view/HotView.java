@@ -101,7 +101,7 @@ public class HotView {
 		thisActivity.setContentView(R.layout.activity_hot);
 		// thisActivity.setContentView(R.layout.view_card);
 		main_container = (TouchView) thisActivity.findViewById(R.id.main_container);
-
+		viewManage.postContainer = main_container;
 		logo = (TextView) thisActivity.findViewById(R.id.logo);
 		more = (View) thisActivity.findViewById(R.id.more);
 
@@ -139,15 +139,29 @@ public class HotView {
 		mFoldCardSpring.setCurrentValue(1);
 		mFoldCardSpring.setEndValue(1);
 
+		data.hotMap.put(data.me.id, data.me);
 		setPost(data.me);
 	}
 
 	Map<String, Hot> hotMap;
+	Hot parentHot = null;
+	int index = 0;
+
+	public void setPost(String key) {
+		Hot hot = hotMap.get(key);
+		if (hot != null) {
+			setPost(hot);
+		}
+	}
 
 	public void setPost(Hot hot) {
+		viewManage.clearPostContainer();
 
 		setCurrentPost(hot);
-		setCardList(hot.children);
+		setCardList(hot, hot.children);
+		if (thisController.currentPost.parent != null) {
+			setBackGroundPost(thisController.currentPost.parent);
+		}
 	}
 
 	public void setCurrentPost(String key) {
@@ -159,72 +173,127 @@ public class HotView {
 
 	public void setCurrentPost(Hot hot) {
 
-		thisController.currentPost = viewManage.postPool.getPost(hot.id);
-		if (thisController.currentPost == null) {
-			thisController.currentPost = new PostBody();
-			thisController.currentPost.initialize(hot, 0);
-		} else {
-			thisController.currentPost.endValue = 0;
-			thisController.currentPost.render(0);
+		if (hot == null) {
+			return;
 		}
-		main_container.removeView(thisController.currentPost.postView);
-		main_container.addView(thisController.currentPost.postView);
-		thisController.currentPost.postView.setX(0);
-		thisController.currentPost.postView.setY(0);
-		thisController.currentPost.postView.setAlpha(1);
+
+		thisController.currentPost = setFullScreenPost(hot);
 		Log.w(tag, "currentPost: " + thisController.currentPost.key);
+	}
+
+	public void setBackGroundPost(String key) {
+		Hot hot = hotMap.get(key);
+		if (hot != null) {
+			setBackGroundPost(hot);
+		}
+	}
+
+	public PostBody setBackGroundPost(Hot hot) {
+
+		if (hot == null) {
+			return null;
+		}
+
+		PostBody post = viewManage.postPool.getPost(hot.id);
+		if (post == null || post.visible == View.VISIBLE) {// if the post is used in the children list or brother list;
+			post = new PostBody();
+			post.initialize(hot, 0, null, 0);
+		} else {
+			post.endValue = 0;
+			post.renderThis(0);
+			post.peekRelation();
+		}
+		post.postContainer.addView(post.postView, 0);
+		// post.setVisibility(View.VISIBLE);
+		post.setXY(0, 0);
+		post.setAlpha(1);
+		Log.w(tag, "setBackGroundPost: " + post.key);
+
+		return post;
+	}
+
+	public PostBody setFullScreenPost(Hot hot) {
+
+		if (hot == null) {
+			return null;
+		}
+
+		PostBody post = viewManage.postPool.getPost(hot.id);
+		if (post == null) {
+			post = new PostBody();
+			post.initialize(hot, 0, parentHot, index);
+		} else {
+			post.endValue = 0;
+			post.renderThis(0);
+			post.peekRelation();
+		}
+
+		post.setVisibility(View.VISIBLE);
+		post.setXY(0, 0);
+		post.setAlpha(1);
+		Log.w(tag, "setFullScreenPost: " + post.key);
+
+		return post;
 	}
 
 	public long delayMillis = 300;
 
-	public void setCardList(ArrayList<String> children) {
+	public void setCardList(Hot parentHot, ArrayList<String> children) {
 		if (children == null) {
 			return;
 		}
 		Log.d(tag, "Show children List: " + children.toString());
 		this.cardListBody.clear();
+		int index = 0;
 		for (String key : children) {
 			Hot hot = hotMap.get(key);
 			if (hot != null) {
-				addToCardList(hot);
+				addToCardList(hot, parentHot, index);
 			}
 		}
-		this.mFoldCardSpring.setCurrentValue(0.2);
-		this.mFoldCardSpring.setEndValue(0.2);
+		if (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.Done) {
 
-		this.renderFoldCard();
-		new Handler().postDelayed(new Runnable() {
-			public void run() {
-				mFoldCardSpring.setSpringConfig(slow_config);
-				mFoldCardSpring.setEndValue(1);
-				delayMillis = 20;
-			}
-		}, delayMillis);
-		new Handler().postDelayed(new Runnable() {
-			public void run() {
-				mFoldCardSpring.setSpringConfig(fast_config);
-			}
-		}, 1000);
+			this.mFoldCardSpring.setCurrentValue(0.2);
+			this.mFoldCardSpring.setEndValue(0.2);
 
+			this.renderFoldCard();
+			new Handler().postDelayed(new Runnable() {
+				public void run() {
+					mFoldCardSpring.setSpringConfig(slow_config);
+					mFoldCardSpring.setEndValue(1);
+					delayMillis = 20;
+				}
+			}, delayMillis);
+			new Handler().postDelayed(new Runnable() {
+				public void run() {
+					mFoldCardSpring.setSpringConfig(fast_config);
+				}
+			}, 1000);
+		} else if (thisController.eventStatus.state == thisController.eventStatus.ClosePost) {
+			this.mFoldCardSpring.setCurrentValue(1);
+			this.mFoldCardSpring.setEndValue(1);
+			renderFoldCard();
+		} else {
+			Log.d(tag, "error occurs in " + "setCardList");
+			thisController.logEventStatus();
+		}
 	}
 
-	public void addToCardList(Hot hot) {
+	public void addToCardList(Hot hot, Hot parentHot, int index) {
 
 		PostBody post = viewManage.postPool.getPost(hot.id);
 		if (post == null) {
 			post = new PostBody();
-			post.initialize(hot, 1);
+			post.initialize(hot, 1, parentHot, index);
 		} else {
 			post.endValue = 1;
-			post.postView.setVisibility(View.VISIBLE);
-			main_container.removeView(post.postView);
-			main_container.addView(post.postView);
-			post.postView.setAlpha(1);
+			post.setVisibility(View.VISIBLE);
+			post.setAlpha(1);
 			// Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
-			post.left = null;
-			post.right = null;
 			post.render(1);
 		}
+
+		post.setVisibility(View.VISIBLE);
 
 		CardItem cardItem = new CardItem(this.cardListBody);
 		cardItem.initialize3(post);
@@ -246,10 +315,6 @@ public class HotView {
 
 			this.postBody = postBody;
 
-			if (listBody.lastAddItem != null) {
-				postBody.left = ((CardItem) listBody.lastAddItem).postBody;
-				postBody.left.right = postBody;
-			}
 			cardView = (TouchView) postBody.postView;
 			cardView.setVisibility(View.VISIBLE);
 
@@ -267,7 +332,6 @@ public class HotView {
 			listBody.height = listBody.height + cardWidth + 2 * displayMetrics.density;
 			listBody.listItemBodiesMap.put(postBody.key, this);
 			listBody.listItemsSequence.add(postBody.key);
-			listBody.lastAddItem = this;
 
 			postBody.isRecordX = false;
 			postBody.recordX();
@@ -285,15 +349,19 @@ public class HotView {
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
+			if (thisController.eventStatus.state != thisController.eventStatus.OpenPost) {
+				return;
+			}
 			double value = mOpenPostSpring.getCurrentValue();
 			if (value == 0) {
 				if (thisController.postClick != null) {
-					thisController.postClick.parent = thisController.currentPost;
+					// thisController.postClick.parent = thisController.currentPost.key;
 					thisController.postClick.pushRelation();
 
+					// main_container.removeAllViews();
+					// setCurrentPost(thisController.postClick.parent.hot);
 					setPost(thisController.postClick.hot);
-
-					thisController.currentPost.postView.setVisibility(View.VISIBLE);
+					thisController.currentPost.setVisibility(View.VISIBLE);
 
 					thisController.currentPost.endValue = 0;
 					thisController.postClick = null;
@@ -307,9 +375,8 @@ public class HotView {
 
 			} else if (value == 1) {
 			}
-			if (thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
-				thisController.eventStatus.state = thisController.eventStatus.Done;
-			}
+
+			thisController.eventStatus.state = thisController.eventStatus.Done;
 		}
 	}
 
@@ -321,6 +388,9 @@ public class HotView {
 
 		@Override
 		public void onSpringAtRest(Spring spring) {
+			if (thisController.eventStatus.state != thisController.eventStatus.ClosePost) {
+				return;
+			}
 			double value = mClosePostSpring.getCurrentValue();
 
 			Log.d(tag, "ClosePostSpringListener onSpringAtRest: " + value);
@@ -331,9 +401,10 @@ public class HotView {
 					// setPost(postClick.parent.hot);
 
 					thisController.currentPost.popRelation();
-					setPost(thisController.currentPost.parent.hot);
 
-					thisController.currentPost.postView.setVisibility(View.VISIBLE);
+					// setCurrentPost(thisController.currentPost.parent.hot);
+					setPost(thisController.currentPost.parent);
+
 					thisController.currentPost.endValue = 0;
 
 					thisController.postClick = null;
@@ -346,9 +417,8 @@ public class HotView {
 					// renderScaleCard();
 				}
 			}
-			if (thisController.eventStatus.state == thisController.eventStatus.ClosePost) {
-				thisController.eventStatus.state = thisController.eventStatus.Done;
-			}
+
+			thisController.eventStatus.state = thisController.eventStatus.Done;
 		}
 	}
 
@@ -415,14 +485,16 @@ public class HotView {
 		double value = mFoldCardSpring.getCurrentValue();
 
 		int listSize = this.cardListBody.listItemsSequence.size();
+		float x = 0;
+		float y = (float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value));
 		for (int i = 0; i < listSize; i++) {
 			String key = this.cardListBody.listItemsSequence.get(i);
 			PostBody post = viewManage.postPool.getPost(key);
-			post.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value)));
-			post.postView.setAlpha((float) (value));
+
+			x = post.x;
 			if (value < 0.2) {
-				if (post.postView.getVisibility() == View.VISIBLE) {
-					post.postView.setVisibility(View.INVISIBLE);
+				if (post.visible == View.VISIBLE) {
+					post.setVisibility(View.INVISIBLE);
 					if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
 						post.recordX();
 					}
@@ -430,10 +502,12 @@ public class HotView {
 			} else {
 				post.isRecordX = false;
 
-				post.postView.setVisibility(View.VISIBLE);
-				post.postView.setX(post.x);
-				post.postView.setLayoutParams(renderParams);
+				post.setVisibility(View.VISIBLE);
+				x = post.record_x;
+				post.setSize(cardWidth, cardHeight);
 			}
+			post.setXY(x, y);
+			post.setAlpha((float) (value));
 		}
 
 		if (value < 0.1) {

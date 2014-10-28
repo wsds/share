@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 import com.open.hot.R;
 
 public class ViewManage {
@@ -43,6 +44,7 @@ public class ViewManage {
 	public int position_C;
 
 	public Activity thisActivity;
+	public ViewGroup postContainer;
 
 	void initialize(Activity thisActivity) {
 		this.thisActivity = thisActivity;
@@ -61,6 +63,18 @@ public class ViewManage {
 		position_A = 38;
 		position_B = displayMetrics.heightPixels - cardHeight;
 		position_C = (int) (displayMetrics.heightPixels - 60 * displayMetrics.density);
+	}
+
+	void clearPostContainer() {
+		int childCount = postContainer.getChildCount();
+
+		for (int index = 0; index < childCount; index++) {
+			View view = postContainer.getChildAt(index);
+			PostBody postBody = (PostBody) view.getTag(R.id.tag_post_body);
+//			postBody.status.state = postBody.status.FREED;
+			postBody.setVisibility(View.GONE);
+		}
+		postContainer.removeAllViews();
 	}
 
 	public void postNotifyView(final String viewName) {

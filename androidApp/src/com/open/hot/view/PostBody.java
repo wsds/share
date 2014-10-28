@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -35,57 +36,60 @@ public class PostBody {
 	public FileHandlers fileHandlers = FileHandlers.getInstance();
 	public File mImageFile;
 
-	public PostBody parent = null;
-	public PostBody left = null;
-	public PostBody right = null;
+	public String parent = null;
 
-	public PostBody left_bak = null;
-	public PostBody right_bak = null;
-	public ArrayList<PostBody> children = null;
+	public ArrayList<String> children = null;
+	public ArrayList<String> brothers = null;
+	public int index = -1;
+
+	public PostBody mirror;
+
+	public ViewGroup postContainer;
 
 	public class Relation {
 		public String parent = null;
-		public String left = null;
-		public String right = null;
-		public float x;
+		public ArrayList<String> children = null;
+		public ArrayList<String> brothers = null;
+		public float record_x;
 	}
 
 	public Stack<Relation> relations = new Stack<Relation>();
 
 	public void pushRelation() {
 		Relation relation = new Relation();
-		if (left != null) {
-			relation.left = left.key;
-		}
-		if (right != null) {
-			relation.right = right.key;
-		}
 
 		if (parent != null) {
-			relation.parent = parent.key;
+			relation.parent = parent;
 		}
+
+		if (children != null) {
+			relation.children = children;
+		}
+		if (brothers != null) {
+			relation.brothers = brothers;
+		}
+
 		// recordX();
-		relation.x = x;
+		relation.record_x = record_x;
 		relations.push(relation);
 
 	}
 
 	public void peekRelation() {
+		if (relations.size() == 0) {
+			return;
+		}
 		Relation relation = relations.peek();
 		if (relation != null) {
-			left_bak = left;
-			right_bak = right;
-			this.left = viewManage.postPool.getPost(relation.left);
-			this.right = viewManage.postPool.getPost(relation.right);
-			this.parent = viewManage.postPool.getPost(relation.parent);
-			this.x = relation.x;
+			this.parent = relation.parent;
+			this.children = relation.children;
+			this.brothers = relation.brothers;
+			this.record_x = relation.record_x;
 
 		}
 	}
 
 	public void unPeekRelation() {
-		left = left_bak;
-		right = right_bak;
 	}
 
 	public void popRelation() {
@@ -114,15 +118,25 @@ public class PostBody {
 		public int type = CONTAINER;
 	}
 
-	public View postView;
-	
-	public void logPost(){
-		Log.d(tag,"Log Post:  "+this.key);
-		float x=postView.getX();
-		float y=postView.getY();
-		float alpha=postView.getAlpha();
-		float recordX=this.x;
-		Log.d(tag, "x=  " + x + "        y=" + y + "        alpha=" + alpha + "        recordX=" + recordX);
+	public TouchView postView;
+
+	public void logPost() {
+		Log.d(tag, "Log Post:  " + this.key);
+		Log.d(tag, "x=  " + x + "        y=" + y + "        alpha=" + alpha + "        record_x=" + record_x);
+		Log.d(tag, "parent:  " + parent);
+		if (brothers != null) {
+			Log.d(tag, "brother:  " + brothers.toString());
+		}
+		if (children != null) {
+			Log.d(tag, "children:  " + children.toString());
+		}
+		if (visible == View.GONE) {
+			Log.d(tag, "visible:  " + "View.GONE");
+		} else if (visible == View.VISIBLE) {
+			Log.d(tag, "visible:  " + "View.VISIBLE");
+		} else if (visible == View.INVISIBLE) {
+			Log.d(tag, "visible:  " + "View.INVISIBLE");
+		}
 	}
 
 	public TouchView titleView;
@@ -149,12 +163,14 @@ public class PostBody {
 	}
 
 	@SuppressLint("NewApi")
-	public View initialize(Hot hot, double endValue) {
+	public View initialize(Hot hot, double endValue, Hot parentHot, int index) {
 		if (hot == null) {
 			return null;
 		}
 		mInflater = viewManage.mInflater;
 		displayMetrics = viewManage.displayMetrics;
+
+		postContainer = viewManage.postContainer;
 
 		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
 		cardHeight = (int) (cardWidth * 1.78f);
@@ -164,11 +180,19 @@ public class PostBody {
 
 		determineHotType(hot);
 		this.hot = hot;
-		information = hot.information;
+		this.information = hot.information;
 		this.key = hot.id;
+
+		this.index = index;
+		this.children = hot.children;
+
+		if (parentHot != null) {
+			this.brothers = parentHot.children;
+			this.parent = parentHot.id;
+		}
 		// hotType = "pape22r";
 		if (hotType.type == hotType.CONTAINER) {
-			postView = mInflater.inflate(R.layout.post_container, null);
+			postView = (TouchView) mInflater.inflate(R.layout.post_container, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
 
@@ -267,7 +291,7 @@ public class PostBody {
 			imageLoader.displayImage(filepath, content_image_1, viewManage.options);
 
 		} else if (hotType.type == hotType.PAPER) {
-			postView = mInflater.inflate(R.layout.post_paper, null);
+			postView = (TouchView) mInflater.inflate(R.layout.post_paper, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
 
@@ -295,7 +319,7 @@ public class PostBody {
 		} else if (hotType.type == hotType.PHOTO) {
 
 			Log.d(tag, "" + hot.content.size());
-			postView = mInflater.inflate(R.layout.post_photo, null);
+			postView = (TouchView) mInflater.inflate(R.layout.post_photo, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
 
@@ -313,92 +337,101 @@ public class PostBody {
 		}
 		this.endValue = endValue;
 
+		postView.setTag(R.id.tag_post_body, this);
+
 		viewManage.postPool.putPost(hot.id, this);
 		render(endValue);
 
 		return postView;
 	}
 
-	public TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+	public TouchView.LayoutParams sizeParams = new TouchView.LayoutParams(cardWidth, cardHeight);
 
 	public TouchView.LayoutParams imageParams = new TouchView.LayoutParams(100, 100);
 
-	public float x;
+	public float record_x;
 	public boolean isRecordX = false;
+
+	public float x = 0;
+	public float y = 0;
+	public int height = 0;
+	public int width = 0;
+	public float alpha = 0;
+
+	public int visible = View.GONE;
+
+	public void setXY(float x, float y) {
+		if (this.x == x && this.y == y) {
+			return;
+		}
+		this.x = x;
+		this.y = y;
+		postView.setX(this.x);
+		postView.setY(this.y);
+	}
+
+	public void setSize(int width, int height) {
+		if (this.width == width && this.height == height) {
+			return;
+		}
+		this.width = width;
+		this.height = height;
+		sizeParams.width = this.width;
+		sizeParams.height = this.height;
+		postView.setLayoutParams(sizeParams);
+	}
+
+	public void setAlpha(float α) {
+		if (this.alpha == α) {
+			return;
+		}
+		this.alpha = α;
+		postView.setAlpha(this.alpha);
+	}
+
+	public void setVisibility(int visible) {
+		if (this.visible == visible) {
+			return;
+		}
+		this.visible = visible;
+		postView.setVisibility(visible);
+		if (visible == View.VISIBLE) {
+			if (postView.getParent() == null) {
+				postContainer.addView(postView);
+			}
+		}
+	}
 
 	public void recordX() {
 		if (isRecordX == false) {
-			x = postView.getX();
+			record_x = postView.getX();
 			isRecordX = true;
 		}
-		if(x<-200){
+		if (record_x < -200) {
 			logPost();
 		}
 	}
 
 	@SuppressLint("NewApi")
 	public void render(double value) {
-		postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		renderThis(value);
+		renderRelations(value);
+	}
 
-		postView.setX((float) (x * value));
-		// cardViewClickedLeft.setX((float) ((-displayMetrics.widthPixels) * (1 - value)));
-		// cardViewClickedRight.setX((float) (displayMetrics.widthPixels - value * (displayMetrics.widthPixels - (cardWidth + 2 * displayMetrics.density) * 2)));
+	@SuppressLint("NewApi")
+	public void renderThis(double value) {
+		float y = (float) ((displayMetrics.heightPixels - 38 - cardHeight) * value);
+		float x = (float) (record_x * value);
+		setXY(x, y);
 
-		renderParams.width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
-		renderParams.height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
-		postView.setLayoutParams(renderParams);
+		int width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
+		int height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
+		setSize(width, height);
 
 		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		if (content_image != null) {
 			content_image.setLayoutParams(imageParams);
-		}
-		if (left != null) {
-			left.postView.setVisibility(View.VISIBLE);
-			left.postView.setAlpha(1);
-			left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-			left.postView.setX((float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (x - displayMetrics.density * 2 - cardWidth) * value));
-			left.postView.setLayoutParams(renderParams);
-			if (left.content_image != null) {
-				left.content_image.setLayoutParams(imageParams);
-			}
-
-			if (left.left != null) {
-				left.left.postView.setVisibility(View.VISIBLE);
-				left.left.postView.setAlpha(1);
-
-				left.left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-				left.left.postView.setX((float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (x - displayMetrics.density * 4 - 2 * cardWidth) * value));
-				left.left.postView.setLayoutParams(renderParams);
-				if (left.left.content_image != null) {
-					left.left.content_image.setLayoutParams(imageParams);
-				}
-			}
-		}
-		if (right != null) {
-			right.postView.setVisibility(View.VISIBLE);
-			right.postView.setAlpha(1);
-
-			right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-			right.postView.setX((float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (x + displayMetrics.density * 2 + cardWidth) * value));
-
-			right.postView.setLayoutParams(renderParams);
-			if (right.content_image != null) {
-				right.content_image.setLayoutParams(imageParams);
-			}
-
-			if (right.right != null) {
-				right.right.postView.setVisibility(View.VISIBLE);
-				right.right.postView.setAlpha(1);
-
-				right.right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-				right.right.postView.setX((float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (x + displayMetrics.density * 4 + 2 * cardWidth) * value));
-
-				right.right.postView.setLayoutParams(renderParams);
-				if (right.right.content_image != null) {
-					right.right.content_image.setLayoutParams(imageParams);
-				}
-			}
 		}
 
 		if (background_image1 != null) {
@@ -423,6 +456,58 @@ public class PostBody {
 			postView.setBackground(card_background);
 
 		}
+	}
+
+	public void renderRelations(double value) {
+		// Post
+		// if (left != null) {
+		// left.postView.setVisibility(View.VISIBLE);
+		// left.postView.setAlpha(1);
+		// left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// left.postView.setX((float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (record_x - displayMetrics.density * 2 - cardWidth) * value));
+		// left.postView.setLayoutParams(renderParams);
+		// if (left.content_image != null) {
+		// left.content_image.setLayoutParams(imageParams);
+		// }
+		//
+		// if (left.left != null) {
+		// left.left.postView.setVisibility(View.VISIBLE);
+		// left.left.postView.setAlpha(1);
+		//
+		// left.left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// left.left.postView.setX((float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (record_x - displayMetrics.density * 4 - 2 * cardWidth) * value));
+		// left.left.postView.setLayoutParams(renderParams);
+		// if (left.left.content_image != null) {
+		// left.left.content_image.setLayoutParams(imageParams);
+		// }
+		// }
+		// }
+		// if (right != null) {
+		// right.postView.setVisibility(View.VISIBLE);
+		// right.postView.setAlpha(1);
+		//
+		// right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// right.postView.setX((float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (record_x + displayMetrics.density * 2 + cardWidth) * value));
+		//
+		// right.postView.setLayoutParams(renderParams);
+		// if (right.content_image != null) {
+		// right.content_image.setLayoutParams(imageParams);
+		// }
+		//
+		// if (right.right != null) {
+		// right.right.postView.setVisibility(View.VISIBLE);
+		// right.right.postView.setAlpha(1);
+		//
+		// right.right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
+		// right.right.postView.setX((float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (record_x + displayMetrics.density * 4 + 2 * cardWidth) * value));
+		//
+		// right.right.postView.setLayoutParams(renderParams);
+		// if (right.right.content_image != null) {
+		// right.right.content_image.setLayoutParams(imageParams);
+		// }
+		// }
+		// }
 
 	}
+
 }

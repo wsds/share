@@ -109,11 +109,12 @@ public class HotController {
 						thisView.mFoldCardSpring.setEndValue(0);
 					}
 				} else if (view.equals(thisView.more)) {
-					Log.d(tag, "more");
+					Log.e(tag, "more");
 					logEventStatus();
-
-					PostBody post = viewManage.postPool.getPost("2004");
+					PostBody post = viewManage.postPool.getPost("2001");
 					post.logPost();
+					Log.e(tag, "currentPost:  "+currentPost.key);
+					currentPost.logPost();
 				}
 			}
 		};
@@ -368,17 +369,17 @@ public class HotController {
 
 	public void foldCard(boolean isFord) {
 		if (isFord == true) {
-			Log.v(tag, "foldCard");
-			logSubCardStatus();
-			if (eventStatus.state == eventStatus.ClosePost) {
-				logEventStatus();
-			}
-			if (subCardStatus.state != subCardStatus.FOLD) {
-				postClick = null;
-				thisView.mFoldCardSpring.setEndValue(0);
-				// eventStatus.state = eventStatus.Fold;
-				subCardStatus.state = subCardStatus.MOVING;
-			}
+//			Log.v(tag, "foldCard");
+//			logSubCardStatus();
+//			if (eventStatus.state == eventStatus.ClosePost) {
+//				logEventStatus();
+//			}
+//			if (subCardStatus.state != subCardStatus.FOLD) {
+//				postClick = null;
+//				thisView.mFoldCardSpring.setEndValue(0);
+//				// eventStatus.state = eventStatus.Fold;
+//				subCardStatus.state = subCardStatus.MOVING;
+//			}
 		} else {
 			if (subCardStatus.state != subCardStatus.UNFOLD) {
 				postClick = null;

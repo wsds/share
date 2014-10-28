@@ -2,12 +2,14 @@ package com.open.lib;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
 public class TouchView extends FrameLayout {
 	public boolean isIntercept = false;
+	public String tag = "TouchView";
 
 	public TouchView(Context paramContext) {
 		super(paramContext);
@@ -50,5 +52,12 @@ public class TouchView extends FrameLayout {
 
 	public void setInterceptTouches(boolean paramBoolean) {
 		this.isIntercept = paramBoolean;
+	}
+
+	public void setX(float x) {
+		if (x == -540) {
+			Log.d(tag, "error occurs");
+		}
+		super.setX(x);
 	}
 }
