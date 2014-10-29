@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.open.hot.R;
 import com.open.hot.model.Data;
+import com.open.hot.model.Data.Hot;
 import com.open.hot.model.Parser;
 import com.open.hot.view.HotView;
 import com.open.hot.view.HotView.Status;
@@ -46,7 +47,8 @@ public class HotController {
 		this.thisActivity = activity;
 	}
 
-	public PostBody postClick;
+	public PostBody clickPost;
+	public Hot currentHot;
 	public PostBody currentPost;
 	public PostBody postClick_debug;
 
@@ -60,14 +62,15 @@ public class HotController {
 				int action = event.getAction();
 				if (action == MotionEvent.ACTION_DOWN) {
 					String view_class = (String) view.getTag(R.id.tag_class);
-					if (view_class.equals("CardView")) {
+					if (view_class.equals("PostView")) {
 						String key = (String) view.getTag(R.id.tag_key);
-						PostBody post = thisView.viewManage.postPool.pool.get(key);
+						Log.d(tag, "Touch: " + key);
+						PostBody post = thisView.viewManage.postPool.getPost(key);
 						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
-							postClick = post;
-							postClick.isRecordX = false;
-							postClick.recordX();
+							clickPost = post;
+							clickPost.isRecordX = false;
+							clickPost.recordX();
 						}
 					}
 				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -75,6 +78,7 @@ public class HotController {
 				return false;
 			}
 		};
+		viewManage.onTouchListener = onTouchListener;
 		mOnFocusChangeListener = new OnFocusChangeListener() {
 
 			@Override
@@ -113,7 +117,7 @@ public class HotController {
 					logEventStatus();
 					PostBody post = viewManage.postPool.getPost("2001");
 					post.logPost();
-					Log.e(tag, "currentPost:  "+currentPost.key);
+					Log.e(tag, "currentPost:  " + currentPost.key);
 					currentPost.logPost();
 				}
 			}
@@ -369,20 +373,20 @@ public class HotController {
 
 	public void foldCard(boolean isFord) {
 		if (isFord == true) {
-//			Log.v(tag, "foldCard");
-//			logSubCardStatus();
-//			if (eventStatus.state == eventStatus.ClosePost) {
-//				logEventStatus();
-//			}
-//			if (subCardStatus.state != subCardStatus.FOLD) {
-//				postClick = null;
-//				thisView.mFoldCardSpring.setEndValue(0);
-//				// eventStatus.state = eventStatus.Fold;
-//				subCardStatus.state = subCardStatus.MOVING;
-//			}
+			Log.v(tag, "foldCard");
+			logSubCardStatus();
+			if (eventStatus.state == eventStatus.ClosePost) {
+				logEventStatus();
+			}
+			if (subCardStatus.state != subCardStatus.FOLD) {
+				clickPost = null;
+				thisView.mFoldCardSpring.setEndValue(0);
+				// eventStatus.state = eventStatus.Fold;
+				subCardStatus.state = subCardStatus.MOVING;
+			}
 		} else {
 			if (subCardStatus.state != subCardStatus.UNFOLD) {
-				postClick = null;
+				clickPost = null;
 				thisView.mFoldCardSpring.setEndValue(1);
 				eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
@@ -441,11 +445,10 @@ public class HotController {
 	public void closePost(float Δy) {
 
 		if (eventStatus.state == eventStatus.Done) {
-			if (currentPost.parent == null || currentPost.relations.size() == 0) {
+			if (currentPost.parent == null) {
 				return;
 			}
 			eventStatus.state = eventStatus.ClosePost;
-			currentPost.peekRelation();
 		} else if (eventStatus.state == eventStatus.ClosePost) {
 		} else {
 			logEventStatus();
@@ -472,7 +475,7 @@ public class HotController {
 		}
 		eventStatus.state = eventStatus.OpenPost;
 
-		if (postClick != null) {
+		if (clickPost != null) {
 			thisView.mOpenPostSpring.setEndValue(0);
 		}
 	}

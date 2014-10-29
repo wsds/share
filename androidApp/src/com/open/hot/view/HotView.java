@@ -1,6 +1,5 @@
 package com.open.hot.view;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import android.annotation.SuppressLint;
@@ -28,7 +27,6 @@ import com.open.hot.model.Data.Hot;
 import com.open.lib.TouchView;
 import com.open.lib.viewbody.BodyCallback;
 import com.open.lib.viewbody.ListBody2;
-import com.open.lib.viewbody.ListBody2.MyListItemBody;
 import com.open.lib.viewbody.PagerBody;
 
 public class HotView {
@@ -140,44 +138,48 @@ public class HotView {
 		mFoldCardSpring.setEndValue(1);
 
 		data.hotMap.put(data.me.id, data.me);
-		setPost(data.me);
+		setPost(data.me, null, 0);
+		setCardList(data.me);
 	}
 
 	Map<String, Hot> hotMap;
-	Hot parentHot = null;
-	int index = 0;
 
-	public void setPost(String key) {
+	public void setPost(String key, String parentKey) {
 		Hot hot = hotMap.get(key);
-		if (hot != null) {
-			setPost(hot);
+		Hot parentHot = hotMap.get(parentKey);
+		int index = parentHot.children.indexOf(key);
+		if (hot != null && parentHot != null) {
+			setPost(hot, parentHot, index);
+			setCardList(hot);
 		}
 	}
 
-	public void setPost(Hot hot) {
+	public void setPost(Hot hot, Hot parentHot, int index) {
 		viewManage.clearPostContainer();
 
-		setCurrentPost(hot);
-		setCardList(hot, hot.children);
+		thisController.currentHot = hot;
+		setCurrentPost(hot, parentHot, index);
 		if (thisController.currentPost.parent != null) {
 			setBackGroundPost(thisController.currentPost.parent);
 		}
 	}
 
-	public void setCurrentPost(String key) {
+	public void setCurrentPost(String key, String parentKey) {
 		Hot hot = hotMap.get(key);
-		if (hot != null) {
-			setCurrentPost(hot);
+		Hot parentHot = hotMap.get(parentKey);
+		int index = parentHot.children.indexOf(key);
+		if (hot != null && parentHot != null) {
+			setCurrentPost(hot, parentHot, index);
 		}
 	}
 
-	public void setCurrentPost(Hot hot) {
+	public void setCurrentPost(Hot hot, Hot parentHot, int index) {
 
 		if (hot == null) {
 			return;
 		}
 
-		thisController.currentPost = setFullScreenPost(hot);
+		thisController.currentPost = setFullScreenPost(hot, parentHot, index);
 		Log.w(tag, "currentPost: " + thisController.currentPost.key);
 	}
 
@@ -194,43 +196,24 @@ public class HotView {
 			return null;
 		}
 
-		PostBody post = viewManage.postPool.getPost(hot.id);
-		if (post == null || post.visible == View.VISIBLE) {// if the post is used in the children list or brother list;
-			post = new PostBody();
-			post.initialize(hot, 0, null, 0);
-		} else {
-			post.endValue = 0;
-			post.renderThis(0);
-			post.peekRelation();
-		}
-		post.postContainer.addView(post.postView, 0);
-		// post.setVisibility(View.VISIBLE);
-		post.setXY(0, 0);
-		post.setAlpha(1);
-		Log.w(tag, "setBackGroundPost: " + post.key);
+		PostBody post = getAvailablePost(hot, null, 0);
+
+		post.renderThis(0);
+		post.setVisibilityAtBottom(View.VISIBLE);
 
 		return post;
 	}
 
-	public PostBody setFullScreenPost(Hot hot) {
+	public PostBody setFullScreenPost(Hot hot, Hot parentHot, int index) {
 
 		if (hot == null) {
 			return null;
 		}
 
-		PostBody post = viewManage.postPool.getPost(hot.id);
-		if (post == null) {
-			post = new PostBody();
-			post.initialize(hot, 0, parentHot, index);
-		} else {
-			post.endValue = 0;
-			post.renderThis(0);
-			post.peekRelation();
-		}
+		PostBody post = getAvailablePost(hot, parentHot, index);
 
+		post.renderThis(0);
 		post.setVisibility(View.VISIBLE);
-		post.setXY(0, 0);
-		post.setAlpha(1);
 		Log.w(tag, "setFullScreenPost: " + post.key);
 
 		return post;
@@ -238,17 +221,29 @@ public class HotView {
 
 	public long delayMillis = 300;
 
-	public void setCardList(Hot parentHot, ArrayList<String> children) {
-		if (children == null) {
+	public void setCardList(Hot hot) {
+		if (hot == null || hot.children == null) {
 			return;
 		}
-		Log.d(tag, "Show children List: " + children.toString());
+		Log.d(tag, "Show children List: " + hot.children.toString());
 		this.cardListBody.clear();
-		int index = 0;
-		for (String key : children) {
-			Hot hot = hotMap.get(key);
-			if (hot != null) {
-				addToCardList(hot, parentHot, index);
+
+		float listWidth = 0;
+
+		int listIndex = 0;
+		for (String key : hot.children) {
+			if (key.equals(hot.id)) {
+				viewManage.reportError(tag, 258);
+				continue;
+			}
+			Hot childrenHot = hotMap.get(key);
+			if (childrenHot != null) {
+				PostBody post = getAvailablePost(childrenHot, hot, listIndex);
+				post.record_x = listWidth;
+				post.renderThis(1);
+				post.setVisibility(View.VISIBLE);
+
+				listWidth = listWidth + cardWidth + 2 * displayMetrics.density;
 			}
 		}
 		if (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.Done) {
@@ -279,65 +274,66 @@ public class HotView {
 		}
 	}
 
-	public void addToCardList(Hot hot, Hot parentHot, int index) {
-
+	public PostBody getAvailablePost(Hot hot, Hot parentHot, int index) {
 		PostBody post = viewManage.postPool.getPost(hot.id);
 		if (post == null) {
 			post = new PostBody();
-			post.initialize(hot, 1, parentHot, index);
+			post.initialize(hot, 0, parentHot, index);
+			// post.pushRelation();
+
+			viewManage.postPool.putPost(hot.id, post);
 		} else {
-			post.endValue = 1;
-			post.setVisibility(View.VISIBLE);
-			post.setAlpha(1);
-			// Log.d(tag, "Take to front: " + hot.id + "   key:   " + post.key);
-			post.render(1);
+			if (parentHot != null) {
+				if (post.status.state == post.status.HIDE && thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+					post.pushRelation();
+				}
+				if (post.status.state == post.status.SHOW && !post.key.equals(thisController.currentHot.id) && thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+					post.setVisibility(View.INVISIBLE);
+					post.pushRelation();
+				}
+				post.parent = parentHot.id;
+				post.brothers = parentHot.children;
+				post.index = index;
+			} else {
+				viewManage.reportError(tag, 219);
+			}
 		}
-
-		post.setVisibility(View.VISIBLE);
-
-		CardItem cardItem = new CardItem(this.cardListBody);
-		cardItem.initialize3(post);
+		return post;
 	}
 
-	public class CardItem extends MyListItemBody {
-		CardItem(ListBody2 listBody) {
-			listBody.super();
-			this.listBody = listBody;
+	void resolvePostsWhenOpen() {
+		PostBody parentPost = viewManage.postPool.getPost(thisController.currentPost.parent);
+		if (parentPost == null || parentPost.brothers == null) {
+			return;
 		}
+		int brotherCount = parentPost.brothers.size();
+		for (int index = 0; index < brotherCount; index++) {
+			String key = parentPost.brothers.get(index);
+			if (key.equals(thisController.currentPost.key) || key.equals(thisController.currentPost.parent)) {
+				continue;
+			}
+			PostBody postBody = viewManage.postPool.getPost(key);
 
-		public ListBody2 listBody;
-		public TouchView cardView;
-		public PostBody postBody;
+			postBody.status.state = postBody.status.HIDE;
+		}
+	}
 
-		public TouchView.LayoutParams renderParams = new TouchView.LayoutParams(cardWidth, cardHeight);
+	void resolvePostsBeforeClose() {
+		if (thisController.currentPost.children == null) {
+			return;
+		}
+		int childCount = thisController.currentPost.children.size();
+		for (int index = 0; index < childCount; index++) {
 
-		public TouchView initialize3(PostBody postBody) {
+			String key = thisController.currentPost.children.get(index);
+			PostBody postBody = viewManage.postPool.getPost(key);
 
-			this.postBody = postBody;
-
-			cardView = (TouchView) postBody.postView;
-			cardView.setVisibility(View.VISIBLE);
-
-			cardView.setX(listBody.height);
-			cardView.setY((float) (displayMetrics.heightPixels - 38 - cardHeight));
-			cardView.setLayoutParams(renderParams);
-
-			cardView.setTag(R.id.tag_class, "CardView");
-			cardView.setTag(R.id.tag_key, postBody.key);
-
-			cardView.setOnTouchListener(thisController.onTouchListener);
-
-			this.itemHeight = cardWidth;
-
-			listBody.height = listBody.height + cardWidth + 2 * displayMetrics.density;
-			listBody.listItemBodiesMap.put(postBody.key, this);
-			listBody.listItemsSequence.add(postBody.key);
-
-			postBody.isRecordX = false;
-			postBody.recordX();
-
-			super.initialize(cardView);
-			return cardView;
+			boolean hasRelation = postBody.popRelation();
+			if (hasRelation) {
+				postBody.status.state = postBody.status.HIDE;
+			} else {
+				postBody.status.state = postBody.status.FREED;
+			}
 		}
 	}
 
@@ -354,17 +350,17 @@ public class HotView {
 			}
 			double value = mOpenPostSpring.getCurrentValue();
 			if (value == 0) {
-				if (thisController.postClick != null) {
-					// thisController.postClick.parent = thisController.currentPost.key;
-					thisController.postClick.pushRelation();
+				if (thisController.clickPost != null) {
 
-					// main_container.removeAllViews();
-					// setCurrentPost(thisController.postClick.parent.hot);
-					setPost(thisController.postClick.hot);
-					thisController.currentPost.setVisibility(View.VISIBLE);
+					Hot hot = thisController.clickPost.hot;
+					Hot parentHot = thisController.currentPost.hot;
+					int index = parentHot.children.indexOf(hot.id);
 
-					thisController.currentPost.endValue = 0;
-					thisController.postClick = null;
+					setPost(hot, parentHot, index);
+					resolvePostsWhenOpen();
+					setCardList(hot);
+
+					thisController.clickPost = null;
 
 					mClosePostSpring.setCurrentValue(0);
 					mClosePostSpring.setEndValue(0);
@@ -398,16 +394,24 @@ public class HotView {
 				thisController.currentPost.unPeekRelation();
 			} else if (value == 1) {
 				if (thisController.currentPost != null && thisController.currentPost.parent != null) {
-					// setPost(postClick.parent.hot);
+					resolvePostsBeforeClose();
+					PostBody post = viewManage.postPool.getPost(thisController.currentPost.parent);
+					Hot hot = post.hot;
 
-					thisController.currentPost.popRelation();
+					PostBody parentPost = viewManage.postPool.getPost(post.parent);
+					// or Hot parentHot = hotMap.get(post.parent);
+					Hot parentHot = null;
+					int index = 0;
+					if (parentPost != null) {
+						parentHot = parentPost.hot;
+						index = parentHot.children.indexOf(hot.id);
+					}
 
-					// setCurrentPost(thisController.currentPost.parent.hot);
-					setPost(thisController.currentPost.parent);
+					setPost(hot, parentHot, index);
 
-					thisController.currentPost.endValue = 0;
+					setCardList(hot);
 
-					thisController.postClick = null;
+					thisController.clickPost = null;
 
 					mClosePostSpring.setCurrentValue(0);
 					mClosePostSpring.setEndValue(0);
@@ -450,12 +454,12 @@ public class HotView {
 	@SuppressLint("NewApi")
 	public void renderOpenPost() {
 		double value = mOpenPostSpring.getCurrentValue();
-		if (thisController.postClick != null) {
-			thisController.postClick.render(value);
+		if (thisController.clickPost != null) {
+			thisController.clickPost.render(value);
 		}
 
 		if (value < 0.1) {
-			if (thisController.postClick != null && thisController.postClick.hotType.type == thisController.postClick.hotType.PAPER) {
+			if (thisController.clickPost != null && thisController.clickPost.hotType.type == thisController.clickPost.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
 				// more.setColorFilter(0xff0099cd);
 			}
@@ -484,11 +488,18 @@ public class HotView {
 	public void renderFoldCard() {
 		double value = mFoldCardSpring.getCurrentValue();
 
-		int listSize = this.cardListBody.listItemsSequence.size();
+		if (thisController.currentPost == null) {
+			viewManage.reportError(tag, 434);
+			return;
+		} else if (thisController.currentPost.children == null) {
+			return;
+		}
+
+		int listSize = thisController.currentPost.children.size();
 		float x = 0;
 		float y = (float) ((displayMetrics.heightPixels - 38 - cardHeight) + cardHeight * (1 - value));
 		for (int i = 0; i < listSize; i++) {
-			String key = this.cardListBody.listItemsSequence.get(i);
+			String key = thisController.currentPost.children.get(i);
 			PostBody post = viewManage.postPool.getPost(key);
 
 			x = post.x;

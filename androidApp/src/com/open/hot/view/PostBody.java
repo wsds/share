@@ -48,58 +48,79 @@ public class PostBody {
 
 	public class Relation {
 		public String parent = null;
-		public ArrayList<String> children = null;
-		public ArrayList<String> brothers = null;
-		public float record_x;
+		// public ArrayList<String> brothers = null;
+		// public int index = 0;
+		// public float record_x = 0;
 	}
 
 	public Stack<Relation> relations = new Stack<Relation>();
 
 	public void pushRelation() {
+		Log.e(tag, "pushRelation:" + key);
+		logPost();
 		Relation relation = new Relation();
 
 		if (parent != null) {
 			relation.parent = parent;
+			parent = null;
 		}
+		//
+		// if (brothers != null) {
+		// relation.brothers = brothers;
+		// brothers = null;
+		// }
+		//
+		// relation.index = index;
+		// index = 0;
+		//
+		// relation.record_x = record_x;
+		// record_x = 0;
 
-		if (children != null) {
-			relation.children = children;
-		}
-		if (brothers != null) {
-			relation.brothers = brothers;
-		}
-
-		// recordX();
-		relation.record_x = record_x;
 		relations.push(relation);
+		Log.e(tag, "Relation pushed:" + key);
+		logPost();
 
 	}
 
-	public void peekRelation() {
+	public boolean peekRelation() {
 		if (relations.size() == 0) {
-			return;
+			return false;
 		}
 		Relation relation = relations.peek();
 		if (relation != null) {
 			this.parent = relation.parent;
-			this.children = relation.children;
-			this.brothers = relation.brothers;
-			this.record_x = relation.record_x;
-
+			// this.brothers = relation.brothers;
+			// this.index = relation.index;
+			// this.record_x = relation.record_x;
+			return true;
 		}
+		return false;
 	}
 
 	public void unPeekRelation() {
 	}
 
-	public void popRelation() {
+	public boolean popRelation() {
 		unPeekRelation();
-		relations.pop();
+		if (relations.size() == 0) {
+			return false;
+		}
+		Log.e(tag, "popRelation:" + key);
+		logPost();
+		Relation relation = relations.pop();
+		if (relation != null) {
+			this.parent = relation.parent;
+			// this.brothers = relation.brothers;
+			// this.index = relation.index;
+			// this.record_x = relation.record_x;
+			return true;
+		}
+		return false;
 	}
 
 	public class Status {
-		public int NORMAL = 0, SCALED = 1, FOLD = 2, FREED = 3;
-		public int state = NORMAL;
+		public int HIDE = 0, SHOW = 1, FREED = 3;
+		public int state = SHOW;
 	}
 
 	public double endValue = 1;
@@ -137,6 +158,18 @@ public class PostBody {
 		} else if (visible == View.INVISIBLE) {
 			Log.d(tag, "visible:  " + "View.INVISIBLE");
 		}
+		logRelations();
+	}
+
+	public void logRelations() {
+		int size = relations.size();
+		String parentLine = "******";
+		for (int i = 0; i < size; i++) {
+			parentLine += " 【";
+			parentLine += relations.get(i).parent;
+			parentLine += "】-->";
+		}
+		Log.d(tag, "parentLine:  " + parentLine);
 	}
 
 	public TouchView titleView;
@@ -338,9 +371,11 @@ public class PostBody {
 		this.endValue = endValue;
 
 		postView.setTag(R.id.tag_post_body, this);
-
-		viewManage.postPool.putPost(hot.id, this);
-		render(endValue);
+		postView.setTag(R.id.tag_class, "PostView");
+		postView.setTag(R.id.tag_key, key);
+		postView.setOnTouchListener(viewManage.onTouchListener);
+		// viewManage.postPool.putPost(hot.id, this);
+		// renderThis(endValue);
 
 		return postView;
 	}
@@ -361,13 +396,15 @@ public class PostBody {
 	public int visible = View.GONE;
 
 	public void setXY(float x, float y) {
-		if (this.x == x && this.y == y) {
-			return;
+		if (this.x != x) {
+			this.x = x;
+			postView.setX(this.x);
 		}
-		this.x = x;
-		this.y = y;
-		postView.setX(this.x);
-		postView.setY(this.y);
+		if (this.y != y) {
+			this.y = y;
+			postView.setY(this.y);
+		}
+
 	}
 
 	public void setSize(int width, int height) {
@@ -398,7 +435,30 @@ public class PostBody {
 		if (visible == View.VISIBLE) {
 			if (postView.getParent() == null) {
 				postContainer.addView(postView);
+			} else {
+				// to do to resolve reusing post.
+				postContainer.removeView(postView);
+				postContainer.addView(postView);
 			}
+			status.state = status.SHOW;
+		}
+	}
+
+	public void setVisibilityAtBottom(int visible) {
+		if (this.visible == visible) {
+			return;
+		}
+		this.visible = visible;
+		postView.setVisibility(visible);
+		if (visible == View.VISIBLE) {
+			if (postView.getParent() == null) {
+				postContainer.addView(postView, 0);
+			} else {
+				// to do to resolve reusing post.
+				postContainer.removeView(postView);
+				postContainer.addView(postView, 0);
+			}
+			status.state = status.SHOW;
 		}
 	}
 
@@ -427,6 +487,8 @@ public class PostBody {
 		int width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
 		int height = (int) ((cardHeight - displayMetrics.heightPixels + 38) * value + displayMetrics.heightPixels - 38);
 		setSize(width, height);
+
+		setAlpha(1);
 
 		imageParams.width = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));
 		imageParams.height = (int) (cardWidth - displayMetrics.density * 20 + (displayMetrics.widthPixels - cardWidth) * (1 - value));

@@ -3,9 +3,11 @@ package com.open.hot.view;
 import android.app.Activity;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -45,6 +47,7 @@ public class ViewManage {
 
 	public Activity thisActivity;
 	public ViewGroup postContainer;
+	public OnTouchListener onTouchListener;
 
 	void initialize(Activity thisActivity) {
 		this.thisActivity = thisActivity;
@@ -71,10 +74,14 @@ public class ViewManage {
 		for (int index = 0; index < childCount; index++) {
 			View view = postContainer.getChildAt(index);
 			PostBody postBody = (PostBody) view.getTag(R.id.tag_post_body);
-//			postBody.status.state = postBody.status.FREED;
+			// postBody.status.state = postBody.status.FREED;
 			postBody.setVisibility(View.GONE);
 		}
 		postContainer.removeAllViews();
+	}
+
+	void reportError(String targetTag, int lineNumber) {
+		Log.e(tag, "there is some error.@" + targetTag + "@line:" + lineNumber);
 	}
 
 	public void postNotifyView(final String viewName) {
