@@ -74,8 +74,6 @@ public class HotView {
 
 	public PagerBody mainPagerBody;
 
-	public ListBody2 cardListBody;
-
 	public TextView logo;
 	public View more;
 	public ImageView more_image;
@@ -119,9 +117,6 @@ public class HotView {
 		mainPagerBody = new PagerBody();
 		mainPagerBody.tag = "mainPagerBody";
 		mainPagerBody.initialize(displayMetrics, myBodyCallback, null);
-
-		cardListBody = new ListBody2();
-		cardListBody.initialize(displayMetrics, big_card_container);
 
 		// mainPagerBody.addChildView(postBody.postView);
 		// mainPagerBody.setTitleView(postBody.titleView, 0);
@@ -200,7 +195,7 @@ public class HotView {
 			return null;
 		}
 
-		PostBody post = getAvailablePost(hot, null, 0);
+		PostBody post = getAvailablePost(hot, null, -1);
 
 		post.renderThis(0);
 		post.setVisibilityAtBottom(View.VISIBLE);
@@ -229,9 +224,9 @@ public class HotView {
 			return;
 		}
 		Log.d(tag, "Show children List: " + hot.children.toString());
-		this.cardListBody.clear();
 
-		float listWidth = 0;
+		viewManage.listWidth = 0;
+		viewManage.list_x = 0;
 
 		int listIndex = 0;
 		for (String key : hot.children) {
@@ -242,12 +237,12 @@ public class HotView {
 			Hot childrenHot = hotMap.get(key);
 			if (childrenHot != null) {
 				PostBody post = getAvailablePost(childrenHot, hot, listIndex);
-				post.record_x = listWidth;
+				post.record_x = viewManage.listWidth;
 				post.renderThis(1);
 				post.setVisibility(View.INVISIBLE);
 				post.setVisibility(View.VISIBLE);
 
-				listWidth = listWidth + cardWidth + 2 * displayMetrics.density;
+				viewManage.listWidth = viewManage.listWidth + cardWidth + 2 * displayMetrics.density;
 				listIndex++;
 			}
 		}
@@ -298,7 +293,9 @@ public class HotView {
 				post.brothers = parentHot.children;
 				post.index = index;
 			} else {
-				viewManage.reportError(tag, 219);
+				if (index != -1) {
+					viewManage.reportError(tag, 296);
+				}
 			}
 		}
 		return post;

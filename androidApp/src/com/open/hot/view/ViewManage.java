@@ -41,6 +41,10 @@ public class ViewManage {
 
 	public int cardWidth;
 	public int cardHeight;
+
+	public int screenWidth;
+	public int screenHeight;
+
 	public int position_A;
 	public int position_B;
 	public int position_C;
@@ -48,6 +52,9 @@ public class ViewManage {
 	public Activity thisActivity;
 	public ViewGroup postContainer;
 	public OnTouchListener onTouchListener;
+
+	public float list_x = 0;
+	public float listWidth = 0;
 
 	void initialize(Activity thisActivity) {
 		this.thisActivity = thisActivity;
@@ -60,6 +67,8 @@ public class ViewManage {
 		options = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).build();
 		// roundOptions = new DisplayImageOptions.Builder().showImageOnLoading(R.drawable.ic_stub).showImageForEmptyUri(R.drawable.ic_empty).showImageOnFail(R.drawable.ic_stub).cacheInMemory(true).cacheOnDisk(true).considerExifParams(true).displayer(new RoundedBitmapDisplayer((int) (5 * displayMetrics.density))).build();
 		roundOptions = options;
+		screenWidth = (int) (displayMetrics.widthPixels);
+		screenHeight = (int) (displayMetrics.heightPixels);
 		cardWidth = (int) (displayMetrics.widthPixels * 4 / 9);
 		cardHeight = (int) (cardWidth * 1.78f);
 

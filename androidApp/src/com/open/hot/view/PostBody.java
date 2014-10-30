@@ -457,10 +457,14 @@ public class PostBody {
 		renderRelations(value);
 	}
 
+	public void updateX(){
+		float x = (float) ((viewManage.list_x+record_x) * 1);
+		setXY(x, this.y);
+	}
 	@SuppressLint("NewApi")
 	public void renderThis(double value) {
 		float y = (float) ((displayMetrics.heightPixels - 38 - cardHeight) * value);
-		float x = (float) (record_x * value);
+		float x = (float) ((viewManage.list_x+record_x) * value);
 		setXY(x, y);
 
 		int width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);

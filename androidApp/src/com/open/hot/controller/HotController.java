@@ -23,6 +23,9 @@ import com.open.hot.view.HotView;
 import com.open.hot.view.HotView.Status;
 import com.open.hot.view.PostBody;
 import com.open.hot.view.ViewManage;
+import com.open.lib.OpenLooper;
+import com.open.lib.OpenLooper.LoopCallback;
+import com.open.lib.viewbody.ListBody2.MyListItemBody;
 
 public class HotController {
 	public Data data = Data.getInstance();
@@ -68,8 +71,7 @@ public class HotController {
 						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
 							clickPost = post;
-							clickPost.isRecordX = false;
-							clickPost.recordX();
+
 						}
 					}
 				} else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
@@ -243,6 +245,7 @@ public class HotController {
 				touchDownArea.area = touchDownArea.C;
 			} else {
 				touchDownArea.area = touchDownArea.B;
+				list_x_down = viewManage.list_x;
 			}
 
 			if (eventStatus.state != eventStatus.Done) {
@@ -270,7 +273,11 @@ public class HotController {
 					}
 				}
 			} else if (touchStatus.state == touchStatus.Horizontal) {
-
+				if (touchDownArea.area == touchDownArea.B || touchDownArea.area == touchDownArea.C) {
+					if (subCardStatus.state == subCardStatus.UNFOLD) {
+						ScrollList(Δx);
+					}
+				}
 			} else if (touchStatus.state == touchStatus.Vertical) {
 				if (touchDownArea.area == touchDownArea.A) {
 					if (Δy < 0) {
@@ -288,6 +295,10 @@ public class HotController {
 					} else {
 						if (subCardStatus.state != subCardStatus.FOLD) {
 							foldCard(Δy);
+						} else {
+							if (atPostTop == true) {
+								closePost(Δy);
+							}
 						}
 					}
 				} else if (touchDownArea.area == touchDownArea.C) {
@@ -306,7 +317,8 @@ public class HotController {
 
 			if (touchStatus.state == touchStatus.Down) {
 				onClick();
-			} else if (touchDownArea.area == touchDownArea.C || touchDownArea.area == touchDownArea.B) {
+			} else {
+				logEventStatus();
 				if (eventStatus.state == eventStatus.Fold) {
 					double value = thisView.mFoldCardSpring.getCurrentValue();
 					if (value > 0.5) {
@@ -327,10 +339,7 @@ public class HotController {
 					} else {
 						thisView.mOpenPostSpring.setEndValue(0);
 					}
-				}
-			} else if (touchDownArea.area == touchDownArea.A) {
-				if (eventStatus.state == eventStatus.ClosePost) {
-					Log.v(tag, "ClosePost");
+				} else if (eventStatus.state == eventStatus.ClosePost) {
 					double value = thisView.mClosePostSpring.getCurrentValue();
 					if (value > 0.5) {
 						thisView.mClosePostSpring.setEndValue(1);
@@ -458,7 +467,14 @@ public class HotController {
 		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.Fold && eventStatus.state != eventStatus.OpenPost) {
 			return;
 		}
+
+		if (clickPost == null) {
+			return;
+		}
+
 		eventStatus.state = eventStatus.OpenPost;
+		clickPost.isRecordX = false;
+		clickPost.recordX();
 
 		if (clickPost != null) {
 			thisView.mOpenPostSpring.setEndValue(0);
@@ -469,7 +485,14 @@ public class HotController {
 		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.Fold && eventStatus.state != eventStatus.OpenPost) {
 			return;
 		}
-		eventStatus.state = eventStatus.OpenPost;
+		if (clickPost == null) {
+			return;
+		}
+		if (eventStatus.state == eventStatus.Done || eventStatus.state == eventStatus.Fold) {
+			eventStatus.state = eventStatus.OpenPost;
+			clickPost.isRecordX = false;
+			clickPost.recordX();
+		}
 
 		float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 
@@ -489,6 +512,47 @@ public class HotController {
 		thisView.renderOpenPost();
 	}
 
+	public float list_x_down = 0;
+
+	public void ScrollList(float Δx) {
+		viewManage.list_x = list_x_down + Δx;
+		if (viewManage.list_x > 0) {
+			viewManage.list_x = 0;
+		}
+		if (viewManage.list_x < -viewManage.listWidth + viewManage.screenWidth) {
+			viewManage.list_x = -viewManage.listWidth + viewManage.screenWidth;
+		}
+
+		for (int i = 0; i < currentPost.children.size(); i++) {
+			String key = currentPost.children.get(i);
+			PostBody post = viewManage.postPool.getPost(key);
+			post.updateX();
+		}
+	}
+
+	public long lastMillis = 0;
+	
+	public class ListLoopCallback extends LoopCallback {
+		public ListLoopCallback(OpenLooper openLooper) {
+			openLooper.super();
+		}
+
+		@Override
+		public void loop(double ellapsedMillis) {
+			
+			flingHoming((float) ellapsedMillis);
+		}
+	}
+	
+	float dxSpeed = 0;
+	public void dampenSpeed(long deltaMillis) {
+
+		if (dxSpeed != 0.0f) {
+			dxSpeed *= (1.0f - 0.002f * deltaMillis);
+			if (Math.abs(dxSpeed) < 50f)
+				dxSpeed = 0.0f;
+		}
+	}
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -499,7 +563,13 @@ public class HotController {
 
 					if (velocityY > 0) {
 						if (touchDownArea.area == touchDownArea.B) {
-							foldCard(true);
+							if (subCardStatus.state != subCardStatus.FOLD) {
+								foldCard(true);
+							} else {
+								if (atPostTop == true) {
+									closePost();
+								}
+							}
 						} else if (touchDownArea.area == touchDownArea.A) {
 							closePost();
 						}
