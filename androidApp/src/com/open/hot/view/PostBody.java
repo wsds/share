@@ -48,9 +48,9 @@ public class PostBody {
 
 	public class Relation {
 		public String parent = null;
-		// public ArrayList<String> brothers = null;
-		// public int index = 0;
-		// public float record_x = 0;
+		public ArrayList<String> brothers = null;
+		public int index = 0;
+		public float record_x = 0;
 	}
 
 	public Stack<Relation> relations = new Stack<Relation>();
@@ -64,17 +64,17 @@ public class PostBody {
 			relation.parent = parent;
 			parent = null;
 		}
-		//
-		// if (brothers != null) {
-		// relation.brothers = brothers;
-		// brothers = null;
-		// }
-		//
-		// relation.index = index;
-		// index = 0;
-		//
-		// relation.record_x = record_x;
-		// record_x = 0;
+
+		if (brothers != null) {
+			relation.brothers = brothers;
+			brothers = null;
+		}
+
+		relation.index = index;
+		index = 0;
+
+		relation.record_x = record_x;
+		record_x = 0;
 
 		relations.push(relation);
 		Log.e(tag, "Relation pushed:" + key);
@@ -82,26 +82,7 @@ public class PostBody {
 
 	}
 
-	public boolean peekRelation() {
-		if (relations.size() == 0) {
-			return false;
-		}
-		Relation relation = relations.peek();
-		if (relation != null) {
-			this.parent = relation.parent;
-			// this.brothers = relation.brothers;
-			// this.index = relation.index;
-			// this.record_x = relation.record_x;
-			return true;
-		}
-		return false;
-	}
-
-	public void unPeekRelation() {
-	}
-
 	public boolean popRelation() {
-		unPeekRelation();
 		if (relations.size() == 0) {
 			return false;
 		}
@@ -110,9 +91,9 @@ public class PostBody {
 		Relation relation = relations.pop();
 		if (relation != null) {
 			this.parent = relation.parent;
-			// this.brothers = relation.brothers;
-			// this.index = relation.index;
-			// this.record_x = relation.record_x;
+			this.brothers = relation.brothers;
+			this.index = relation.index;
+			this.record_x = relation.record_x;
 			return true;
 		}
 		return false;
@@ -527,55 +508,69 @@ public class PostBody {
 	}
 
 	public void renderRelations(double value) {
-		// Post
-		// if (left != null) {
-		// left.postView.setVisibility(View.VISIBLE);
-		// left.postView.setAlpha(1);
-		// left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// left.postView.setX((float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (record_x - displayMetrics.density * 2 - cardWidth) * value));
-		// left.postView.setLayoutParams(renderParams);
-		// if (left.content_image != null) {
-		// left.content_image.setLayoutParams(imageParams);
-		// }
-		//
-		// if (left.left != null) {
-		// left.left.postView.setVisibility(View.VISIBLE);
-		// left.left.postView.setAlpha(1);
-		//
-		// left.left.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// left.left.postView.setX((float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (record_x - displayMetrics.density * 4 - 2 * cardWidth) * value));
-		// left.left.postView.setLayoutParams(renderParams);
-		// if (left.left.content_image != null) {
-		// left.left.content_image.setLayoutParams(imageParams);
-		// }
-		// }
-		// }
-		// if (right != null) {
-		// right.postView.setVisibility(View.VISIBLE);
-		// right.postView.setAlpha(1);
-		//
-		// right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// right.postView.setX((float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (record_x + displayMetrics.density * 2 + cardWidth) * value));
-		//
-		// right.postView.setLayoutParams(renderParams);
-		// if (right.content_image != null) {
-		// right.content_image.setLayoutParams(imageParams);
-		// }
-		//
-		// if (right.right != null) {
-		// right.right.postView.setVisibility(View.VISIBLE);
-		// right.right.postView.setAlpha(1);
-		//
-		// right.right.postView.setY((float) ((displayMetrics.heightPixels - 38 - cardHeight) * value));
-		// right.right.postView.setX((float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (record_x + displayMetrics.density * 4 + 2 * cardWidth) * value));
-		//
-		// right.right.postView.setLayoutParams(renderParams);
-		// if (right.right.content_image != null) {
-		// right.right.content_image.setLayoutParams(imageParams);
-		// }
-		// }
-		// }
+		if (brothers == null) {
+			return;
+		}
+		int brothersSize = brothers.size();
+		if (index - 1 >= 0 && index - 1 < brothersSize) {
+			String leftKey = this.brothers.get(index - 1);
+			PostBody left = viewManage.postPool.getPost(leftKey);
+			if (left != null) {
+				left.setVisibility(View.VISIBLE);
+				left.setAlpha(1);
+				float x = (float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (record_x - displayMetrics.density * 2 - cardWidth) * value);
+				left.setXY(x, this.y);
+				left.setSize(this.width, this.height);
+				if (left.content_image != null) {
+					left.content_image.setLayoutParams(imageParams);
+				}
+			}
+		}
+
+		if (index - 2 >= 0 && index - 2 < brothersSize) {
+			String leftleftKey = this.brothers.get(index - 2);
+			PostBody leftleft = viewManage.postPool.getPost(leftleftKey);
+			if (leftleft != null) {
+				leftleft.setVisibility(View.VISIBLE);
+				leftleft.setAlpha(1);
+				float x = (float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (record_x - displayMetrics.density * 4 - 2 * cardWidth) * value);
+				leftleft.setXY(x, this.y);
+				leftleft.setSize(this.width, this.height);
+				if (leftleft.content_image != null) {
+					leftleft.content_image.setLayoutParams(imageParams);
+				}
+			}
+		}
+
+		if (index + 1 >= 0 && index + 1 < brothersSize) {
+			String rightKey = this.brothers.get(index + 1);
+			PostBody right = viewManage.postPool.getPost(rightKey);
+			if (right != null) {
+				right.setVisibility(View.VISIBLE);
+				right.setAlpha(1);
+				float x = (float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (record_x + displayMetrics.density * 2 + cardWidth) * value);
+				right.setXY(x, this.y);
+				right.setSize(this.width, this.height);
+				if (right.content_image != null) {
+					right.content_image.setLayoutParams(imageParams);
+				}
+			}
+		}
+
+		if (index + 2 >= 0 && index + 2 < brothersSize) {
+			String rightrightKey = this.brothers.get(index + 2);
+			PostBody rightright = viewManage.postPool.getPost(rightrightKey);
+			if (rightright != null) {
+				rightright.setVisibility(View.VISIBLE);
+				rightright.setAlpha(1);
+				float x = (float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (record_x + displayMetrics.density * 4 + 2 * cardWidth) * value);
+				rightright.setXY(x, this.y);
+				rightright.setSize(this.width, this.height);
+				if (rightright.content_image != null) {
+					rightright.content_image.setLayoutParams(imageParams);
+				}
+			}
+		}
 
 	}
-
 }

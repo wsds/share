@@ -245,6 +245,7 @@ public class HotView {
 				post.setVisibility(View.VISIBLE);
 
 				listWidth = listWidth + cardWidth + 2 * displayMetrics.density;
+				listIndex++;
 			}
 		}
 		if (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.Done) {
@@ -393,7 +394,7 @@ public class HotView {
 
 			Log.d(tag, "ClosePostSpringListener onSpringAtRest: " + value);
 			if (value == 0) {
-				thisController.currentPost.unPeekRelation();
+
 			} else if (value == 1) {
 				if (thisController.currentPost != null && thisController.currentPost.parent != null) {
 					resolvePostsBeforeClose();
