@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:text="Hot+"
-        android:textColor="#ee666666"
+        android:textColor="#eeffffff"
         android:textSize="24sp"
         android:translationX="-60dp"
         android:translationY="11dp" />
@@ -31,7 +31,7 @@
             android:layout_width="4dp"
             android:layout_height="30dp"
             android:src="@drawable/more"
-            android:tint="#ee666666"
+            android:tint="#eeffffff"
             android:translationX="10dp"
             android:translationY="13dp" />
     </FrameLayout>

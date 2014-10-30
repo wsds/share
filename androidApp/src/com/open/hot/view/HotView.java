@@ -241,6 +241,7 @@ public class HotView {
 				PostBody post = getAvailablePost(childrenHot, hot, listIndex);
 				post.record_x = listWidth;
 				post.renderThis(1);
+				post.setVisibility(View.INVISIBLE);
 				post.setVisibility(View.VISIBLE);
 
 				listWidth = listWidth + cardWidth + 2 * displayMetrics.density;
@@ -251,7 +252,6 @@ public class HotView {
 			this.mFoldCardSpring.setCurrentValue(0.2);
 			this.mFoldCardSpring.setEndValue(0.2);
 
-			this.renderFoldCard();
 			new Handler().postDelayed(new Runnable() {
 				public void run() {
 					mFoldCardSpring.setSpringConfig(slow_config);
@@ -267,7 +267,6 @@ public class HotView {
 		} else if (thisController.eventStatus.state == thisController.eventStatus.ClosePost) {
 			this.mFoldCardSpring.setCurrentValue(1);
 			this.mFoldCardSpring.setEndValue(1);
-			renderFoldCard();
 		} else {
 			Log.d(tag, "error occurs in " + "setCardList");
 			thisController.logEventStatus();
@@ -367,6 +366,9 @@ public class HotView {
 
 					mOpenPostSpring.setCurrentValue(1);
 					mOpenPostSpring.setEndValue(1);
+
+					mFoldCardSpring.setCurrentValue(0.2);
+					mFoldCardSpring.setEndValue(0.2);
 				}
 
 			} else if (value == 1) {
@@ -418,7 +420,9 @@ public class HotView {
 
 					mOpenPostSpring.setCurrentValue(1);
 					mOpenPostSpring.setEndValue(1);
-					// renderScaleCard();
+
+					mFoldCardSpring.setCurrentValue(1);
+					mFoldCardSpring.setEndValue(1);
 				}
 			}
 

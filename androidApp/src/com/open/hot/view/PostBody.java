@@ -139,7 +139,7 @@ public class PostBody {
 		public int type = CONTAINER;
 	}
 
-	public TouchView postView;
+	private TouchView postView;
 
 	public void logPost() {
 		Log.d(tag, "Log Post:  " + this.key);
@@ -157,6 +157,12 @@ public class PostBody {
 			Log.d(tag, "visible:  " + "View.VISIBLE");
 		} else if (visible == View.INVISIBLE) {
 			Log.d(tag, "visible:  " + "View.INVISIBLE");
+		}
+
+		if (postView.getParent() != null) {
+			Log.d(tag, "postView has parent");
+		} else {
+			Log.e(tag, "postView has not parent");
 		}
 		logRelations();
 	}
