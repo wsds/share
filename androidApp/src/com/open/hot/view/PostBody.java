@@ -56,8 +56,6 @@ public class PostBody {
 	public Stack<Relation> relations = new Stack<Relation>();
 
 	public void pushRelation() {
-		Log.e(tag, "pushRelation:" + key);
-		logPost();
 		Relation relation = new Relation();
 
 		if (parent != null) {
@@ -77,17 +75,12 @@ public class PostBody {
 		record_x = 0;
 
 		relations.push(relation);
-		Log.e(tag, "Relation pushed:" + key);
-		logPost();
-
 	}
 
 	public boolean popRelation() {
 		if (relations.size() == 0) {
 			return false;
 		}
-		Log.e(tag, "popRelation:" + key);
-		logPost();
 		Relation relation = relations.pop();
 		if (relation != null) {
 			this.parent = relation.parent;
@@ -132,6 +125,7 @@ public class PostBody {
 		if (children != null) {
 			Log.d(tag, "children:  " + children.toString());
 		}
+		Log.d(tag, "endValue:  " + endValue);
 		if (visible == View.GONE) {
 			Log.d(tag, "visible:  " + "View.GONE");
 		} else if (visible == View.VISIBLE) {
@@ -338,7 +332,6 @@ public class PostBody {
 
 		} else if (hotType.type == hotType.PHOTO) {
 
-			Log.d(tag, "" + hot.content.size());
 			postView = (TouchView) mInflater.inflate(R.layout.post_photo, null);
 
 			titleView = (TouchView) postView.findViewById(R.id.title);
@@ -455,7 +448,6 @@ public class PostBody {
 			isRecordX = true;
 		}
 		if (record_x < -200) {
-			logPost();
 		}
 	}
 

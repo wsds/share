@@ -64,7 +64,6 @@ public class HotController {
 					String view_class = (String) view.getTag(R.id.tag_class);
 					if (view_class.equals("PostView")) {
 						String key = (String) view.getTag(R.id.tag_key);
-						Log.d(tag, "Touch: " + key);
 						PostBody post = thisView.viewManage.postPool.getPost(key);
 						if (post != null && post.endValue == 1 && thisView.mOpenPostSpring.getCurrentValue() == 1) {
 							Log.d(tag, "Touch: " + post.key);
@@ -92,11 +91,6 @@ public class HotController {
 			public void onClick(View view) {
 				if (view.equals(thisView.logo)) {
 					Log.d(tag, "logo");
-					// if (thisView.mScaleCardSpring.getEndValue() == 0) {
-					// thisView.mScaleCardSpring.setEndValue(1);
-					// } else {
-					// thisView.mScaleCardSpring.setEndValue(0);
-					// }
 
 					if (thisView.mFoldCardSpring.getEndValue() == 0) {
 						thisView.mFoldCardSpring.setEndValue(1);
@@ -107,15 +101,12 @@ public class HotController {
 					Parser parser = Parser.getInstance();
 					parser.parse();
 				} else if (view.equals(thisView.album)) {
-					if (thisView.mFoldCardSpring.getEndValue() == 0) {
-						thisView.mFoldCardSpring.setEndValue(1);
-					} else {
-						thisView.mFoldCardSpring.setEndValue(0);
-					}
+					foldCard(false);
 				} else if (view.equals(thisView.more)) {
 					Log.e(tag, "more");
 					logEventStatus();
-					PostBody post = viewManage.postPool.getPost("2001");
+					logSubCardStatus();
+					PostBody post = viewManage.postPool.getPost("2009");
 					post.logPost();
 					Log.e(tag, "currentPost:  " + currentPost.key);
 					currentPost.logPost();
@@ -241,7 +232,6 @@ public class HotController {
 		float x = event.getX();
 		float y = event.getY();
 		if (motionEvent == MotionEvent.ACTION_DOWN) {
-			Log.d(tag, "ACTION_DOWN");
 			touch_pre_x = x;
 			touch_pre_y = y;
 			last_Δy = 0;
@@ -260,7 +250,6 @@ public class HotController {
 			}
 			touchStatus.state = touchStatus.Down;
 		} else if (motionEvent == MotionEvent.ACTION_MOVE) {
-			// Log.d(tag, " ACTION_MOVE");
 			float Δy = (y - touch_pre_y);
 			float Δx = (x - touch_pre_x);
 			if (touchStatus.state == touchStatus.Down) {
@@ -367,16 +356,16 @@ public class HotController {
 
 	public void foldCard(boolean isFord) {
 		if (isFord == true) {
-			Log.v(tag, "foldCard");
-			logSubCardStatus();
 			if (eventStatus.state == eventStatus.ClosePost) {
-				logEventStatus();
 			}
 			if (subCardStatus.state != subCardStatus.FOLD) {
 				clickPost = null;
 				thisView.mFoldCardSpring.setEndValue(0);
 				// eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
+
+				thisView.mOpenPostSpring.setCurrentValue(1);
+				thisView.mOpenPostSpring.setEndValue(1);
 			}
 		} else {
 			if (subCardStatus.state != subCardStatus.UNFOLD) {
@@ -384,6 +373,9 @@ public class HotController {
 				thisView.mFoldCardSpring.setEndValue(1);
 				eventStatus.state = eventStatus.Fold;
 				subCardStatus.state = subCardStatus.MOVING;
+
+				thisView.mOpenPostSpring.setCurrentValue(1);
+				thisView.mOpenPostSpring.setEndValue(1);
 			}
 		}
 	}
@@ -445,7 +437,6 @@ public class HotController {
 			eventStatus.state = eventStatus.ClosePost;
 		} else if (eventStatus.state == eventStatus.ClosePost) {
 		} else {
-			logEventStatus();
 			last_Δy = Δy;
 			return;
 		}

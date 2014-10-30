@@ -218,7 +218,6 @@ public class HotView {
 
 		post.renderThis(0);
 		post.setVisibility(View.VISIBLE);
-		Log.w(tag, "setFullScreenPost: " + post.key);
 
 		return post;
 	}
@@ -396,7 +395,6 @@ public class HotView {
 			}
 			double value = mClosePostSpring.getCurrentValue();
 
-			Log.d(tag, "ClosePostSpringListener onSpringAtRest: " + value);
 			if (value == 0) {
 
 			} else if (value == 1) {
@@ -454,9 +452,6 @@ public class HotView {
 			if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
 				thisController.eventStatus.state = thisController.eventStatus.Done;
 			}
-			Log.e(tag, "onSpringAtRest: " + value);
-			thisController.logEventStatus();
-			thisController.logSubCardStatus();
 		}
 	}
 
@@ -471,6 +466,9 @@ public class HotView {
 			if (thisController.clickPost != null && thisController.clickPost.hotType.type == thisController.clickPost.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
 				more_image.setColorFilter(0xff0099cd);
+			} else {
+				logo.setTextColor(0xeeffffff);
+				more_image.setColorFilter(0xeeffffff);
 			}
 		} else {
 			if (thisController.currentPost != null && thisController.currentPost.hotType.type == thisController.currentPost.hotType.PAPER) {
@@ -543,6 +541,9 @@ public class HotView {
 			}
 			post.setXY(x, y);
 			post.setAlpha((float) (value));
+			if (value > 0.8) {
+				post.endValue = 1;
+			}
 		}
 
 		if (value < 0.1) {
@@ -552,12 +553,12 @@ public class HotView {
 		} else {
 			album.setVisibility(View.INVISIBLE);
 		}
-		
+
 		if (value < 0.2) {
 			thisController.subCardStatus.state = thisController.subCardStatus.FOLD;
-		} else if (value > 0.8){
+		} else if (value > 0.8) {
 			thisController.subCardStatus.state = thisController.subCardStatus.UNFOLD;
-		}else{
+		} else {
 			thisController.subCardStatus.state = thisController.subCardStatus.MOVING;
 		}
 
