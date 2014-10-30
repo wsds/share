@@ -245,12 +245,6 @@ public class HotController {
 			touch_pre_x = x;
 			touch_pre_y = y;
 			last_Δy = 0;
-			double value1 = thisView.mFoldCardSpring.getCurrentValue();
-			if (value1 < 0.5) {
-				subCardStatus.state = subCardStatus.FOLD;
-			} else {
-				subCardStatus.state = subCardStatus.UNFOLD;
-			}
 
 			if (y < viewManage.position_B) {
 				touchDownArea.area = touchDownArea.A;
@@ -399,7 +393,6 @@ public class HotController {
 			return;
 		}
 		eventStatus.state = eventStatus.Fold;
-		// float ratio = -Δy / (thisView.displayMetrics.heightPixels - 38 - thisView.cardHeight);
 		float ratio1 = Δy / (thisView.cardHeight);
 
 		if (Δy > 0) {
@@ -428,16 +421,17 @@ public class HotController {
 		thisView.renderFoldCard();
 	}
 
-	public void closePost() {
+	public boolean closePost() {
 		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.ClosePost) {
-			return;
+			return false;
 		}
 		if (currentPost.parent == null) {
-			return;
+			return false;
 		}
 		eventStatus.state = eventStatus.ClosePost;
 
 		thisView.mClosePostSpring.setEndValue(1);
+		return true;
 	}
 
 	public float last_Δy = 0;
@@ -562,6 +556,12 @@ public class HotController {
 
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			foldCard(true);
+			thisView.mClosePostSpring.setSpringConfig(thisView.mid_config);
+			boolean isClosingPost = closePost();
+			if (isClosingPost == true) {
+				return true;
+			}
 			if (isExit) {
 				thisActivity.finish();
 			} else {

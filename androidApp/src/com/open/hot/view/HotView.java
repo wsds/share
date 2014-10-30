@@ -51,6 +51,7 @@ public class HotView {
 	public Status status = Status.welcome;
 
 	public SpringConfig fast_config = SpringConfig.fromOrigamiTensionAndFriction(240, 12);
+	public SpringConfig mid_config = SpringConfig.fromOrigamiTensionAndFriction(120, 12);
 	public SpringConfig slow_config = SpringConfig.fromOrigamiTensionAndFriction(60, 12);
 
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
@@ -77,6 +78,7 @@ public class HotView {
 
 	public TextView logo;
 	public View more;
+	public ImageView more_image;
 
 	public ImageView album;
 	public ImageView clicker;
@@ -100,8 +102,10 @@ public class HotView {
 		// thisActivity.setContentView(R.layout.view_card);
 		main_container = (TouchView) thisActivity.findViewById(R.id.main_container);
 		viewManage.postContainer = main_container;
+
 		logo = (TextView) thisActivity.findViewById(R.id.logo);
 		more = (View) thisActivity.findViewById(R.id.more);
+		more_image = (ImageView) more.findViewById(R.id.more_image);
 
 		album = (ImageView) thisActivity.findViewById(R.id.album);
 		clicker = (ImageView) thisActivity.findViewById(R.id.clicker);
@@ -426,7 +430,7 @@ public class HotView {
 					mFoldCardSpring.setEndValue(1);
 				}
 			}
-
+			mClosePostSpring.setSpringConfig(fast_config);
 			thisController.eventStatus.state = thisController.eventStatus.Done;
 		}
 	}
@@ -466,11 +470,16 @@ public class HotView {
 		if (value < 0.1) {
 			if (thisController.clickPost != null && thisController.clickPost.hotType.type == thisController.clickPost.hotType.PAPER) {
 				logo.setTextColor(0xff0099cd);
-				// more.setColorFilter(0xff0099cd);
+				more_image.setColorFilter(0xff0099cd);
 			}
 		} else {
-			logo.setTextColor(0xeeffffff);
-			// more.setColorFilter(0xeeffffff);
+			if (thisController.currentPost != null && thisController.currentPost.hotType.type == thisController.currentPost.hotType.PAPER) {
+				logo.setTextColor(0xff0099cd);
+				more_image.setColorFilter(0xff0099cd);
+			} else {
+				logo.setTextColor(0xeeffffff);
+				more_image.setColorFilter(0xeeffffff);
+			}
 		}
 	}
 
@@ -485,6 +494,16 @@ public class HotView {
 			album.setVisibility(View.VISIBLE);
 		} else {
 			album.setVisibility(View.INVISIBLE);
+		}
+
+		if (value < 0.1) {
+			if (thisController.currentPost != null && thisController.currentPost.hotType.type == thisController.currentPost.hotType.PAPER) {
+				logo.setTextColor(0xff0099cd);
+				more_image.setColorFilter(0xff0099cd);
+			}
+		} else {
+			logo.setTextColor(0xeeffffff);
+			more_image.setColorFilter(0xeeffffff);
 		}
 	}
 
@@ -532,6 +551,14 @@ public class HotView {
 			album.setScaleY((float) (1 + 2 * value));
 		} else {
 			album.setVisibility(View.INVISIBLE);
+		}
+		
+		if (value < 0.2) {
+			thisController.subCardStatus.state = thisController.subCardStatus.FOLD;
+		} else if (value > 0.8){
+			thisController.subCardStatus.state = thisController.subCardStatus.UNFOLD;
+		}else{
+			thisController.subCardStatus.state = thisController.subCardStatus.MOVING;
 		}
 
 	}
