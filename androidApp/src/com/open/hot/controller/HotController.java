@@ -25,7 +25,6 @@ import com.open.hot.view.PostBody;
 import com.open.hot.view.ViewManage;
 import com.open.lib.OpenLooper;
 import com.open.lib.OpenLooper.LoopCallback;
-import com.open.lib.viewbody.ListBody2.MyListItemBody;
 
 public class HotController {
 	public Data data = Data.getInstance();
@@ -129,6 +128,10 @@ public class HotController {
 		thisView.status = Status.loginOrRegister;
 
 		mGesture = new GestureDetector(thisActivity, new GestureListener());
+		openLooper = new OpenLooper();
+		openLooper.createOpenLooper();
+		loopCallback = new ListLoopCallback(openLooper);
+		openLooper.loopCallback = loopCallback;
 	}
 
 	public void onResume() {
@@ -245,7 +248,8 @@ public class HotController {
 				touchDownArea.area = touchDownArea.C;
 			} else {
 				touchDownArea.area = touchDownArea.B;
-				list_x_down = viewManage.list_x;
+				list_x_down = currentPost.childList_x;
+				dxSpeed = 0;
 			}
 
 			if (eventStatus.state != eventStatus.Done) {
@@ -275,7 +279,7 @@ public class HotController {
 			} else if (touchStatus.state == touchStatus.Horizontal) {
 				if (touchDownArea.area == touchDownArea.B || touchDownArea.area == touchDownArea.C) {
 					if (subCardStatus.state == subCardStatus.UNFOLD) {
-						ScrollList(Δx);
+						scrollList(Δx);
 					}
 				}
 			} else if (touchStatus.state == touchStatus.Vertical) {
@@ -514,15 +518,35 @@ public class HotController {
 
 	public float list_x_down = 0;
 
-	public void ScrollList(float Δx) {
-		viewManage.list_x = list_x_down + Δx;
-		if (viewManage.list_x > 0) {
-			viewManage.list_x = 0;
-		}
-		if (viewManage.list_x < -viewManage.listWidth + viewManage.screenWidth) {
-			viewManage.list_x = -viewManage.listWidth + viewManage.screenWidth;
+	public void slidingList(float dxSpeed) {
+		this.dxSpeed = dxSpeed;
+		this.lastMillis = System.currentTimeMillis();
+		this.openLooper.start();
+	}
+
+	public void scrollList(float Δx) {
+		currentPost.childList_x = list_x_down + Δx;
+		if (currentPost.childList_x > 0) {
+			currentPost.childList_x = 0;
+		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth) {
+			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth;
 		}
 
+		updateListX();
+	}
+
+	public void moveList(float Δx) {
+		currentPost.childList_x = currentPost.childList_x + Δx;
+		if (currentPost.childList_x > 0) {
+			currentPost.childList_x = 0;
+		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth) {
+			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth;
+		}
+
+		updateListX();
+	}
+
+	public void updateListX() {
 		for (int i = 0; i < currentPost.children.size(); i++) {
 			String key = currentPost.children.get(i);
 			PostBody post = viewManage.postPool.getPost(key);
@@ -531,7 +555,9 @@ public class HotController {
 	}
 
 	public long lastMillis = 0;
-	
+	OpenLooper openLooper = null;
+	LoopCallback loopCallback = null;
+
 	public class ListLoopCallback extends LoopCallback {
 		public ListLoopCallback(OpenLooper openLooper) {
 			openLooper.super();
@@ -539,12 +565,30 @@ public class HotController {
 
 		@Override
 		public void loop(double ellapsedMillis) {
-			
+
 			flingHoming((float) ellapsedMillis);
 		}
 	}
-	
+
+	public void flingHoming(float delta1) {
+		long currentMillis = System.currentTimeMillis();
+
+		if (lastMillis != 0) {
+			long delta = currentMillis - lastMillis;
+			dampenSpeed(delta);
+			moveList(this.ratio * delta * this.dxSpeed);
+		}
+
+		lastMillis = currentMillis;
+
+		if (this.dxSpeed == 0) {
+			this.openLooper.stop();
+		}
+	}
+
 	float dxSpeed = 0;
+	float ratio = 0.0008f;
+
 	public void dampenSpeed(long deltaMillis) {
 
 		if (dxSpeed != 0.0f) {
@@ -553,11 +597,16 @@ public class HotController {
 				dxSpeed = 0.0f;
 		}
 	}
+
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			if (velocityX * velocityX + velocityY * velocityY > 250000) {
 				if (velocityX * velocityX > velocityY * velocityY) {
+
+					if (touchDownArea.area == touchDownArea.B) {
+						slidingList(velocityX);
+					}
 
 				} else {
 

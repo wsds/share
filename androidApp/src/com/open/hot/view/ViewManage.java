@@ -53,7 +53,6 @@ public class ViewManage {
 	public ViewGroup postContainer;
 	public OnTouchListener onTouchListener;
 
-	public float list_x = 0;
 	public float listWidth = 0;
 
 	void initialize(Activity thisActivity) {

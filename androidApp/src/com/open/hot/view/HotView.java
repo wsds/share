@@ -26,7 +26,6 @@ import com.open.hot.model.Data;
 import com.open.hot.model.Data.Hot;
 import com.open.lib.TouchView;
 import com.open.lib.viewbody.BodyCallback;
-import com.open.lib.viewbody.ListBody2;
 import com.open.lib.viewbody.PagerBody;
 
 public class HotView {
@@ -226,7 +225,7 @@ public class HotView {
 		Log.d(tag, "Show children List: " + hot.children.toString());
 
 		viewManage.listWidth = 0;
-		viewManage.list_x = 0;
+		// viewManage.list_x = 0;
 
 		int listIndex = 0;
 		for (String key : hot.children) {
@@ -533,7 +532,7 @@ public class HotView {
 				post.isRecordX = false;
 
 				post.setVisibility(View.VISIBLE);
-				x = post.record_x;
+				x = thisController.currentPost.childList_x + post.record_x;
 				post.setSize(cardWidth, cardHeight);
 			}
 			post.setXY(x, y);

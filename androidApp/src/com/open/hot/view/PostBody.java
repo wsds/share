@@ -45,12 +45,13 @@ public class PostBody {
 	public PostBody mirror;
 
 	public ViewGroup postContainer;
+	public float childList_x = 0;
 
 	public class Relation {
 		public String parent = null;
 		public ArrayList<String> brothers = null;
 		public int index = 0;
-		public float record_x = 0;
+		public float childList_x = 0;
 	}
 
 	public Stack<Relation> relations = new Stack<Relation>();
@@ -71,8 +72,8 @@ public class PostBody {
 		relation.index = index;
 		index = 0;
 
-		relation.record_x = record_x;
-		record_x = 0;
+		relation.childList_x = childList_x;
+		childList_x = 0;
 
 		relations.push(relation);
 	}
@@ -86,7 +87,7 @@ public class PostBody {
 			this.parent = relation.parent;
 			this.brothers = relation.brothers;
 			this.index = relation.index;
-			this.record_x = relation.record_x;
+			this.childList_x = relation.childList_x;
 			return true;
 		}
 		return false;
@@ -443,12 +444,12 @@ public class PostBody {
 	}
 
 	public void recordX() {
-		if (isRecordX == false) {
-			record_x = postView.getX();
-			isRecordX = true;
-		}
-		if (record_x < -200) {
-		}
+		// if (isRecordX == false) {
+		// record_x = postView.getX();
+		// isRecordX = true;
+		// }
+		// if (record_x < -200) {
+		// }
 	}
 
 	@SuppressLint("NewApi")
@@ -457,14 +458,26 @@ public class PostBody {
 		renderRelations(value);
 	}
 
-	public void updateX(){
-		float x = (float) ((viewManage.list_x+record_x) * 1);
+	public void updateX() {
+		float list_x = 0;
+		PostBody parentPost = viewManage.postPool.getPost(parent);
+		if (parentPost != null) {
+			list_x = parentPost.childList_x;
+		}
+		float x = (float) ((list_x + record_x) * 1);
 		setXY(x, this.y);
 	}
+
 	@SuppressLint("NewApi")
 	public void renderThis(double value) {
+		float list_x = 0;
+		PostBody parentPost = viewManage.postPool.getPost(parent);
+		if (parentPost != null) {
+			list_x = parentPost.childList_x;
+		}
+
 		float y = (float) ((displayMetrics.heightPixels - 38 - cardHeight) * value);
-		float x = (float) ((viewManage.list_x+record_x) * value);
+		float x = (float) ((list_x + record_x) * value);
 		setXY(x, y);
 
 		int width = (int) ((cardWidth - displayMetrics.widthPixels) * value + displayMetrics.widthPixels);
@@ -507,6 +520,13 @@ public class PostBody {
 		if (brothers == null) {
 			return;
 		}
+		
+		float list_x = 0;
+		PostBody parentPost = viewManage.postPool.getPost(parent);
+		if (parentPost != null) {
+			list_x = parentPost.childList_x;
+		}
+		
 		int brothersSize = brothers.size();
 		if (index - 1 >= 0 && index - 1 < brothersSize) {
 			String leftKey = this.brothers.get(index - 1);
@@ -514,7 +534,7 @@ public class PostBody {
 			if (left != null) {
 				left.setVisibility(View.VISIBLE);
 				left.setAlpha(1);
-				float x = (float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (record_x - displayMetrics.density * 2 - cardWidth) * value);
+				float x = (float) (-displayMetrics.widthPixels + displayMetrics.widthPixels * value + (list_x + record_x - displayMetrics.density * 2 - cardWidth) * value);
 				left.setXY(x, this.y);
 				left.setSize(this.width, this.height);
 				if (left.content_image != null) {
@@ -529,7 +549,7 @@ public class PostBody {
 			if (leftleft != null) {
 				leftleft.setVisibility(View.VISIBLE);
 				leftleft.setAlpha(1);
-				float x = (float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (record_x - displayMetrics.density * 4 - 2 * cardWidth) * value);
+				float x = (float) (-displayMetrics.widthPixels * 2 + displayMetrics.widthPixels * 2 * value + (list_x + record_x - displayMetrics.density * 4 - 2 * cardWidth) * value);
 				leftleft.setXY(x, this.y);
 				leftleft.setSize(this.width, this.height);
 				if (leftleft.content_image != null) {
@@ -544,7 +564,7 @@ public class PostBody {
 			if (right != null) {
 				right.setVisibility(View.VISIBLE);
 				right.setAlpha(1);
-				float x = (float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (record_x + displayMetrics.density * 2 + cardWidth) * value);
+				float x = (float) (displayMetrics.widthPixels - displayMetrics.widthPixels * value + (list_x + record_x + displayMetrics.density * 2 + cardWidth) * value);
 				right.setXY(x, this.y);
 				right.setSize(this.width, this.height);
 				if (right.content_image != null) {
@@ -559,7 +579,7 @@ public class PostBody {
 			if (rightright != null) {
 				rightright.setVisibility(View.VISIBLE);
 				rightright.setAlpha(1);
-				float x = (float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (record_x + displayMetrics.density * 4 + 2 * cardWidth) * value);
+				float x = (float) (displayMetrics.widthPixels * 2 - displayMetrics.widthPixels * 2 * value + (list_x + record_x + displayMetrics.density * 4 + 2 * cardWidth) * value);
 				rightright.setXY(x, this.y);
 				rightright.setSize(this.width, this.height);
 				if (rightright.content_image != null) {
