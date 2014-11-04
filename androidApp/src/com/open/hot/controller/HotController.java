@@ -526,10 +526,12 @@ public class HotController {
 
 	public void scrollList(float Δx) {
 		currentPost.childList_x = list_x_down + Δx;
-		if (currentPost.childList_x > 0) {
+		if (currentPost.childList_x >= 0) {
 			currentPost.childList_x = 0;
-		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth) {
-			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth;
+			this.dxSpeed = 0;
+		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth + 2 * viewManage.displayMetrics.density) {
+			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth + 2 * viewManage.displayMetrics.density;
+			this.dxSpeed = 0;
 		}
 
 		updateListX();
@@ -537,10 +539,12 @@ public class HotController {
 
 	public void moveList(float Δx) {
 		currentPost.childList_x = currentPost.childList_x + Δx;
-		if (currentPost.childList_x > 0) {
+		if (currentPost.childList_x >= 0) {
 			currentPost.childList_x = 0;
-		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth) {
-			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth;
+			this.dxSpeed = 0;
+		} else if (currentPost.childList_x < -viewManage.listWidth + viewManage.screenWidth + 2 * viewManage.displayMetrics.density) {
+			currentPost.childList_x = -viewManage.listWidth + viewManage.screenWidth + 2 * viewManage.displayMetrics.density;
+			this.dxSpeed = 0;
 		}
 
 		updateListX();

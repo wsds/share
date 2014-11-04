@@ -73,7 +73,7 @@ public class PostBody {
 		index = 0;
 
 		relation.childList_x = childList_x;
-		childList_x = 0;
+		// childList_x = 0;
 
 		relations.push(relation);
 	}
@@ -520,13 +520,13 @@ public class PostBody {
 		if (brothers == null) {
 			return;
 		}
-		
+
 		float list_x = 0;
 		PostBody parentPost = viewManage.postPool.getPost(parent);
 		if (parentPost != null) {
 			list_x = parentPost.childList_x;
 		}
-		
+
 		int brothersSize = brothers.size();
 		if (index - 1 >= 0 && index - 1 < brothersSize) {
 			String leftKey = this.brothers.get(index - 1);
