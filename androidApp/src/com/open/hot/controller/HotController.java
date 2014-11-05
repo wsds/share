@@ -281,6 +281,8 @@ public class HotController {
 					if (subCardStatus.state == subCardStatus.UNFOLD) {
 						scrollList(Δx);
 					}
+				} else if (touchDownArea.area == touchDownArea.A) {
+					flipPage(Δx);
 				}
 			} else if (touchStatus.state == touchStatus.Vertical) {
 				if (touchDownArea.area == touchDownArea.A) {
@@ -350,6 +352,9 @@ public class HotController {
 					} else {
 						thisView.mClosePostSpring.setEndValue(0);
 					}
+				} else if (eventStatus.state == eventStatus.FlipPage) {
+					double value = thisView.mPagerSpring.getCurrentValue();
+					thisView.mPagerSpring.setEndValue(Math.round(value));
 				}
 			}
 		}
@@ -602,6 +607,39 @@ public class HotController {
 		}
 	}
 
+	public void flipPage(String direction) {
+		double value = thisView.mPagerSpring.getCurrentValue();
+		double floorValue = Math.floor(value);
+		if (direction.equals("left") && floorValue >= 0) {
+			thisView.mPagerSpring.setEndValue(floorValue);
+		} else if (direction.equals("right") && floorValue + 1 < currentPost.brothers.size()) {
+			thisView.mPagerSpring.setEndValue(floorValue + 1);
+		}
+
+	}
+
+	public void flipPage(float Δx) {
+		if (eventStatus.state != eventStatus.Done && eventStatus.state != eventStatus.FlipPage) {
+			return;
+		}
+		eventStatus.state = eventStatus.FlipPage;
+
+		if (currentPost == null || currentPost.brothers == null) {
+			return;
+		}
+
+		float ratio = currentPost.index - Δx / thisView.displayMetrics.widthPixels;
+
+		if (ratio < 0) {
+			ratio = 0;
+		}
+		if (ratio > currentPost.brothers.size() - 1) {
+			ratio = currentPost.brothers.size() - 1;
+		}
+		thisView.mPagerSpring.setCurrentValue(ratio);
+		thisView.mPagerSpring.setEndValue(ratio);
+	}
+
 	class GestureListener extends SimpleOnGestureListener {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -610,6 +648,12 @@ public class HotController {
 
 					if (touchDownArea.area == touchDownArea.B) {
 						slidingList(velocityX);
+					} else if (touchDownArea.area == touchDownArea.A) {
+						if (velocityX > 0) {
+							flipPage("left");
+						} else {
+							flipPage("right");
+						}
 					}
 
 				} else {

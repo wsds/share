@@ -53,10 +53,13 @@ public class HotView {
 	public SpringConfig mid_config = SpringConfig.fromOrigamiTensionAndFriction(120, 12);
 	public SpringConfig slow_config = SpringConfig.fromOrigamiTensionAndFriction(60, 12);
 
+	public SpringConfig pager_config = SpringConfig.fromOrigamiTensionAndFriction(200, 15);
+
 	public BaseSpringSystem mSpringSystem = SpringSystem.create();
 	public Spring mOpenPostSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
 	public Spring mClosePostSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
 	public Spring mFoldCardSpring = mSpringSystem.createSpring().setSpringConfig(fast_config);
+	public Spring mPagerSpring = mSpringSystem.createSpring().setSpringConfig(pager_config);
 
 	public HotView(Activity activity) {
 		this.context = activity;
@@ -135,6 +138,11 @@ public class HotView {
 		mFoldCardSpring.setCurrentValue(1);
 		mFoldCardSpring.setEndValue(1);
 
+		PagerSpringListener mPagerSpringListener = new PagerSpringListener();
+		mPagerSpring.addListener(mPagerSpringListener);
+		mPagerSpring.setCurrentValue(1);
+		mPagerSpring.setEndValue(1);
+
 		data.hotMap.put(data.me.id, data.me);
 		setPost(data.me, null, 0);
 		setCardList(data.me);
@@ -179,6 +187,8 @@ public class HotView {
 
 		thisController.currentPost = setFullScreenPost(hot, parentHot, index);
 		Log.w(tag, "currentPost: " + thisController.currentPost.key);
+		mPagerSpring.setCurrentValue(index);
+		mPagerSpring.setEndValue(index);
 	}
 
 	public void setBackGroundPost(String key) {
@@ -245,7 +255,7 @@ public class HotView {
 				listIndex++;
 			}
 		}
-		if (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.Done) {
+		if (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.Done || thisController.eventStatus.state == thisController.eventStatus.FlipPage) {
 
 			this.mFoldCardSpring.setCurrentValue(0.2);
 			this.mFoldCardSpring.setEndValue(0.2);
@@ -265,6 +275,9 @@ public class HotView {
 		} else if (thisController.eventStatus.state == thisController.eventStatus.ClosePost) {
 			this.mFoldCardSpring.setCurrentValue(1);
 			this.mFoldCardSpring.setEndValue(1);
+		} else if (thisController.eventStatus.state == thisController.eventStatus.FlipPage) {
+			this.mFoldCardSpring.setCurrentValue(0);
+			this.mFoldCardSpring.setEndValue(0);
 		} else {
 			Log.d(tag, "error occurs in " + "setCardList");
 			thisController.logEventStatus();
@@ -281,10 +294,10 @@ public class HotView {
 			viewManage.postPool.putPost(hot.id, post);
 		} else {
 			if (parentHot != null) {
-				if (post.status.state == post.status.HIDE && thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+				if (post.status.state == post.status.HIDE && (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.FlipPage)) {
 					post.pushRelation();
 				}
-				if (post.status.state == post.status.SHOW && !post.key.equals(thisController.currentHot.id) && thisController.eventStatus.state == thisController.eventStatus.OpenPost) {
+				if (post.status.state == post.status.SHOW && !post.key.equals(thisController.currentHot.id) && (thisController.eventStatus.state == thisController.eventStatus.OpenPost || thisController.eventStatus.state == thisController.eventStatus.FlipPage)) {
 					post.setVisibility(View.INVISIBLE);
 					post.pushRelation();
 				}
@@ -447,6 +460,107 @@ public class HotView {
 			}
 			if (thisController.eventStatus.state == thisController.eventStatus.Fold) {
 				thisController.eventStatus.state = thisController.eventStatus.Done;
+			}
+		}
+	}
+
+	public class PagerSpringListener extends SimpleSpringListener {
+		@Override
+		public void onSpringUpdate(Spring spring) {
+			renderPager();
+		}
+
+		@Override
+		public void onSpringAtRest(Spring spring) {
+			if (thisController.eventStatus.state != thisController.eventStatus.FlipPage) {
+				return;
+			}
+			double value = mPagerSpring.getCurrentValue();
+			if (thisController.currentPost == null) {
+				viewManage.reportError(tag, 434);
+				return;
+			}
+			if (thisController.currentPost.brothers == null) {
+				viewManage.reportError(tag, 434);
+				return;
+			}
+			int nextIndex = (int) value;
+			String nextKey = thisController.currentPost.brothers.get(nextIndex);
+			PostBody nextPost = viewManage.postPool.getPost(nextKey);
+			if (nextPost != null) {
+				resolvePostsBeforeClose();
+
+				Hot nextHot = nextPost.hot;
+
+				PostBody parentPost = viewManage.postPool.getPost(nextPost.parent);
+				// or Hot parentHot = hotMap.get(post.parent);
+				Hot parentHot = null;
+				int index = 0;
+				if (parentPost != null) {
+					parentHot = parentPost.hot;
+					index = parentHot.children.indexOf(nextHot.id);
+				}
+				if (index != nextIndex) {
+					viewManage.reportError(tag, 499);
+					return;
+				}
+
+				setPost(nextHot, parentHot, nextIndex);
+				setCardList(nextHot);
+			}
+
+			thisController.eventStatus.state = thisController.eventStatus.Done;
+		}
+	}
+
+	public void renderPager() {
+		double value = mPagerSpring.getCurrentValue();
+		if (thisController.currentPost == null) {
+			viewManage.reportError(tag, 513);
+			return;
+		}
+
+		float x = 0;
+		x = (float) (-(value - thisController.currentPost.index) * displayMetrics.widthPixels);
+		thisController.currentPost.setXY(x, thisController.currentPost.y);
+
+		int brothersSize = 0;
+		if (thisController.currentPost.brothers != null) {
+			brothersSize = thisController.currentPost.brothers.size();
+		}
+		int index = thisController.currentPost.index;
+		PostBody leftPost = null;
+		PostBody rightPost = null;
+
+		if (index - 1 >= 0 && index - 1 < brothersSize) {
+			String leftKey = thisController.currentPost.brothers.get(thisController.currentPost.index - 1);
+			leftPost = viewManage.postPool.getPost(leftKey);
+		}
+		if (index + 1 >= 0 && index + 1 < brothersSize) {
+			String rightKey = thisController.currentPost.brothers.get(thisController.currentPost.index + 1);
+			rightPost = viewManage.postPool.getPost(rightKey);
+		}
+		if (x > 0) {
+			if (leftPost != null) {
+				leftPost.renderThis(0);
+				leftPost.setVisibility(View.INVISIBLE);
+				leftPost.setVisibility(View.VISIBLE);
+				leftPost.setXY(x - displayMetrics.widthPixels, leftPost.y);
+			}
+			if (rightPost != null) {
+				rightPost.setVisibility(View.INVISIBLE);
+			}
+
+		} else if (x < 0) {
+
+			if (rightPost != null) {
+				rightPost.renderThis(0);
+				rightPost.setVisibility(View.INVISIBLE);
+				rightPost.setVisibility(View.VISIBLE);
+				rightPost.setXY(x + displayMetrics.widthPixels, rightPost.y);
+			}
+			if (leftPost != null) {
+				leftPost.setVisibility(View.INVISIBLE);
 			}
 		}
 	}

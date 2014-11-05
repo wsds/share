@@ -3,6 +3,7 @@ package com.open.hot.view;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.open.lib.TouchView;
@@ -33,6 +34,10 @@ public class PostPool {
 		if (postBody != null && postBody.status.state != postBody.status.FREED) {
 			return postBody;
 		} else {
+			Log.e(tag, "getPost: null    " + key);
+			if (postBody != null) {
+				postBody.logPost();
+			}
 			return null;
 		}
 	}
